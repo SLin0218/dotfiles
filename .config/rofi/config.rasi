@@ -1,0 +1,20 @@
+configuration {
+	  modi:                       "drun,window,clipboard:~/.config/rofi/cliphist-rofi-img";
+    lines:                      10;
+    font:                       "JetBrainsMonoExtraBold Nerd Font 16";
+    show-icons:                 true;
+    icon-theme:                 "Papirus-Dark";
+    terminal:                   "alacritty";
+    drun-display-format:        "{icon} {name}";
+    location:                   0;
+    disable-history:            false;
+    hide-scrollbar:             true;
+    display-drun:               " 󰀻  Apps ";
+    display-run:                "   Run ";
+    display-window:             " 󰕰  Window";
+    display-network:            " 󰤨  Network";
+    display-clipboard:          " 󱘢  Clipboard";
+    sidebar-mode:               true;
+}
+
+@theme "catppuccin-mocha"

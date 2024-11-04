@@ -1,0 +1,45 @@
+#!/bin/sh
+# vim: set ft=sh :
+
+system_type=$(uname -s)
+
+# init fonts
+if [[ "$system_type" = "Linux" ]]; then
+
+  jet_dir="$HOME/.local/share/fonts/JetBrainsMono/"
+  jet_zip="$HOME/.local/share/fonts/JetBrainsMono.zip"
+  if [[ ! -d "$jet_dir" ]]; then
+    ehco "下载 JetBrainsMono 字体"
+    wget -q --show-progress "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip" -O "$jet_zip"
+    unzip "$jet_zip" -d "$jet_dir"
+    if [[ -f "$jet_zip" ]]; then
+      rm -f "$jet_zip"
+    fi
+  fi
+
+  jf_op="$HOME/.local/share/fonts/jf-openhuninn-2.1.ttf"
+  if [[ ! -e "$jf_op" ]]; then
+    wget -q --show-progress "https://github.com/justfont/open-huninn-font/releases/download/v2.1/jf-openhuninn-2.1.ttf" -O "$jf_op"
+  fi
+elif [[ "$system_type" = "Darwin" ]]; then
+
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "Installing homebrew"
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+  fi
+
+  cli_bin_array=('bat' 'eza' 'fd' 'fzf' 'neovim' 'neofetch' 'jq')
+  for cli_bin in "${bin_array[@]}"; do
+    if ! command -v "$cli_bin" >/dev/null 2>&1; then
+      echo "Installing $cli_bin"
+      brew install "$cli_bin"
+    fi
+  done
+
+fi
+
+# init oh-my-tmux
+if [[ ! -d $HOME/.config/tmux/oh-my-tmux ]]; then
+  echo "init oh my tmux"
+  $(cd "$HOME"/.config/tmux && git clone https://github.com/gpakosz/.tmux oh-my-tmux)
+fi

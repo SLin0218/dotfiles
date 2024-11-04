@@ -1,0 +1,3 @@
+#!/bin/bash
+SONG="$(mpc current)"
+notify-send -a Music -i ~/Downloads/360_F_454661277_NtQYM8oJq2wOzY1X9Y81FlFa06DVipVD.jpg "$SONG"

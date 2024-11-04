@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+
+import os
+import json
+
+current_activew_class = os.popen("hyprctl activewindow -j | jq '.class'").read().replace("\n", "")
+
+clients_j = os.popen(f"hyprctl clients -j").read()
+
+clients_obj = json.loads(clients_j)
+
+l = []
+for client in clients_obj:
+    l.append(l)
+
+with open(f"/tmp/window_switch_{current_activew_class}.json") as f:
+    f.readlines();
+    pass
+
+print(clients_obj)

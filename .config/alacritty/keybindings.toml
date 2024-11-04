@@ -1,0 +1,4 @@
+[keyboard]
+bindings = [
+  { key = "V", mods = "Command", action = "Paste" },
+]

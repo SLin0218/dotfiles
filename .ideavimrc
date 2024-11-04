@@ -1,0 +1,119 @@
+let mapleader = ' '
+let g:mapleader = ' '
+" nmap <cr> G
+set number
+set scrolloff=15                                                     " 在上下移动光标时，光标的上方或下方至少会保留显示的行数
+set relativenumber
+" 高亮搜索结果
+highlight searches
+" 系统剪切板
+set clipboard=unnamedplus
+" 自动切换输入法
+" :set keep-english-in-normal "开启输入法自动切换功能
+":set keep-english-in-normal-and-restore-in-insert " 回到insert模式时恢复输入法
+" :set nokeep-english-in-normal-and-restore-in-insert " 保留输入法自动切换功能，但是回到insert模式不恢复输入法
+":set nokeep-english-in-normal "关闭输入法自动切换功能
+
+set sneak
+" 目录插件
+Plug 'preservim/nerdtree'
+set NERDTree
+" 跳转插件
+Plug 'easymotion/vim-easymotion'
+" 多光标插件
+Plug 'terryma/vim-multiple-cursors'
+" <A-n> 开始多选/下一个关键字
+" <A-x> 跳过选择
+" <A-p> 上一个关键字
+" g<A-n> https://youtrack.jetbrains.com/issue/VIM-1942 好像不起作用
+
+" 包围插件
+set surround
+" ysw[     Hello world! => [Hello] world!         根据移动添加包围
+" cs"(     "Hello world!" => (Hello world!)       替换包围
+" ds"      "Hello world!" => Hello world!         删除包围
+" S                                               可视模式下，选中的添加包围
+
+" 打开版本控制窗口
+map <leader>git <Action>(ActivateVersionControlToolWindow)
+
+map <leader>db <Action>(ActivateDatabaseToolWindow)
+" debug 运行
+map <leader>run <Action>(DebugClass)
+" 运行配置
+map <leader>rc <Action>(ChooseDebugConfiguration)
+" 跳转到声明处
+map <leader>gu <Action>(GotoDeclaration)
+" 当前文件成员列表
+map <leader>nm <Action>(FileStructurePopup)
+" 跳转到实现类
+map <leader>gm <Action>(GotoImplementation)
+" 跳转到父类
+map <leader>gp <Action>(GotoSuperMethod)
+" 层级关系
+map <leader>mh <Action>(ActivateStructureToolWindow)
+" 上一个方法
+map <leader>mp <Action>(MethodUp)
+" 下一个方法
+map <leader>mn <Action>(MethodDown)
+" 上一处修改
+map <leader>vp <Action>(VcsShowPrevChangeMarker)
+" 下一处修改
+map <leader>vn <Action>(VcsShowNextChangeMarker)
+" 上一个错误
+map <leader>ep <Action>(GotoPreviousError)
+" 下一个错误
+map <leader>en <Action>(GotoNextError)
+" 下一个使用高亮
+map <leader>nn <Action>(GotoNextElementUnderCaretUsage)
+" 上一个使用高亮
+map <leader>np <Action>(GotoPrevElementUnderCaretUsage)
+
+" 重命名
+map <leader>rn <Action>(RenameElement)
+
+" 关闭未修改 tab
+map <leader>cu <Action>(CloseAllUnmodifiedEditors)
+
+" 切换分屏窗口
+map <C-h> <Action>(PrevSplitter)
+map <C-l> <Action>(NextSplitter)
+map <C-p> <Action>(MoveEditorToOppositeTabGroup)
+
+" 构建菜单
+map <leader>b <Action>(BuildMenu)
+map <C-r> <Action>(ChooseRunConfiguration)
+
+map <leader>x :bd<cr>
+
+map <leader>md <Action>(ToggleDistractionFreeMode)
+map <leader>ss <Action>(SelectInProjectView)
+
+" 调试
+map <leader>ee <Action>(BreakpointActionsGroup)
+map <leader>ed <Action>(ActivateDebugToolWindow)
+map <leader>er <Action>(ChooseDebugConfiguration)
+map <leader>eh <Action>(Resume)
+map <leader>ej <Action>(StepInto)
+map <leader>ek <Action>(StepOut)
+map <leader>el <Action>(StepOver)
+
+" 书签
+map <leader>mm <Action>(ToggleBookmark)
+map <leader>mn <Action>(Bookmarks)
+map <leader>ms <Action>(ShowBookmarks)
+map <leader>m0 <Action>(ToggleBookmark0)
+map <leader>m1 <Action>(ToggleBookmark1)
+map <leader>m2 <Action>(ToggleBookmark2)
+map <leader>m3 <Action>(ToggleBookmark3)
+map <leader>m4 <Action>(ToggleBookmark4)
+map <leader>m5 <Action>(ToggleBookmark5)
+map <leader>m6 <Action>(ToggleBookmark6)
+map <leader>m7 <Action>(ToggleBookmark7)
+map <leader>m8 <Action>(ToggleBookmark8)
+map <leader>m9 <Action>(ToggleBookmark9)
+
+map <leader>q <Action>(StartStopMacroRecording)
+map @ <Action>(PlaySavedMacrosAction)
+map @@ <Action>(PlaybackLastMacro)
+map <leader>qe <Action>(EditMacros)

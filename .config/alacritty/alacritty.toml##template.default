@@ -1,0 +1,42 @@
+[general]
+import = [
+  "~/.config/alacritty/catppuccin-mocha.toml",
+  "~/.config/alacritty/keybindings.toml",
+]
+
+[env]
+TERM = "xterm-256color"
+
+[font]
+{% if yadm.os == "Darwin" %}
+size = 14.0
+{% else %}
+size = 12.0
+{% endif %}
+# normal = { family = "Noto Sans CJK SC", style = "Regular" }
+normal = { family = "JetbrainsMono Nerd Font", style = "Regular" }
+bold = { family = "JetbrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetbrainsMono Nerd Font", style = "Italic" }
+
+[selection]
+save_to_clipboard = true
+semantic_escape_chars = ",│`|:\"' ()[]{}<>"
+
+[cursor]
+style = { shape = "Underline", blinking = "Always" }
+unfocused_hollow = true
+thickness = 0.3
+
+[window]
+opacity = 1.0
+padding = { x = 30, y = 30 }
+dimensions = { columns = 100, lines = 30 }
+decorations = "Buttonless"
+startup_mode = "Maximized"
+option_as_alt = "Both"
+
+[debug]
+log_level = "OFF"
+persistent_logging = false
+print_events = false
+render_timer = false

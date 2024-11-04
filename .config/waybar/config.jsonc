@@ -1,0 +1,72 @@
+[
+  {
+    "layer": "top",
+    "position": "top",
+    "output": "DP-4",
+    "mode": "dock",
+    "margin-left": 20,
+    "margin-right": 20,
+    "margin-top": 7,
+    "margin-bottom": 0,
+    "reload_style_on_change": true,
+    "include": [
+      "~/.config/waybar/default-modules.jsonc"
+    ],
+    "modules-left": [
+      "custom/logo",
+      "hyprland/workspaces"
+    ],
+    "modules-center": [
+      "hyprland/window"
+    ],
+    "modules-right": [
+      //    "custom/weather",
+      "pulseaudio#2",
+      "pulseaudio/slider",
+      "tray",
+      "network",
+      "cpu",
+      "memory",
+      "temperature",
+      "backlight",
+      "bluetooth",
+      "battery",
+      "clock",
+      "custom/notifications"
+    ]
+  },
+  {
+    "layer": "top",
+    "position": "top",
+    "output": "eDP-1",
+    "margin-left": 20,
+    "margin-right": 20,
+    "margin-top": 7,
+    "margin-bottom": 0,
+    "reload_style_on_change": true,
+    "mode": "dock",
+    "include": [
+      "~/.config/waybar/default-modules.jsonc"
+    ],
+    "modules-left": [
+      "custom/logo",
+      "hyprland/workspaces"
+    ],
+    "modules-center": [
+      "mpd"
+    ],
+    "modules-right": [
+      "tray",
+      "network",
+      "pulseaudio",
+      "backlight",
+      "cpu",
+      "memory",
+      "temperature",
+      "bluetooth",
+      "battery",
+      "clock",
+      "custom/notifications"
+    ]
+  }
+]

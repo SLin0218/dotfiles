@@ -1,0 +1,234 @@
+{
+  "tray": {
+    "spacing": 10
+  },
+  "clock": {
+    "tooltip-format": "{:%Y-%m-%d | %H:%M}",
+    "format": "{:%H:%M}",
+    "format-alt": "{:%Y-%m-%d}"
+  },
+  "cpu": {
+    "interval": 1,
+    "format": " {usage}"
+  },
+  "memory": {
+    "interval": 1,
+    "format": " {percentage}"
+  },
+  "temperature": {
+    "thermal-zone": 2,
+    "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+    "critical-threshold": 80,
+    "format": "{icon}{temperatureC}",
+    "format-critical": "{icon}{temperatureC}",
+    "format-icons": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  "battery": {
+    "bat": "BAT0",
+    "battery": "AC",
+    "interval": 60,
+    "states": {
+      "warning": 50,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}",
+    "format-icons": {
+      "full": [
+        "󰂅"
+      ],
+      "charging": [
+        "󰢜",
+        "󰂆",
+        "󰂇",
+        "󰂈",
+        "󰢝",
+        "󰂉",
+        "󰢞",
+        "󰂊",
+        "󰂋",
+        "󰂅"
+      ],
+      "discharging": [
+        "󰁺",
+        "󰁻",
+        "󰁼",
+        "󰁽",
+        "󰁾",
+        "󰁿",
+        "󰂀",
+        "󰂁",
+        "󰂂",
+        "󰁹"
+      ]
+    },
+    "max-length": 25
+  },
+  "network": {
+    "format-wifi": "{icon}",
+    "format-ethernet": "󰌘",
+    "format-disconnected": "󰤮",
+    "format-icons": [
+      "󰤟",
+      "󰤢",
+      "󰤥",
+      "󰤨"
+    ]
+  },
+  "custom/weather": {
+    "format": "{}",
+    "interval": 3600,
+    "escape": true,
+    "exec": "curl -Ss 'https://wttr.in/GuangZhou?0&T&Q&format=1'"
+  },
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "active": "",
+      "default": "",
+      "empty": ""
+    },
+    "persistent-workspaces": {
+      "*": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    "format-active": " {icon} "
+  },
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "", // an empty format will hide the module
+    "format-connected": "",
+    "tooltip-format": "{controller_alias}\t{controller_address}",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}"
+  },
+  "pulseaudio": {
+    "scroll-step": 1,
+    "format": "{icon} {volume}",
+    "format-bluetooth": "{icon}",
+    "format-muted": "󰖁",
+    "format-icons": {
+      "headphones": "",
+      "handsfree": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": [
+        "󰕿",
+        "󰖀",
+        "󰖀",
+        "󰕾",
+        "󰕾"
+      ]
+    },
+    "on-click": "pavucontrol"
+  },
+  "pulseaudio#2": {
+    "scroll-step": 1,
+    "format": "{icon} ",
+    "format-bluetooth": "{icon}",
+    "format-muted": "󰖁",
+    "format-icons": {
+      "headphones": "",
+      "handsfree": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": [
+        "󰕿",
+        "󰖀",
+        "󰖀",
+        "󰕾",
+        "󰕾"
+      ]
+    },
+    "on-click": "pavucontrol"
+  },
+  "pulseaudio/slider": {
+    "min": 5,
+    "max": 100,
+    "rotate": 0,
+    "device": "pulseaudio",
+    "scroll-step": 1
+  },
+  "custom/logo": {
+    "format": " ",
+    "tooltip": false
+  },
+  "backlight": {
+    "device": "intel_backlight",
+    "format": "{icon} {percent}",
+    "format-icons": [
+      "󰃞",
+      "󰃝",
+      "󰃟",
+      "󰃠"
+    ]
+  },
+  "custom/notifications": {
+    "tooltip": true,
+    "format": "{icon} ",
+    "format-icons": {
+      "email-notification": "<span foreground='white'><sup></sup></span>",
+      "chat-notification": "󱋊<span foreground='white'><sup></sup></span>",
+      "warning-notification": "󱨪<span foreground='yellow'><sup></sup></span>",
+      "error-notification": "󱨪<span foreground='red'><sup></sup></span>",
+      "network-notification": "󱂇<span foreground='white'><sup></sup></span>",
+      "battery-notification": "󰁺<span foreground='white'><sup></sup></span>",
+      "update-notification": "󰚰<span foreground='white'><sup></sup></span>",
+      "music-notification": "󰝚<span foreground='white'><sup></sup></span>",
+      "volume-notification": "󰕿<span foreground='white'><sup></sup></span>",
+      "notification": "<span foreground='white'><sup></sup></span>",
+      "none": ""
+    },
+    "return-type": "json",
+    "exec-if": "which dunstctl",
+    "exec": "$HOME/.local/scripts/notification 2> /dev/null",
+    "on-click": "sleep 0.1 && dunstctl history-pop",
+    //"on-click-middle": "dunstctl history-clear",
+    "on-click-right": "dunstctl history-clear",
+    "restart-interval": 1
+  },
+  "mpd": {
+    "format": "{stateIcon} {consumeIcon}{repeatIcon}{singleIcon}{artist} - {title} {elapsedTime:%M:%S}/{totalTime:%M:%S} ",
+    "format-disconnected": "Disconnected ",
+    "format-stopped": "{consumeIcon}{repeatIcon}{singleIcon}Stopped ",
+    "interval": 10,
+    "consume-icons": {
+      "on": " " // Icon shows only when "consume" is on
+    },
+    "random-icons": {
+      "off": "<span color=\"#f53c3c\"></span> ", // Icon grayed out when "random" is off
+      "on": " "
+    },
+    "repeat-icons": {
+      "on": " "
+    },
+    "single-icons": {
+      "on": "1 "
+    },
+    "state-icons": {
+      "paused": "",
+      "playing": ""
+    },
+    "tooltip-format": "MPD (connected)",
+    "tooltip-format-disconnected": "MPD (disconnected)"
+  }
+}

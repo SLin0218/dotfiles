@@ -1,0 +1,4 @@
+gtk-icon-theme-name = "Papirus-Dark"
+gtk-theme-name = "catppuccin-mocha-yellow-standard+default"
+gtk-cursor-theme-name = "Empty-Butterfly-Magenta-vr6"
+gtk-im-module="fcitx"
