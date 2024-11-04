@@ -9,7 +9,7 @@ if [[ "$system_type" = "Linux" ]]; then
   jet_dir="$HOME/.local/share/fonts/JetBrainsMono/"
   jet_zip="$HOME/.local/share/fonts/JetBrainsMono.zip"
   if [[ ! -d "$jet_dir" ]]; then
-    ehco "下载 JetBrainsMono 字体"
+    echo "下载 JetBrainsMono 字体"
     wget -q --show-progress "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip" -O "$jet_zip"
     unzip "$jet_zip" -d "$jet_dir"
     if [[ -f "$jet_zip" ]]; then
