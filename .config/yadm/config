@@ -3,3 +3,5 @@
 	ff = only
 [yadm]
 	gpg-recipient = EAA4CBBEADF1CA7594FE90FECAA62AE93FFBE069
+[user]
+	signingkey = CAA62AE93FFBE069
