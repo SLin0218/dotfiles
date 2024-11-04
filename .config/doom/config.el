@@ -21,7 +21,7 @@
       ;; 隐藏 title bar
       default-frame-alist '((undecorated . t))
       ;; 默认字体
-      doom-font (font-spec :family "CaskaydiaCove Nerd Font Mono" :size (if is-mac 16 16)))
+      doom-font (font-spec :family "Cascadia Mono NF" :size (if is-mac 14 16)))
 
 (setq fancy-splash-image "~/.config/doom/gnu_color.svg")
 (setq +doom-dashboard-menu-sections nil)
@@ -88,7 +88,7 @@
 
 (when (display-graphic-p)
 (setq-default prettify-symbols-alist '(("#+title:" . "📖")
-                                       ("#+author:" . "👦🏻")
+                                       ("#+author:" . "👦")
                                        ("#+caption:" . "☰")
                                        ("#+results:" . "🎁")
                                        ("#+attr_latex:" . "🍄")
@@ -106,7 +106,8 @@
                                        ("#+BEGIN_Highlight" . "📖")
                                        ("#+END_Highlight" . "📜")
                                        ("#+begin_src" . "⏩")
-                                       ("#+end_src" . "⏪"))))
+                                       ("#+end_src" . "⏪")))
+)
 
 
 (add-hook! 'org-mode-hook 'prettify-symbols-mode)

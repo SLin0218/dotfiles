@@ -1,0 +1,10 @@
+.m2/settings*default
+.ssh/config
+.local/scripts/clash-subscribe/main.py
+.local/scripts/um-qq
+.local/scripts/mount.sh
+.local/scripts/ver
+.local/scripts/translate/*.py
+.local/scripts/verification/verification.py
+.local/scripts/verification.py
+.local/scripts/releases
