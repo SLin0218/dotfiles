@@ -21,7 +21,7 @@
       ;; 隐藏 title bar
       default-frame-alist '((undecorated . t))
       ;; 默认字体
-      doom-font (font-spec :family "Cascadia Mono NF" :size (if is-mac 14 16)))
+      doom-font (font-spec :family "JetbrainsMono Nerd Font" :size (if is-mac 14 16)))
 
 (setq fancy-splash-image "~/.config/doom/gnu_color.svg")
 (setq +doom-dashboard-menu-sections nil)
