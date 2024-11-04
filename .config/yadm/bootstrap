@@ -8,7 +8,8 @@ if [[ "$system_type" = "Linux" ]]; then
 
   jet_dir="$HOME/.local/share/fonts/JetBrainsMono/"
   jet_zip="$HOME/.local/share/fonts/JetBrainsMono.zip"
-  if [[ ! -d "$jet_dir" ]]; then
+  jetbrains_font_list_count=$(fc-list : family | grep JetBrains | wc -l)
+  if [[ ! -d "$jet_dir" && $jetbrains_font_list_count -le 0 ]]; then
     echo "下载 JetBrainsMono 字体"
     wget -q --show-progress "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip" -O "$jet_zip"
     unzip "$jet_zip" -d "$jet_dir"
@@ -18,7 +19,8 @@ if [[ "$system_type" = "Linux" ]]; then
   fi
 
   jf_op="$HOME/.local/share/fonts/jf-openhuninn-2.1.ttf"
-  if [[ ! -e "$jf_op" ]]; then
+  jf_op_list_count=$(fc-list : family | grep openhuninn | wc -l)
+  if [[ ! -e "$jf_op" && $jf_op_list_count -le 0 ]]; then
     wget -q --show-progress "https://github.com/justfont/open-huninn-font/releases/download/v2.1/jf-openhuninn-2.1.ttf" -O "$jf_op"
   fi
 elif [[ "$system_type" = "Darwin" ]]; then
