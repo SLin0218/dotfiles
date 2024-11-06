@@ -2,6 +2,41 @@
   {
     "layer": "top",
     "position": "top",
+    "output": "eDP-1",
+    "margin-left": 20,
+    "margin-right": 20,
+    "margin-top": 7,
+    "margin-bottom": 0,
+    "reload_style_on_change": true,
+    "mode": "dock",
+    "include": [
+      "~/.config/waybar/default-modules.jsonc"
+    ],
+    "modules-left": [
+      "custom/logo",
+      "hyprland/workspaces",
+      "hyprland/submap"
+    ],
+    "modules-center": [
+      "mpd"
+    ],
+    "modules-right": [
+      "tray",
+      "network",
+      "pulseaudio",
+      "backlight",
+      "cpu",
+      "memory",
+      "temperature",
+      "bluetooth",
+      "battery",
+      "clock",
+      "custom/notifications"
+    ]
+  },
+  {
+    "layer": "top",
+    "position": "top",
     "output": "DP-4",
     "mode": "dock",
     "margin-left": 20,
@@ -38,31 +73,36 @@
   {
     "layer": "top",
     "position": "top",
-    "output": "eDP-1",
+    "output": "HDMI-A-1",
+    "mode": "dock",
     "margin-left": 20,
     "margin-right": 20,
     "margin-top": 7,
     "margin-bottom": 0,
     "reload_style_on_change": true,
-    "mode": "dock",
     "include": [
       "~/.config/waybar/default-modules.jsonc"
     ],
     "modules-left": [
       "custom/logo",
-      "hyprland/workspaces"
+      "hyprland/workspaces",
+      "hyprland/submap"
     ],
     "modules-center": [
-      "mpd"
+      "hyprland/window"
     ],
     "modules-right": [
+      //    "custom/weather",
+      "pulseaudio#2",
+      "pulseaudio/slider",
+      "backlight#2",
+      "backlight/slider",
       "tray",
       "network",
-      "pulseaudio",
-      "backlight",
       "cpu",
       "memory",
       "temperature",
+      "backlight",
       "bluetooth",
       "battery",
       "clock",

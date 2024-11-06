@@ -182,6 +182,22 @@
       "󰃠"
     ]
   },
+  "backlight#2": {
+    "device": "intel_backlight",
+    "format": "{icon} ",
+    "format-icons": [
+      "󰃞",
+      "󰃝",
+      "󰃟",
+      "󰃠"
+    ]
+  },
+  "backlight/slider": {
+    "min": 0,
+    "max": 100,
+    "orientation": "horizontal",
+    "device": "intel_backlight"
+  },
   "custom/notifications": {
     "tooltip": true,
     "format": "{icon} ",
@@ -230,5 +246,10 @@
     },
     "tooltip-format": "MPD (connected)",
     "tooltip-format-disconnected": "MPD (disconnected)"
+  },
+  "hyprland/submap": {
+    "format": "✌️ {}",
+    "max-length": 15,
+    "tooltip": false
   }
 }
