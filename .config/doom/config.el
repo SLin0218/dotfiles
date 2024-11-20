@@ -49,42 +49,58 @@
 
 (after! org
   ;; 完成时删除样式
-  (set-face-attribute 'org-headline-done nil :strike-through t))
+  (set-face-attribute 'org-headline-done nil :strike-through t)
+  ;; 代码块缩进
+  (setq org-src-tab-acts-natively t)
+  (setq org-src-preserve-indentation nil)
+  (setq org-fontify-quote-and-verse-blocks t)
+  (custom-set-faces!
+    '(org-document-title :height 1.2)))
 
 (use-package org
   :custom
-  (org-todo-keywords '((sequence "TODO" "NEXT" "WAITING" "CANCELLED" "DONE")))
   (org-pretty-entities t)
   ;; 自动标记完成时间
   (org-log-done t)
   ;; 行间距
   (line-spacing 0.25)
   :config
+  ;; org缩进
+  (setq org-startup-indented t)
+  (setq org-src-tab-acts-natively t)
   ;; 导出 html 配置
   (setq org-ellipsis " ⤵")          ; 折叠缩略图标
   (setq org-html-coding-system 'utf-8)
   (setq org-html-doctype "html5")
   (setq org-html-head "<link rel='stylesheet' type='text/css' href='https://gongzhitaao.org/orgcss/org.css'/> ")
+  (setq org-appear-autoemphasis t)
+  (setq  org-appear-autolinks nil)
   (setq org-hide-emphasis-markers t) ; 隐藏 ~~ ==
-  (setq org-todo-keywords '((sequence "TODO" "DOING" "DONE" "WAITING" "CANCELLED" "HOLD"))))
+  (setq org-time-stamp-formats '("<%Y-%m-%d %a %H:%M:%S>" . "<%Y-%m-%d %a %H:%M:%S>"))
+  (setq org-todo-keywords '((sequence "TODO" "NEXT" "DOING" "WAITING" "CANCELLED" "DONE")))
+  (setq org-todo-keyword-faces
+    '(("TODO" :foreground "#94e2d5")
+      ("NEXT" :foreground "#94e2d5")
+      ("DOING" :foreground "#94e2d5")
+      ("WAITING" :foreground "#bac2de")
+      ("DONE" :foreground "#a6e3a1")
+      ("CANCELLED" :foreground "#6c7086")))
+  )
 
-(use-package org-superstar
-  :after org
-  :hook (org-mode . org-superstar-mode)
-  :custom
-  (org-superstar-headline-bullets-list '("⁖" "◉" "○" "✸" "✿"))
-  (org-superstar-todo-bullet-alist '(("TODO" . ?☐)
-                                     ("NEXT" . ?✒)
-                                     ("HOLD" . ?✰)
-                                     ("WAITING" . ?☕)
+(after! org-superstar
+  (setq org-superstar-headline-bullets-list '("◉" "◈" "○" "▷"))
+  (setq org-superstar-todo-bullet-alist '(("TODO" . ?)
+                                     ("NEXT" . ?)
+                                     ("HOLD" . ?󰙧)
+                                     ("WAITING" . ?󰖺)
                                      ("CANCELLED" . ?✘)
-                                     ("DONE" . ?✔)))
-  (org-superstar-item-bullet-alist '((?* . ?•)
+                                     ("DONE" . ?)))
+  (setq org-superstar-item-bullet-alist '((?* . ?•)
                                      (?+ . ?➤)
                                      (?- . ?•)))
-  (org-superstar-special-todo-items t)
-  (org-superstar-remove-leading-stars t)
-  (org-hide-leading-stars t))
+  (setq org-superstar-special-todo-items t)
+  (setq org-superstar-remove-leading-stars t))
+
 
 (when (display-graphic-p)
 (setq-default prettify-symbols-alist '(("#+title:" . "📖")
@@ -117,3 +133,80 @@
 (map! :leader
       "/" #'comment-line
       "x" #'kill-current-buffer)
+
+(require 'org-super-agenda)
+(setq spacemacs-theme-org-agenda-height nil
+      org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-include-deadlines t
+      ;; org-agenda-include-diary t
+      org-agenda-block-separator nil
+      org-agenda-compact-blocks t
+      org-agenda-start-with-log-mode t)
+
+
+(setq org-agenda-custom-commands
+      '(("z" "Super zaen view"
+         ((agenda "" ((org-agenda-span 'day)
+                      (org-super-agenda-groups
+                       '((:name "Today"
+                                :time-grid t
+                                :date today
+                                :todo "TODAY"
+                                :scheduled today
+                                :order 1)))))
+          (alltodo "" ((org-agenda-overriding-header "")
+                       (org-super-agenda-groups
+                        '((:name "Next to do"
+                                 :todo "NEXT"
+                                 :order 1)
+                          (:name "Important"
+                                 :tag "Important"
+                                 :priority "A"
+                                 :order 6)
+                          (:name "Due Today"
+                                 :deadline today
+                                 :order 2)
+                          (:name "Due Soon"
+                                 :deadline future
+                                 :order 8)
+                          (:name "Overdue"
+                                 :deadline past
+                                 :order 7)
+                          (:name "Assignments"
+                                 :tag "Assignment"
+                                 :order 10)
+                          (:name "Issues"
+                                 :tag "Issue"
+                                 :order 12)
+                          (:name "Projects"
+                                 :tag "Project"
+                                 :order 14)
+                          (:name "Emacs"
+                                 :tag "Emacs"
+                                 :order 13)
+                          (:name "Research"
+                                 :tag "Research"
+                                 :order 15)
+                          (:name "To read"
+                                 :tag "Read"
+                                 :order 30)
+                          (:name "Waiting"
+                                 :todo "WAITING"
+                                 :order 20)
+                          (:name "trivial"
+                                 :priority<= "C"
+                                 :tag ("Trivial" "Unimportant")
+                                 :todo ("SOMEDAY" )
+                                 :order 90)
+                          (:discard (:tag ("Chore" "Routine" "Daily")))))))))))
+
+(with-eval-after-load 'org-agenda
+  (setq org-agenda-time-grid
+        '((daily today remove-match)  ; 每日时间网格
+          (800 1000 1200 1400 1600 1800)  ; 每小时细分
+          "------"  ; 时间网格的分隔线
+          "   "))  ; 填充字符
+)
+
+(org-super-agenda-mode t)

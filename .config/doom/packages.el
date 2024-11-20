@@ -50,4 +50,4 @@
 ;; (unpin! t)
 
 (package! catppuccin-theme)
-(package! org-superstar)
+(package! org-super-agenda)
