@@ -240,71 +240,102 @@ tmux_conf_24b_colour=true
 # tmux_conf_theme_status_right_attr="none,none,bold"
 
 #--> Catppuccin
-thm_bg="#1e1d2f"
-thm_fg="#dadae8"
-thm_cyan="#c2e7f0"
-thm_black="#15121c"
-thm_gray="#332e41"
-thm_magenta="#c6aae8"
-thm_pink="#e5b4e2"
-thm_red="#e38c8f"
-thm_green="#b1e3ad"
-thm_yellow="#ebddaa"
-thm_blue="#a4b9ef"
-thm_orange="#f9c096"
-thm_black4="#45475a"
+# thm_bg="#1e1d2f"
+# thm_fg="#dadae8"
+# thm_cyan="#c2e7f0"
+# thm_black="#15121c"
+# thm_gray="#332e41"
+# thm_magenta="#c6aae8"
+# thm_pink="#e5b4e2"
+# thm_red="#e38c8f"
+# thm_green="#b1e3ad"
+# thm_yellow="#ebddaa"
+# thm_blue="#a4b9ef"
+# thm_orange="#f9c096"
+# thm_black4="#45475a"
+
+# --> Catppuccin (Latte)
+thm_bg="#eff1f5"
+thm_fg="#4c4f69"
+
+thm_flamingo="#dd7878"
+thm_rosewater="#dc8a78"
+thm_pink="#ea76cb"
+thm_mauve="#8839ef"
+thm_red="#d20f39"
+thm_maroon="#e64553"
+thm_peach="#fe640b"
+thm_yellow="#df8e1d"
+thm_green="#40a02b"
+thm_teal="#179299"
+thm_sky="#04a5e5"
+thm_sapphire="#209fb5"
+thm_blue="#1e66f5"
+thm_lavender="#7287fd"
+
+# Surfaces and overlays
+thm_subtext_1="#6c6f85"
+thm_subtext_0="#5c5f77"
+thm_overlay_2="#7c7f93"
+thm_overlay_1="#8c8fa1"
+thm_overlay_0="#9ca0b0"
+thm_surface_2="#acb0be"
+thm_surface_1="#bcc0cc"
+thm_surface_0="#ccd0da"
+thm_mantle="#e6e9ef"
+thm_crust="#dce0e8"
 
 # ----------------------------=== Theme ===--------------------------
 
 # status
-# tmux_conf_theme_status_bg="${thm_bg}"
+tmux_conf_theme_status_bg="${thm_bg}"
 # 背景透明效果
-tmux_conf_theme_status_bg=default
+# tmux_conf_theme_status_bg=default
 # tmux_conf_theme_status_bg="${thm_gray}"
 
 # messages
 tmux_conf_theme_message_fg="${thm_cyan}"
-tmux_conf_theme_message_bg="${thm_gray}"
+tmux_conf_theme_message_bg="${thm_bg}"
 tmux_conf_theme_message_attr="bold"
 
 tmux_conf_theme_message_command_fg="${thm_cyan}"
-tmux_conf_theme_message_command_bg="${thm_gray}"
+tmux_conf_theme_message_command_bg="${thm_bg}"
 tmux_conf_theme_message_command_attr="bold"
 
 # panes
-tmux_conf_theme_pane_border="${thm_gray}"
+tmux_conf_theme_pane_border="${thm_bg}"
 tmux_conf_theme_pane_active_border="${thm_blue}"
 
 # windows
 tmux_conf_theme_window_status_activity_fg="${thm_fg}"
-tmux_conf_theme_window_status_activity_bg="${thm_gray}"
+tmux_conf_theme_window_status_activity_bg="${thm_bg}"
 tmux_conf_theme_window_status_activity_attr=none
 
-tmux_conf_theme_left_separator_main=""
-tmux_conf_theme_left_separator_sub=""
-# tmux_conf_theme_right_separator_main="#[bg=$thm_yellow]"
-# tmux_conf_theme_right_separator_sub="#[bg=$thm_yellow]"
+tmux_conf_theme_status_left_fg="${thm_bg}"
+tmux_conf_theme_status_left_bg="${thm_lavender}"
+tmux_conf_theme_status_right_fg="${thm_fg}"
+tmux_conf_theme_status_right_bg="${thm_bg}"
 
 
 tmux_conf_theme_window_status_fg="${thm_fg}"
-tmux_conf_theme_window_status_bg="${thm_gray}"
+tmux_conf_theme_window_status_bg="${thm_bg}"
 tmux_conf_theme_window_status_attr="none"
 
 # current tab
-tmux_conf_theme_window_status_current_fg="${thm_black}"
-tmux_conf_theme_window_status_current_bg="${thm_green}"
+tmux_conf_theme_window_status_current_fg="${thm_green}"
+tmux_conf_theme_window_status_current_bg="${thm_surface_0}"
 tmux_conf_theme_window_status_current_attr="bold"
 
 # last tab
 tmux_conf_theme_window_status_last_fg="${thm_fg}"
-tmux_conf_theme_window_status_last_bg="${thm_gray}"
+tmux_conf_theme_window_status_last_bg="${thm_bg}"
 tmux_conf_theme_window_status_last_attr="none"
 
 # -------=== Statusline
-tmux_conf_theme_window_status_current_format="#[fg=$thm_black,bg=$thm_green]#I. #(printf "%%-10s" #W)"
+tmux_conf_theme_window_status_current_format="#I #(printf "%%-10s" #W)"
 tmux_conf_theme_window_status_format="#I #(printf "%%-15s" #W)"
-tmux_conf_theme_status_left="#[bg=$thm_red]   #[bg=$thm_red]"
-tmux_conf_theme_status_right="#{prefix_highlight} #[fg=$thm_pink,bg=$thm_bg,nobold,nounderscore,noitalics]#[fg=$thm_bg,bg=$thm_pink,nobold,nounderscore,noitalics]  #[fg=$thm_fg,bg=$thm_gray] #W #{?client_prefix,#[fg=$thm_red],#[fg=$thm_green]}#[bg=$thm_gray]#{?client_prefix,#[bg=$thm_red],#[bg=$thm_green]} #[fg=$thm_bg] #[fg=$thm_fg,bg=$thm_gray] #S "
+tmux_conf_theme_status_left="#{?pane_in_mode,#[bg=$thm_mauve]  VIM ,  TMUX }"
+tmux_conf_theme_status_right="#{prefix} #[fg=$thm_fg,bg=$thm_surface_0]  #S "
 
 set -Fg 'status-format[1]' ''
 set -g status 2
@@ -324,10 +355,10 @@ tmux_conf_theme_mode_attr="bold"
 # tmux_conf_theme_pairing_attr="none"
 
 # prefix indicator
-# tmux_conf_theme_prefix="⌨"                  # U+2328
-# tmux_conf_theme_prefix_fg="none"
-# tmux_conf_theme_prefix_bg="none"
-# tmux_conf_theme_prefix_attr="none"
+tmux_conf_theme_prefix="⌨"                  # U+2328
+tmux_conf_theme_prefix_fg="none"
+tmux_conf_theme_prefix_bg="none"
+tmux_conf_theme_prefix_attr="none"
 
 # mouse indicator
 # tmux_conf_theme_mouse="↗"                   # U+2197
@@ -473,7 +504,7 @@ set -g @continuum-restore 'on'
 set -g @jump-key 's'
 set -g @plugin 'tmux-plugins/tmux-prefix-highlight'
 set -g @prefix_highlight_show_copy_mode 'on'
-set -g @prefix_highlight_copy_mode_attr 'fg=red'
+set -g @prefix_highlight_copy_mode_attr 'fg=blue'
 
 
 # -- custom variables ----------------------------------------------------------
