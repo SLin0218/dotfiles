@@ -9,7 +9,7 @@
   },
   "cpu": {
     "interval": 1,
-    "format": " {usage}"
+    "format": " {usage} {avg_frequency}"
   },
   "memory": {
     "interval": 1,
@@ -121,7 +121,7 @@
     "scroll-step": 1,
     "format": "{icon} {volume}",
     "format-bluetooth": "{icon}",
-    "format-muted": "󰖁",
+    "format-muted": "󰖁 ",
     "format-icons": {
       "headphones": "",
       "handsfree": "",
@@ -223,9 +223,9 @@
     "restart-interval": 1
   },
   "mpd": {
-    "format": "{stateIcon} {consumeIcon}{repeatIcon}{singleIcon}{artist} - {title} {elapsedTime:%M:%S}/{totalTime:%M:%S} ",
+    "format": "{stateIcon} {consumeIcon}{repeatIcon}{singleIcon} {title} ",
     "format-disconnected": "Disconnected ",
-    "format-stopped": "{consumeIcon}{repeatIcon}{singleIcon}Stopped ",
+    "format-stopped": "",
     "interval": 10,
     "consume-icons": {
       "on": " " // Icon shows only when "consume" is on
@@ -246,6 +246,11 @@
     },
     "tooltip-format": "MPD (connected)",
     "tooltip-format-disconnected": "MPD (disconnected)"
+  },
+  "custom/playing": {
+    "format": "{}",
+    "interval": 2,
+    "exec": "$HOME/.config/waybar/scripts/playing.sh 2> /dev/null"
   },
   "hyprland/submap": {
     "format": "✌️ {}",

@@ -17,7 +17,7 @@ local options = {
 
     go = { "gofmt" },
 
-    python = { "autopep8", "isort" },
+    python = { "isort", "black" },
   },
 
   -- formatters = {

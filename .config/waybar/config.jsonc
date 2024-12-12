@@ -18,7 +18,8 @@
       "hyprland/submap"
     ],
     "modules-center": [
-      "mpd"
+      "mpd",
+      "custom/playing"
     ],
     "modules-right": [
       "tray",
@@ -89,7 +90,8 @@
       "hyprland/submap"
     ],
     "modules-center": [
-      "hyprland/window"
+      "hyprland/window",
+      "custom/playing"
     ],
     "modules-right": [
       //    "custom/weather",
