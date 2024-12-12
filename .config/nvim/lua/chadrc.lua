@@ -6,7 +6,7 @@
 local M = {}
 
 M.base46 = {
-  theme = "catppuccin",
+  theme = "catppuccin-latte",
   hl_override = {
     CursorLine = { bg = "#181825" },
     Visual = { bg = "#45475a" },

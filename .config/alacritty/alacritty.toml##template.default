@@ -1,6 +1,6 @@
 [general]
 import = [
-  "~/.config/alacritty/catppuccin-mocha.toml",
+  "~/.config/alacritty/catppuccin-latte.toml",
   "~/.config/alacritty/keybindings.toml",
 ]
 

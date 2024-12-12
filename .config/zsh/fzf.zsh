@@ -1,13 +1,21 @@
 export FZF_DEFAULT_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build}"
+
+export CATPPUCCIN_MOCHA="--color=bg+:#1e1e2e,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc
+--color=marker:#f5e0dc,fg+:#a6e3a1,prompt:#cba6f7,hl+:#f38ba8"
+
+export CATPPUCCIN_LATTE="--color=bg+:#ccd0da,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39
+--color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78
+--color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39
+--color=selected-bg:#bcc0cc"
+
 export FZF_DEFAULT_OPTS="
 --layout=reverse
 --height '100%'
 --border
 --no-separator
---color=bg+:#1e1e2e,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 
---color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc 
---color=marker:#f5e0dc,fg+:#a6e3a1,prompt:#cba6f7,hl+:#f38ba8,border:#cba6f7,label:italic:#cba6f7
 --bind 'alt-y:execute(echo -n {} | xclip -selection clipboard)'
+${CATPPUCCIN_LATTE}
 "
 
 export FORGIT_BLAME_FZF_OPTS="--preview-window='right:60%'"
@@ -17,16 +25,13 @@ export FORGIT_FZF_DEFAULT_OPTS="
 --reverse
 --no-separator
 --height '100%'
---preview-window='up:60%'
---color=bg+:#1e1e2e,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 
---color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc 
---color=marker:#f5e0dc,fg+:#a6e3a1,prompt:#cba6f7,hl+:#f38ba8
 --preview-window=right,70%
+${CATPPUCCIN_LATTE}
 "
 
 # export FZF_TMUX_OPTS="-p50%,50%
-# --color=bg+:#1e1e2e,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 
-# --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc 
+# --color=bg+:#1e1e2e,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8
+# --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc
 # --color=marker:#f5e0dc,fg+:#a6e3a1,prompt:#cba6f7,hl+:#f38ba8,border:#cba6f7"
 
 
@@ -41,7 +46,8 @@ zstyle ':fzf-tab:*' default-color $'\033[34m'
 zstyle ':fzf-tab:*' switch-group ',' '.'
 zstyle ':fzf-tab:*' fzf-pad 4
 # --border=none \
-zstyle ':fzf-tab:*' fzf-flags --no-separator  \
-  --color=bg+:#1e1e2e,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
-  --color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
-  --color=marker:#f5e0dc,fg+:#a6e3a1,prompt:#cba6f7,hl+:#f38ba8
+zstyle ':fzf-tab:*' fzf-flags --no-separator \
+--color=bg+:#ccd0da,bg:#eff1f5,spinner:#dc8a78,hl:#d20f39 \
+--color=fg:#4c4f69,header:#d20f39,info:#8839ef,pointer:#dc8a78 \
+--color=marker:#7287fd,fg+:#4c4f69,prompt:#8839ef,hl+:#d20f39 \
+--color=selected-bg:#bcc0cc

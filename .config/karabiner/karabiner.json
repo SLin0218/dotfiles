@@ -344,11 +344,7 @@
                                     "key_code": "u",
                                     "modifiers": { "mandatory": ["left_control"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "page_up"
-                                    }
-                                ],
+                                "to": [{ "key_code": "page_up" }],
                                 "type": "basic"
                             },
                             {
@@ -365,11 +361,7 @@
                                     "key_code": "d",
                                     "modifiers": { "mandatory": ["left_control"] }
                                 },
-                                "to": [
-                                    {
-                                        "key_code": "page_down"
-                                    }
-                                ],
+                                "to": [{ "key_code": "page_down" }],
                                 "type": "basic"
                             }
                         ]
@@ -492,9 +484,7 @@
                                         "key_code": "b",
                                         "modifiers": ["left_control"]
                                     },
-                                    {
-                                        "key_code": "c"
-                                    }
+                                    { "key_code": "c" }
                                 ],
                                 "type": "basic"
                             },
@@ -943,7 +933,10 @@
             ],
             "name": "Default",
             "selected": true,
-            "virtual_hid_keyboard": { "indicate_sticky_modifier_keys_state": false }
+            "virtual_hid_keyboard": {
+                "indicate_sticky_modifier_keys_state": false,
+                "keyboard_type_v2": "ansi"
+            }
         }
     ]
 }

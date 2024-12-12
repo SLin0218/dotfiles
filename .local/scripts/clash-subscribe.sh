@@ -5,4 +5,7 @@
 if [[ $(uname) = 'Linux' ]]; then
   systemctl --user restart clash
   systemctl --user status clash
+elif [[ $(uname) = 'Darwin' ]]; then
+  brew services restart mihomo
+  brew services info mihomo
 fi

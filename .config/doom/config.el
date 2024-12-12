@@ -209,4 +209,7 @@
           "   "))  ; 填充字符
 )
 
+(setq catppuccin-flavor 'latte) ;; or 'latte, 'macchiato, or 'mocha
+(catppuccin-reload)
+
 (org-super-agenda-mode t)
