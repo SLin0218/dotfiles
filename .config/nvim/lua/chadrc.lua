@@ -9,7 +9,7 @@ M.base46 = {
   theme = "catppuccin-latte",
   hl_override = {
     CursorLine = { bg = "#181825" },
-    Visual = { bg = "#45475a" },
+    -- Visual = { bg = "#45475a" },
     MatchWord = {
       fg = "yellow",
       bg = "#181825",
