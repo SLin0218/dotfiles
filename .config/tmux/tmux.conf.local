@@ -307,8 +307,8 @@ tmux_conf_theme_pane_border="${thm_bg}"
 tmux_conf_theme_pane_active_border="${thm_blue}"
 
 # windows
-tmux_conf_theme_window_status_activity_fg="${thm_fg}"
-tmux_conf_theme_window_status_activity_bg="${thm_bg}"
+tmux_conf_theme_window_status_activity_fg="${thm_bg}"
+tmux_conf_theme_window_status_activity_bg="${thm_subtext_1}"
 tmux_conf_theme_window_status_activity_attr=none
 
 tmux_conf_theme_status_left_fg="${thm_bg}"
