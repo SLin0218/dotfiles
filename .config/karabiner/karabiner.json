@@ -335,6 +335,7 @@
                                     {
                                         "bundle_identifiers": [
                                             "^org\\.alacritty$",
+                                            "^net\\.kovidgoyal\\.kitty$",
                                             "^org\\.gnu\\.Emacs$"
                                         ],
                                         "type": "frontmost_application_unless"
@@ -352,6 +353,7 @@
                                     {
                                         "bundle_identifiers": [
                                             "^org\\.alacritty$",
+                                            "^net\\.kovidgoyal\\.kitty$",
                                             "^org\\.gnu\\.Emacs$"
                                         ],
                                         "type": "frontmost_application_unless"
@@ -373,7 +375,8 @@
                                 "conditions": [
                                     {
                                         "bundle_identifiers": [
-                                            "^org\\.alacritty$"
+                                            "^org\\.alacritty$",
+                                            "^net\\.kovidgoyal\\.kitty$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
@@ -398,7 +401,8 @@
                                 "conditions": [
                                     {
                                         "bundle_identifiers": [
-                                            "^org\\.alacritty$"
+                                            "^org\\.alacritty$",
+                                            "^net\\.kovidgoyal\\.kitty$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
@@ -423,7 +427,8 @@
                                 "conditions": [
                                     {
                                         "bundle_identifiers": [
-                                            "^io\\.alacritty$"
+                                            "^io\\.alacritty$",
+                                            "^net\\.kovidgoyal\\.kitty$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
@@ -445,7 +450,8 @@
                                 "conditions": [
                                     {
                                         "bundle_identifiers": [
-                                            "^org\\.alacritty$"
+                                            "^org\\.alacritty$",
+                                            "^net\\.kovidgoyal\\.kitty$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }
@@ -470,7 +476,8 @@
                                 "conditions": [
                                     {
                                         "bundle_identifiers": [
-                                            "^org\\.alacritty$"
+                                            "^org\\.alacritty$",
+                                            "^net\\.kovidgoyal\\.kitty$"
                                         ],
                                         "type": "frontmost_application_if"
                                     }

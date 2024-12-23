@@ -332,7 +332,7 @@ tmux_conf_theme_window_status_last_bg="${thm_subtext_1}"
 tmux_conf_theme_window_status_last_attr="none"
 
 # -------=== Statusline
-tmux_conf_theme_window_status_current_format="#[bg=$thm_blue]#I #[bg=$thm_surface_0,fg=$thm_fg] #{hostname_ssh} #(printf "%%-15s" #W)"
+tmux_conf_theme_window_status_current_format="#[bg=$thm_blue]#I #[bg=$thm_surface_0,fg=$thm_blue] #{hostname_ssh} #(printf "%%-15s" #W)"
 tmux_conf_theme_window_status_format="#[bg=$thm_subtext_1]#I #[bg=$thm_surface_0,fg=$thm_fg] #{hostname_ssh} #(printf "%%-10s" #W)"
 tmux_conf_theme_status_left="#{?pane_in_mode,#[bg=$thm_mauve]  VIM ,  TMUX }"
 tmux_conf_theme_status_right="#{prefix} #[fg=$thm_fg,bg=$thm_surface_0]  #S "
