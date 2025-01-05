@@ -47,11 +47,11 @@
   # local white='#F1F1F0'
 
   local grey='242'
-  local red='#f38ba8'
-  local yellow='#f9e2af'
-  local blue='#89b4fa'
-  local magenta='#eba0ac'
-  local cyan='#89dceb'
+  local red='#d20f39'
+  local yellow='#df8e1d'
+  local blue='#1e66f5'
+  local magenta='#ea76cb'
+  local cyan='#209fb5'
   local white='#cdd6f4'
 
 

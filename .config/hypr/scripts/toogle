@@ -1,9 +1,10 @@
 #!/bin/bash
 
 is_open=$(hyprctl clients -j | jq ".[] | select(.class == \"$1\")")
+echo $is_open
 
 if [[ -n "$is_open" ]]; then
-  hyprctl dispatch focuswindow $1
+  hyprctl dispatch focuswindow "class:$1"
 else
   if [[ -n "$2" ]]; then
     $2
