@@ -24,7 +24,7 @@ export PATH="$HOME/.local/bin:$HOME/.local/scripts:$GOPATH/bin:$HOME/.local/shar
 # export JAVA_HOME="/usr/lib/jvm/java-11-openjdk/"
 #
 export LANG=en_US.UTF-8
-export BAT_THEME="Catppuccin-mocha"
+export BAT_THEME="Catppuccin Latte"
 export EDITOR=/usr/bin/nvim
 export FORGIT_GLO_FORMAT='%C(auto)%h%d %C(magenta)%cn%Creset %s %C(black)%C(bold)%cd%Creset'
 # export FORGIT_LOG_GIT_OPTS='--date=format:"%y/%m/%d %H:%M:%S"'
