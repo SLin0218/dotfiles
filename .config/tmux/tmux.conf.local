@@ -317,23 +317,23 @@ tmux_conf_theme_status_right_fg="${thm_fg}"
 tmux_conf_theme_status_right_bg="${thm_bg}"
 
 
-tmux_conf_theme_window_status_fg="${thm_bg}"
-tmux_conf_theme_window_status_bg="${thm_subtext_1}"
+tmux_conf_theme_window_status_fg="${thm_fg}"
+tmux_conf_theme_window_status_bg="${thm_surface_0}"
 tmux_conf_theme_window_status_attr="none"
 
 # current tab
 tmux_conf_theme_window_status_current_fg="${thm_bg}"
-tmux_conf_theme_window_status_current_bg="${thm_blue}"
+tmux_conf_theme_window_status_current_bg="${thm_mauve}"
 tmux_conf_theme_window_status_current_attr="bold"
 
 # last tab
-tmux_conf_theme_window_status_last_fg="${thm_bg}"
-tmux_conf_theme_window_status_last_bg="${thm_subtext_1}"
+tmux_conf_theme_window_status_last_fg="${thm_fg}"
+tmux_conf_theme_window_status_last_bg="${thm_surface_0}"
 tmux_conf_theme_window_status_last_attr="none"
 
 # -------=== Statusline
-tmux_conf_theme_window_status_current_format="#[bg=$thm_blue]#I #[bg=$thm_surface_0,fg=$thm_blue] #{hostname_ssh} #(printf "%%-15s" #W)"
-tmux_conf_theme_window_status_format="#[bg=$thm_subtext_1]#I #[bg=$thm_surface_0,fg=$thm_fg] #{hostname_ssh} #(printf "%%-10s" #W)"
+tmux_conf_theme_window_status_current_format="#[bg=$thm_mauve]#I #[fg=$thm_bg,bg=$thm_mauve] #{hostname_ssh} #(printf "%%-15s" #W)"
+tmux_conf_theme_window_status_format="#I #[bg=$thm_surface_0,fg=$thm_fg] #{hostname_ssh} #(printf "%%-10s" #W)"
 tmux_conf_theme_status_left="#{?pane_in_mode,#[bg=$thm_mauve]  VIM ,  TMUX }"
 tmux_conf_theme_status_right="#{prefix} #[fg=$thm_fg,bg=$thm_surface_0]  #S "
 
