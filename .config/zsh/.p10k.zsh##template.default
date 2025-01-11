@@ -38,6 +38,15 @@
   [[ $ZSH_VERSION == (5.<1->*|<6->.*) ]] || return
 
   # Prompt colors.
+{% if yadm.os == "Darwin" %}
+  local grey='242'
+  local red='#FF5C57'
+  local yellow='#F3F99D'
+  local blue='#57C7FF'
+  local magenta='#FF6AC1'
+  local cyan='#9AEDFE'
+  local white='#F1F1F0'
+{% else %}
   local grey='242'
   local red='#d20f39'
   local yellow='#df8e1d'
@@ -45,6 +54,7 @@
   local magenta='#ea76cb'
   local cyan='#209fb5'
   local white='#cdd6f4'
+{% endif %}
 
   # Left prompt segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(

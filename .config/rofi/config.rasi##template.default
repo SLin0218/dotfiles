@@ -17,4 +17,8 @@ configuration {
     sidebar-mode:               true;
 }
 
+{% if yadm.os == "Darwin" %}
+@theme "catppuccin-latte"
+{% else %}
 @theme "catppuccin-mocha"
+{% endif %}

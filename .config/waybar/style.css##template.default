@@ -1,4 +1,8 @@
+{% if yadm.os == "Darwin" %}
+@import "latte.css";
+{% else %}
 @import "mocha.css";
+{% endif %}
 
 #custom-weather,
 #custom-notifications,
