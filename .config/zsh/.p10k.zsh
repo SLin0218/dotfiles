@@ -39,12 +39,12 @@
 
   # Prompt colors.
   local grey='242'
-  local red='#d20f39'
-  local yellow='#df8e1d'
-  local blue='#1e66f5'
-  local magenta='#ea76cb'
-  local cyan='#209fb5'
-  local white='#cdd6f4'
+  local red='#FF5C57'
+  local yellow='#F3F99D'
+  local blue='#57C7FF'
+  local magenta='#FF6AC1'
+  local cyan='#9AEDFE'
+  local white='#F1F1F0'
 
   # Left prompt segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
