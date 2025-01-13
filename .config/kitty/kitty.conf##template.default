@@ -38,7 +38,7 @@ map kitty_mod+z next_layout
 {% if yadm.os == "Darwin" %}
 include latte.conf
 {% else %}
-include mocha.conf
+include themes/dracula.conf
 {% endif %}
 # END_KITTY_THEME
 

@@ -1,7 +1,7 @@
 {% if yadm.os == "Darwin" %}
 @import "latte.css";
 {% else %}
-@import "mocha.css";
+@import "dracula.css";
 {% endif %}
 
 #custom-weather,

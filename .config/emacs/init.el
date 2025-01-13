@@ -47,15 +47,48 @@
 (eval-when-compile
  (require 'use-package))
 
+(require 'init-ui)
+(require 'init-org)
+
 (use-package evil
  :ensure t
- :init (evil-mode))
-
-(require 'init-ui)
+ :init
+ (setq evil-want-C-u-scroll t)               ; C-u 向上翻页
+ (setq evil-complete-all-buffers nil)
+ (evil-mode 1))
 
 (use-package which-key
  :ensure t
  :init (which-key-mode))
+
+; C-x C-f 补全
+(use-package counsel
+ :ensure)
+(use-package ivy
+ :ensure t
+ :init
+ (ivy-mode 1)
+ (counsel-mode 1)
+ :config
+ (setq ivy-use-virtual-buffers t)
+ (setq search-default-mode #'char-fold-to-regexp)
+ (setq ivy-count-format "(%d/%d) "))
+
+; 最近使用命令
+(use-package amx
+ :ensure t
+ :init (amx-mode))
+
+; 平滑滚动
+(use-package good-scroll
+ :ensure t
+ :if window-system     ; 在图形化界面时才使用这个插件
+ :init (good-scroll-mode))
+
+; 彩虹括号
+(use-package rainbow-delimiters
+ :ensure t
+ :hook (prog-mode . rainbow-delimiters-mode))
 
 (setq custom-file "~/.config/emacs/custom.el")
 (load custom-file)
