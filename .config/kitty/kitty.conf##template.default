@@ -36,7 +36,7 @@ map kitty_mod+z next_layout
 
 # BEGIN_KITTY_THEME
 {% if yadm.os == "Darwin" %}
-include latte.conf
+include themes/dracula.conf
 {% else %}
 include themes/dracula.conf
 {% endif %}
@@ -47,5 +47,9 @@ font_family      family='JetBrainsMono Nerd Font Mono' postscript_name=JetBrains
 bold_font        auto
 italic_font      auto
 bold_italic_font auto
+{% if yadm.os == "Darwin" %}
+font_size 16.0
+{% else %}
 font_size 12.0
+{% endif %}
 # END_KITTY_FONTS

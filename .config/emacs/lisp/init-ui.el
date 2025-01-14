@@ -33,8 +33,8 @@
 (setq inhibit-startup-message t)                  ; 关闭启动 Emacs 时的欢迎界面
 (column-number-mode t)                            ; 在 Mode line 上显示列号
 
-(add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font Mono-14"))
-(set-face-attribute 'default t :font "JetBrainsMono Nerd Font Mono-14")
+(add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font Mono-16"))
+(set-face-attribute 'default t :font "JetBrainsMono Nerd Font Mono-16")
 
 (provide 'init-ui)
 ;;; init-ui.el ends here

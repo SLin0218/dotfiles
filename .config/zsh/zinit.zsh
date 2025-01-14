@@ -25,7 +25,7 @@ zinit wait lucid light-mode for \
     OMZP::safe-paste \
     OMZP::fzf \
     OMZL::git.zsh \
-    OMZP::z \
+    OMZP::z
 
 # If you source zinit.zsh after compinit, add the following snippet after sourcing zinit.zsh
 # autoload -Uz _zinit

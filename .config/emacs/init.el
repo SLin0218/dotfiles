@@ -47,9 +47,6 @@
 (eval-when-compile
  (require 'use-package))
 
-(require 'init-ui)
-(require 'init-org)
-
 (use-package evil
  :ensure t
  :init
@@ -92,6 +89,10 @@
 
 (setq custom-file "~/.config/emacs/custom.el")
 (load custom-file)
+
+(require 'init-ui)
+(require 'init-org)
+(require 'init-keymap)
 
 (provide 'init)
 ;;; init.el ends here
