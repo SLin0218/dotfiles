@@ -2,6 +2,19 @@
 ;;; Commentary:
 ;;; Code:
 
+(tool-bar-mode -1)                                              ; 关闭 Tool bar
+(menu-bar-mode -1)                                              ; 关闭 Menu bar
+(global-display-line-numbers-mode 1)                            ; 在 Window 显示行号
+(when (display-graphic-p) (toggle-scroll-bar -1))               ; 图形界面时关闭滚动条
+(add-to-list 'default-frame-alist '(width . 90))                ; 设定启动图形界面时的初始 Frame 宽度（字符数）
+(add-to-list 'default-frame-alist '(height . 55))               ; 设定启动图形界面时的初始 Frame 高度（字符数）
+(add-to-list 'default-frame-alist '(drag-internal-border . 1))  ; 内部边框允许鼠标拖动
+(add-to-list 'default-frame-alist '(internal-border-width . 5)) ; 内部边框像素
+(add-hook 'window-setup-hook #'toggle-frame-maximized)          ; 最大化窗口
+(setq display-line-numbers-type 'relative)                      ; 显示相对行号
+(setq inhibit-startup-message t)                                ; 关闭启动 Emacs 时的欢迎界面
+(column-number-mode t)                                          ; 在 Mode line 上显示列号
+
 ; theme
 (use-package dracula-theme
   :ensure t
@@ -23,18 +36,15 @@
   (projects . 10)))                                     ;; 显示多少个最近项目
  (dashboard-setup-startup-hook))
 
-(global-display-line-numbers-mode 1)              ; 在 Window 显示行号
-(tool-bar-mode -1)                                ; 关闭 Tool bar
-(menu-bar-mode -1)                                ; 关闭 Menu bar
-(when (display-graphic-p) (toggle-scroll-bar -1)) ; 图形界面时关闭滚动条
-(add-to-list 'default-frame-alist '(width . 90))  ; 设定启动图形界面时的初始 Frame 宽度（字符数）
-(add-to-list 'default-frame-alist '(height . 55)) ; 设定启动图形界面时的初始 Frame 高度（字符数）
-(setq display-line-numbers-type 'relative)        ; 显示相对行号
-(setq inhibit-startup-message t)                  ; 关闭启动 Emacs 时的欢迎界面
-(column-number-mode t)                            ; 在 Mode line 上显示列号
-
-(add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font Mono-16"))
-(set-face-attribute 'default t :font "JetBrainsMono Nerd Font Mono-16")
+(cond
+ ;; macOS
+ ((eq system-type 'darwin)
+  (add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font Mono-16"))
+  (set-face-attribute 'default t :font "JetBrainsMono Nerd Font Mono-16"))
+ ;; Linux
+ ((eq system-type 'gnu/linux)
+  (add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font Mono-14"))
+  (set-face-attribute 'default t :font "JetBrainsMono Nerd Font Mono-14")))
 
 (provide 'init-ui)
 ;;; init-ui.el ends here

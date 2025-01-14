@@ -47,20 +47,13 @@
 (eval-when-compile
  (require 'use-package))
 
-(use-package evil
- :ensure t
- :init
- (setq evil-want-C-u-scroll t)               ; C-u 向上翻页
- (setq evil-complete-all-buffers nil)
- (evil-mode 1))
-
 (use-package which-key
  :ensure t
- :init (which-key-mode))
+ :init (which-key-mode 1))
 
 ; C-x C-f 补全
 (use-package counsel
- :ensure)
+ :ensure t)
 (use-package ivy
  :ensure t
  :init
@@ -81,11 +74,6 @@
  :ensure t
  :if window-system     ; 在图形化界面时才使用这个插件
  :init (good-scroll-mode))
-
-; 彩虹括号
-(use-package rainbow-delimiters
- :ensure t
- :hook (prog-mode . rainbow-delimiters-mode))
 
 (setq custom-file "~/.config/emacs/custom.el")
 (load custom-file)
