@@ -1,9 +1,9 @@
-new_tab PLM
-cd ~/Workspace/v1flow-api/
+new_tab WORK
+cd ~/Workspace/honeycom/
 launch
 
 new_tab WEB
-cd ~/Workspace/v1flow-h5/
+cd ~/Workspace/honeycom-ui/
 launch
 
 new_tab HTTP
@@ -14,6 +14,6 @@ new_tab DOC
 cd ~/Workspace/plm-doc/
 launch
 
-new_tab TRANSLATE
+new_tab OTHER
 cd ~/
-launch translate-tui
+launch

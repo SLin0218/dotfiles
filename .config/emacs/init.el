@@ -65,9 +65,9 @@
  (setq ivy-count-format "(%d/%d) "))
 
 ; 最近使用命令
-(use-package amx
- :ensure t
- :init (amx-mode))
+;(use-package amx
+; :ensure t
+; :init (amx-mode))
 
 ; 平滑滚动
 (use-package good-scroll

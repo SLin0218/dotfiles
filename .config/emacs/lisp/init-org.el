@@ -9,7 +9,7 @@
   :config
   (org-roam-setup)
   :custom
-  (org-roam-directory (concat org-directory "roam/")) ; 设置 org-roam 目录
+  (org-roam-directory (concat org-directory "/roam/")) ; 设置 org-roam 目录
   :bind
   (("C-c n f" . org-roam-node-find)
   (:map org-mode-map
@@ -35,9 +35,11 @@
   (setq org-html-coding-system 'utf-8)
   (setq org-html-doctype "html5")
   (setq org-html-head "<link rel='stylesheet' type='text/css' href='https://gongzhitaao.org/orgcss/org.css'/> ")
-  (setq org-appear-autoemphasis t)
-  (setq  org-appear-autolinks nil)
-  (setq org-hide-emphasis-markers t) ; 隐藏 ~~ ==
+  (setq org-appear-autoemphasis t)    ; 自动强调
+  (setq org-image-actual-width nil)   ; 内联图片宽度 分别设置，置空。
+  (setq org-use-sub-superscripts nil) ; 下划线不转义
+  (setq org-appear-autolinks nil)     ; 文档自动链接显示
+  (setq org-hide-emphasis-markers t)  ; 隐藏 ~~ ==
   (setq org-time-stamp-formats '("<%Y-%m-%d %a %H:%M:%S>" . "<%Y-%m-%d %a %H:%M:%S>"))
   (setq org-todo-keywords '((sequence "TODO" "NEXT" "DOING" "WAITING" "CANCELLED" "DONE")))
   (setq org-todo-keyword-faces
@@ -50,6 +52,7 @@
   )
 
 (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+(add-hook 'org-mode-hook (lambda () (when (display-graphic-p) (set-face-attribute 'org-table nil :family "Sarasa Term SC Nerd"))))
 (use-package org-superstar
   :ensure t
   :config
