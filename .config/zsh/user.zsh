@@ -39,7 +39,7 @@ zz() {
     fi
   done
 
-  if [[ $(echo $filtered | wc -l) == 1 ]]; then
+  if [[ $(echo $filtered | wc -l | awk '{print $1}') == 1 ]]; then
     cd ${filtered//#\~/$HOME}
   else
     dir=$(echo $filtered | fzf)
