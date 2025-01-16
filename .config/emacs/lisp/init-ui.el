@@ -43,8 +43,8 @@
   (set-face-attribute 'default t :font "JetBrainsMono Nerd Font Mono-16"))
  ;; Linux
  ((eq system-type 'gnu/linux)
-  (add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font Mono-14"))
-  (set-face-attribute 'default t :font "JetBrainsMono Nerd Font Mono-14")))
+  (add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font Mono-10"))
+  (set-face-attribute 'default t :font "JetBrainsMono Nerd Font Mono-10")))
 
 (provide 'init-ui)
 ;;; init-ui.el ends here

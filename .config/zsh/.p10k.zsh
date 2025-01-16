@@ -51,6 +51,7 @@
     # =========================[ Line #1 ]=========================
     context                   # user@host
     dir                       # current directory
+    proxy
     vcs                       # git status
     command_execution_time    # previous command duration
     # =========================[ Line #2 ]=========================
