@@ -34,6 +34,9 @@ map kitty_mod+n set_tab_title
 map kitty_mod+' launch --location vsplit
 map kitty_mod+5 launch --location hsplit
 map kitty_mod+z next_layout
+map kitty_mod+u scroll_page_up
+map kitty_mod+d scroll_page_down
+
 #map kitty_mod+m toggle_marker text 1 ERROR
 map kitty_mod+m create_marker
 map ctrl+m remove_marker
