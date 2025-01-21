@@ -250,6 +250,7 @@
   "custom/playing": {
     "format": "{}",
     "interval": 2,
+    "max-length": 25,
     "exec": "$HOME/.config/waybar/scripts/playing.sh 2> /dev/null"
   },
   "hyprland/submap": {

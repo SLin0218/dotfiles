@@ -121,3 +121,7 @@ window#waybar {
 #battery {
   color: @green;
 }
+
+#custom-playing {
+  font-family: "Sarasa Term SC Nerd";
+}
