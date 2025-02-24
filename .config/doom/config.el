@@ -16,7 +16,7 @@
       user-mail-address "dengsl.dev@gmail.com"
       org-directory "~/org/"
       org-agenda-files '("~/org/agenda/")
-      doom-theme 'catppuccin
+      doom-theme 'doom-dracula
       display-line-numbers-type 'relative
       ;; 隐藏 title bar
       default-frame-alist '((undecorated . t))

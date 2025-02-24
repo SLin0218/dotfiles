@@ -1,5 +1,5 @@
 new_tab WORK
-cd ~/Workspace/honeycom/
+cd ~/Workspace/honeycom-feature/
 launch
 
 new_tab WEB
