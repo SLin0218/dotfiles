@@ -6,11 +6,7 @@
 local M = {}
 
 M.base46 = {
-{% if yadm.os == "Darwin" %}
-  theme = "catppuccin-latte",
-{% else %}
-  theme = "catppuccin",
-{% endif %}
+  theme = "chadracula",
   hl_override = {
     CursorLine = { bg = "#181825" },
     -- Visual = { bg = "#45475a" },
