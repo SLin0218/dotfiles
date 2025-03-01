@@ -468,6 +468,8 @@ set -g @prefix_highlight_copy_mode_attr 'fg=blue'
 # then, use #{foo} in e.g. the 'tmux_conf_theme_status_left' or the
 # 'tmux_conf_theme_status_right' variables.
 
+set -Fg 'status-format[1]' ''
+set -g status 2
 # ------------------------------------------------------------------------------
 
 # # /!\ do not remove the following line
