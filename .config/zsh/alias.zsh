@@ -53,7 +53,7 @@ alias zc='z -c'
 alias zl='z -l'
 alias ze='z -e'
 
-# kitty
-alias ssh='kitten ssh'
-alias d="kitten diff"
-alias icat="kitten icat"
+# # kitty
+# alias ssh='kitten ssh'
+# alias d="kitten diff"
+# alias icat="kitten icat"
