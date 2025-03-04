@@ -14,7 +14,7 @@ window_list = [
     {"name": "WORKSPACE", "dir": "~/Workspace/v1flow-api/"},
     {"name": "WEB", "dir": "~/Workspace/v1flow-h5/"},
     {"name": "HTTP", "dir": "~/http-client/"},
-    {"name": "DOC", "dir": "~/Workspace/plm-doc/"},
+    {"name": "ORG", "dir": "~/org/"},
     {"name": "MY-BOOK", "dir": "~/my-book/"},
     {"name": "OTHER", "dir": "~"},
 ]
