@@ -1,0 +1,39 @@
+[
+  {
+    "Command": [],
+    "Constant": [],
+    "Constructor": [],
+    "Deprecated": [],
+    "Field": [],
+    "Function": [],
+    "Method": [
+      {
+        "def": "Weather:rescan()",
+        "desc": "Redetect the active interface, darkmode …And redraw everything.",
+        "doc": "Redetect the active interface, darkmode …And redraw everything.\n",
+        "name": "rescan",
+        "signature": "Weather:rescan()",
+        "stripped_doc": "",
+        "type": "Method"
+      }
+    ],
+    "Variable": [],
+    "desc": "Weather MenuBar",
+    "doc": "",
+    "items": [
+      {
+        "def": "Weather:rescan()",
+        "desc": "Redetect the active interface, darkmode …And redraw everything.",
+        "doc": "Redetect the active interface, darkmode …And redraw everything.\n",
+        "name": "rescan",
+        "signature": "Weather:rescan()",
+        "stripped_doc": "",
+        "type": "Method"
+      }
+    ],
+    "name": "Weather",
+    "stripped_doc": "",
+    "submodules": [],
+    "type": "Module"
+  }
+]
