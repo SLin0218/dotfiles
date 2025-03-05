@@ -25,7 +25,6 @@ return {
   { "williamboman/mason.nvim" },
   { "mfussenegger/nvim-jdtls" },
   { "slin0218/nvim-class", lazy = false },
-  { "oxy2dev/markview.nvim", lazy = false },
   {
     'mikesmithgh/kitty-scrollback.nvim',
     enabled = true,
