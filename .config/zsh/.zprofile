@@ -33,11 +33,12 @@ export FORGIT_GLO_FORMAT='%C(auto)%h%d %C(magenta)%cn%Creset %s %C(black)%C(bold
 export HISTORY_IGNORE="(pwd|ls|cd|ls -a|ll|clear)"
 export JDTLS_JVM_ARGS="-javaagent:$HOME/.local/share/nvim/mason/packages/jdtls/lombok.jar"
 
-{% if yadm.os == "Darwin" %}
 export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 
-if [ "$(uname -m)" = "arm64" ];then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+if [ "$(uname)" = "Darwin" ];then
+  if [ "$(uname -m)" = "arm64" ];then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
   export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
   export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
 fi
@@ -61,18 +62,3 @@ mvn() {
   load_jenv
   mvn $@
 }
-{% else %}
-
-export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
-export XSERVERRC="$XDG_CONFIG_HOME"/X11/xserverrc
-export XINITRC="$XDG_CONFIG_HOME"/X11/xinitrc
-export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
-export _JAVA_AWT_WM_NONREPARENTING=1
-export SUDO_PROMPT=" 🔐 Password for $USER: "
-
-if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ];then
-  # 处理笔记本
-  # MACHINE_ID=$(cat /etc/machine-id)
-  exec Hyprland
-fi
-{% endif %}
