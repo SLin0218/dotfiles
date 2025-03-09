@@ -1,7 +1,7 @@
 configuration {
 	  modi:                       "drun,window,clipboard:~/.config/rofi/cliphist-rofi-img";
     lines:                      10;
-    font:                       "JetBrainsMonoExtraBold Nerd Font 16";
+    font:                       "JetBrainsMonoExtraBold Nerd Font 12";
     show-icons:                 true;
     icon-theme:                 "Papirus-Dark";
     terminal:                   "alacritty";
@@ -9,16 +9,11 @@ configuration {
     location:                   0;
     disable-history:            false;
     hide-scrollbar:             true;
-    display-drun:               " 󰀻  Apps ";
+    display-drun:               " 󰀻 ";
     display-run:                "   Run ";
     display-window:             " 󰕰  Window";
-    display-network:            " 󰤨  Network";
-    display-clipboard:          " 󱘢  Clipboard";
-    sidebar-mode:               true;
+    display-clipboard:          " 󱘢  ";
+    /*sidebar-mode:               true;*/
 }
 
-{% if yadm.os == "Darwin" %}
-@theme "catppuccin-latte"
-{% else %}
-@theme "catppuccin-mocha"
-{% endif %}
+@theme "dracula"
