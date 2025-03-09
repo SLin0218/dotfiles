@@ -41,24 +41,34 @@ if [ "$(uname)" = "Darwin" ];then
   fi
   export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
   export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
+
+  export PATH="$HOME/.jenv/bin:$PATH"
+
+  # jenv 懒加载
+  load_jenv() {
+    unset -f java jenv mvn
+    eval "$(jenv init -)"
+  }
+  jenv() {
+    load_jenv
+    jenv $@
+  }
+  java() {
+    load_jenv
+    java $@
+  }
+  mvn() {
+    load_jenv
+    mvn $@
+  }
+else
+  export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
+  export XSERVERRC="$XDG_CONFIG_HOME"/X11/xserverrc
+  export XINITRC="$XDG_CONFIG_HOME"/X11/xinitrc
+  export XAUTHORITY="$XDG_RUNTIME_DIR"/Xauthority
+  export _JAVA_AWT_WM_NONREPARENTING=1
+  export SUDO_PROMPT=" 🔐 Password for $USER: "
+  if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ];then
+    exec Hyprland
+  fi
 fi
-
-export PATH="$HOME/.jenv/bin:$PATH"
-
-# jenv 懒加载
-load_jenv() {
-  unset -f java jenv mvn
-  eval "$(jenv init -)"
-}
-jenv() {
-  load_jenv
-  jenv $@
-}
-java() {
-  load_jenv
-  java $@
-}
-mvn() {
-  load_jenv
-  mvn $@
-}

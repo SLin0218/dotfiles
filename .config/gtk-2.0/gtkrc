@@ -1,4 +1,4 @@
-gtk-icon-theme-name = "Papirus-Dark"
-gtk-theme-name = "catppuccin-mocha-yellow-standard+default"
+gtk-icon-theme-name = "Dracula"
+gtk-theme-name = "Dracula"
 gtk-cursor-theme-name = "Empty-Butterfly-Magenta-vr6"
 gtk-im-module="fcitx"
