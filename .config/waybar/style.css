@@ -1,8 +1,4 @@
-{% if yadm.os == "Darwin" %}
-@import "latte.css";
-{% else %}
 @import "dracula.css";
-{% endif %}
 
 #custom-weather,
 #custom-notifications,
@@ -31,8 +27,8 @@
 }
 
 window#waybar {
-  background: @base;
-  border: 1px solid @base;
+  background: @background;
+  border: 1px solid @background;
   border-radius: 5px;
 }
 
@@ -46,13 +42,13 @@ window#waybar {
 
 
 #bluetooth {
-  color: @blue;
+  color: @cyan;
   padding-right: 3px;
 }
 
 #pulseaudio {
   padding-right: 0px;
-  color: @blue;
+  color: @cyan;
 }
 
 #backlight-slider slider,
@@ -84,12 +80,12 @@ window#waybar {
 }
 
 #memory {
-  color: @sapphire;
+  color: @yellow;
 }
 
 #temperature,
 #cpu {
-  color: @teal;
+  color: @purple;
 }
 
 #network {
@@ -98,19 +94,19 @@ window#waybar {
 
 #network,
 #clock {
-  color: @rosewater;
+  color: @pink;
 }
 
 #workspaces button.active {
-  color: @mauve;
+  color: @purple;
 }
 
 #workspaces button {
-  color: @rosewater;
+  color: @purple;
 }
 
 #workspaces button.empty {
-  color: @text;
+  color: @purple;
 }
 
 #backlight {
