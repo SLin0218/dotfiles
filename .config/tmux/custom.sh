@@ -49,3 +49,4 @@ done
 
 # set -Fg 'status-format[1]' ''
 # set -g status 2
+# set -sg repeat-time 300
