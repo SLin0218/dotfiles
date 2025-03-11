@@ -47,6 +47,8 @@
   :config
   (when (display-graphic-p) (set-face-attribute 'org-table nil :family "Sarasa Term SC Nerd")))
 
+;; (add-to-list 'exec-path "/Library/TeX/texbin/")
+
 (after! org
   ;; 完成时删除样式
   (set-face-attribute 'org-headline-done nil :strike-through t)
