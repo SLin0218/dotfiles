@@ -41,6 +41,7 @@ if [ "$(uname)" = "Darwin" ];then
   export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
 
   export PATH="$HOME/.jenv/bin:$HOME/Library/Application Support/JetBrains/Toolbox/scripts:$PATH"
+  export PATH="$HOME/.jenv/bin:$PATH"
 
   # jenv 懒加载
   load_jenv() {
@@ -57,6 +58,7 @@ if [ "$(uname)" = "Darwin" ];then
   }
   mvn() {
     load_jenv
+    # export JAVA_HOME=$(jenv which java | sed 's/\/bin\/java$//')
     mvn $@
   }
 else

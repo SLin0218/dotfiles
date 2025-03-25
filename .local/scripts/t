@@ -2,4 +2,4 @@
 
 source $HOME/.local/scripts/translate/bin/activate
 
-python $HOME/.local/scripts/translate/main.py $@
+$HOME/.local/scripts/translate/main.py $@
