@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source $HOME/.local/scripts/translate/bin/activate
+
+python $HOME/.local/scripts/translate/main.py $@
