@@ -58,7 +58,7 @@ if [ "$(uname)" = "Darwin" ];then
   }
   mvn() {
     load_jenv
-    # export JAVA_HOME=$(jenv which java | sed 's/\/bin\/java$//')
+    export JAVA_HOME=$(jenv which java | sed 's/\/bin\/java$//')
     mvn $@
   }
 else
