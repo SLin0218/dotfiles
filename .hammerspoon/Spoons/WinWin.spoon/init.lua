@@ -32,7 +32,7 @@ function obj:stepMove(direction)
     local cwin = hs.window.focusedWindow()
     if cwin then
         local cscreen = cwin:screen()
-        local cres = cscreen:fullFrame()
+        local cres = cscreen:frame()
         local stepw = cres.w/obj.gridparts
         local steph = cres.h/obj.gridparts
         local wtopleft = cwin:topLeft()
@@ -62,7 +62,7 @@ function obj:stepResize(direction)
     local cwin = hs.window.focusedWindow()
     if cwin then
         local cscreen = cwin:screen()
-        local cres = cscreen:fullFrame()
+        local cres = cscreen:frame()
         local stepw = cres.w/obj.gridparts
         local steph = cres.h/obj.gridparts
         local wsize = cwin:size()
@@ -82,6 +82,7 @@ function obj:stepResize(direction)
     end
 end
 
+local log = hs.logger.new('WindowMover', 'info')
 --- WinWin:moveAndResize(option)
 --- Method
 --- Move and resize the focused window.
@@ -103,7 +104,7 @@ function obj:moveAndResize(option)
     local cwin = hs.window.focusedWindow()
     if cwin then
         local cscreen = cwin:screen()
-        local cres = cscreen:fullFrame()
+        local cres = cscreen:frame()
         local stepw = cres.w/obj.gridparts
         local steph = cres.h/obj.gridparts
         local wf = cwin:frame()
@@ -123,6 +124,9 @@ function obj:moveAndResize(option)
             expand = function() cwin:setFrame({x=wf.x-stepw, y=wf.y-steph, w=wf.w+(stepw*2), h=wf.h+(steph*2)}) end,
             shrink = function() cwin:setFrame({x=wf.x+stepw, y=wf.y+steph, w=wf.w-(stepw*2), h=wf.h-(steph*2)}) end,
         }
+        cwin:maximize()
+
+        log.i(hs.inspect(option))
         if options[option] == nil then
             hs.alert.show("Unknown option: " .. option)
         else
@@ -193,7 +197,7 @@ function obj:centerCursor()
     local cwin = hs.window.focusedWindow()
     local wf = cwin:frame()
     local cscreen = cwin:screen()
-    local cres = cscreen:fullFrame()
+    local cres = cscreen:frame()
     if cwin then
         -- Center the cursor one the focused window
         hs.mouse.setAbsolutePosition({x=wf.x+wf.w/2, y=wf.y+wf.h/2})
