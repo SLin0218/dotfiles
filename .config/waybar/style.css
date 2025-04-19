@@ -118,6 +118,16 @@ window#waybar {
   color: @green;
 }
 
+#battery.warning {
+  color: @yellow;
+  background-color: @background;
+}
+
+#battery.critical {
+  color: @red;
+  background-color: @background;
+}
+
 #custom-playing {
   font-family: "Sarasa Term SC Nerd";
 }
