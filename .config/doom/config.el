@@ -21,7 +21,8 @@
       ;; 隐藏 title bar
       default-frame-alist '((undecorated . t))
       ;; 默认字体
-      doom-font (font-spec :family "JetbrainsMono Nerd Font" :size (if is-mac 14 16)))
+      doom-font (font-spec :family "JetbrainsMono Nerd Font" :size (if is-mac 14 16))
+)
 
 (setq fancy-splash-image "~/.config/doom/gnu_color.svg")
 (setq +doom-dashboard-menu-sections nil)
@@ -43,9 +44,12 @@
 
 (add-hook 'window-setup-hook #'toggle-frame-maximized) ; 最大化窗口
 
-(use-package org-faces
-  :config
-  (when (display-graphic-p) (set-face-attribute 'org-table nil :family "Sarasa Term SC Nerd")))
+(defun set-buffer-variable-pitch ()
+  (interactive)
+  (when (display-graphic-p) (set-face-attribute 'org-table nil :font "Sarasa Term SC Nerd"))
+)
+
+(add-hook 'org-mode-hook 'set-buffer-variable-pitch)
 
 ;; (add-to-list 'exec-path "/Library/TeX/texbin/")
 
@@ -56,8 +60,18 @@
   (setq org-src-tab-acts-natively t)
   (setq org-src-preserve-indentation nil)
   (setq org-fontify-quote-and-verse-blocks t)
-  (custom-set-faces!
-    '(org-document-title :height 1.2)))
+  (custom-set-faces! '(org-document-title :height 1.2))
+)
+
+(use-package! org-modern
+  :custom
+  (org-modern-horizontal-rule t)
+  (org-modern-keyword ">")
+  (org-modern-table-vertical 1.0)
+  (setq org-modern-replace-stars "◉○◈◇✳")
+  (setq org-modern-fold-stars '(("◉" . "◉") ("○" . "○") ("◈" . "◈") ("◇" . "◇") ("▸" . "▾")))
+  (setq org-modern-checkbox '((?X . "☑") (?- . #("□–" 0 2 (composition ((2))))) (?\s . "□")))
+)
 
 (use-package org
   :custom
@@ -87,48 +101,7 @@
       ("WAITING" :foreground "#bac2de")
       ("DONE" :foreground "#a6e3a1")
       ("CANCELLED" :foreground "#6c7086")))
-  )
-
-(after! org-superstar
-  (setq org-superstar-headline-bullets-list '("◉" "◈" "○" "▷"))
-  (setq org-superstar-todo-bullet-alist '(("TODO" . ?)
-                                     ("NEXT" . ?)
-                                     ("HOLD" . ?󰙧)
-                                     ("WAITING" . ?󰖺)
-                                     ("CANCELLED" . ?✘)
-                                     ("DONE" . ?)))
-  (setq org-superstar-item-bullet-alist '((?* . ?•)
-                                     (?+ . ?➤)
-                                     (?- . ?•)))
-  (setq org-superstar-special-todo-items t)
-  (setq org-superstar-remove-leading-stars t))
-
-
-(when (display-graphic-p)
-(setq-default prettify-symbols-alist '(("#+title:" . "📖")
-                                       ("#+author:" . "👦")
-                                       ("#+caption:" . "☰")
-                                       ("#+results:" . "🎁")
-                                       ("#+attr_latex:" . "🍄")
-                                       ("#+attr_org:" . "🔔")
-                                       ("#+date:" . "🗓")
-                                       ("#+property:" . "☸")
-                                       (":PROPERTIES:" . "⚙")
-                                       (":END:" . ".")
-                                       ("[ ]" . "☐")
-                                       ("[X]" . "☑")
-                                       ("#+options:" . "⌥")
-                                       ("\\pagebreak" . 128204)
-                                       ("#+begin_quote" . "❮")
-                                       ("#+end_quote" . "❯")
-                                       ("#+BEGIN_Highlight" . "📖")
-                                       ("#+END_Highlight" . "📜")
-                                       ("#+begin_src" . "󰅬")
-                                       ("#+end_src" . "󰅮")
-                                       ("#+begin_example" . "")
-                                       ("#+end_example" . "")
-                                       )))
-
+)
 
 (add-hook! 'org-mode-hook 'prettify-symbols-mode)
 
@@ -210,8 +183,5 @@
           "------"  ; 时间网格的分隔线
           "   "))  ; 填充字符
 )
-
-(setq catppuccin-flavor 'latte) ;; or 'latte, 'macchiato, or 'mocha
-;; (catppuccin-reload)
 
 (org-super-agenda-mode t)
