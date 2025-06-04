@@ -21,7 +21,7 @@
       ;; 隐藏 title bar
       default-frame-alist '((undecorated . t))
       ;; 默认字体
-      doom-font (font-spec :family "JetbrainsMono Nerd Font" :size (if is-mac 14 16))
+      doom-font (font-spec :family "JetBrainsMonoNL Nerd Font Mono" :size (if is-mac 14 16))
 )
 
 (setq fancy-splash-image "~/.config/doom/gnu_color.svg")
@@ -55,7 +55,7 @@
 
 (after! org
   ;; 完成时删除样式
-  (set-face-attribute 'org-headline-done nil :strike-through t)
+  ;; (set-face-attribute 'org-headline-done nil :strike-through t)
   ;; 代码块缩进
   (setq org-src-tab-acts-natively t)
   (setq org-src-preserve-indentation nil)
@@ -64,16 +64,24 @@
 )
 
 (use-package! org-modern
-  :custom
-  (org-modern-horizontal-rule t)
-  (org-modern-keyword ">")
-  (org-modern-table-vertical 1.0)
-  (setq org-modern-replace-stars "◉○◈◇✳")
-  (setq org-modern-fold-stars '(("◉" . "◉") ("○" . "○") ("◈" . "◈") ("◇" . "◇") ("▸" . "▾")))
-  (setq org-modern-checkbox '((?X . "☑") (?- . #("□–" 0 2 (composition ((2))))) (?\s . "□")))
+ :custom
+ (org-modern-horizontal-rule t)
+ (org-modern-keyword ">")
+ (org-modern-table-vertical 1.0)
+ (org-modern-replace-stars "◉○◈◇✳")
+ (org-modern-fold-stars '(("◉" . "◉") ("○" . "○") ("◈" . "◈") ("◇" . "◇") ("▸" . "▾")))
+ (org-modern-checkbox '((?X . "☑") (?- . #("□–" 0 2 (composition ((2))))) (?\s . "□")))
+ (org-modern-todo-faces (quote (("TODO" :background "#4c4f69" :foreground "#bd93f9")
+                                ("NEXT" :background "#4c4f69" :foreground "#bd93f9")
+                                ("WAITING" :background "#4c4f69" :foreground "#ef9f76")
+                                ("INPROGRESS" :background "#4c4f69" :foreground "#8be9fd")
+                                ("DONE" :background "#4c4f69" :foreground "#50fa7b"))))
+ (org-modern-priority (quote ((?A . "❗")
+                              (?B . "⬆")
+                              (?C . "⬇"))))
 )
 
-(use-package org
+(use-package! org
   :custom
   (org-pretty-entities t)
   ;; 自动标记完成时间
@@ -90,35 +98,29 @@
   (setq org-html-doctype "html5")
   (setq org-html-head "<link rel='stylesheet' type='text/css' href='https://gongzhitaao.org/orgcss/org.css'/> ")
   (setq org-appear-autoemphasis t)
-  (setq  org-appear-autolinks nil)
+  (setq org-appear-autolinks nil)
+  (setq org-fontify-done-headline t)
+  (setq org-hide-leading-stars t)
   (setq org-hide-emphasis-markers t) ; 隐藏 ~~ ==
   (setq org-time-stamp-formats '("<%Y-%m-%d %a %H:%M:%S>" . "<%Y-%m-%d %a %H:%M:%S>"))
-  (setq org-todo-keywords '((sequence "TODO" "NEXT" "DOING" "WAITING" "CANCELLED" "DONE")))
-  (setq org-todo-keyword-faces
-    '(("TODO" :foreground "#94e2d5")
-      ("NEXT" :foreground "#94e2d5")
-      ("DOING" :foreground "#94e2d5")
-      ("WAITING" :foreground "#bac2de")
-      ("DONE" :foreground "#a6e3a1")
-      ("CANCELLED" :foreground "#6c7086")))
+  (setq org-todo-keywords '((sequence "IDLE(e!)" "NEXT(n)" "TODO(t)" "INPROGRESS(i!)" "WAITING(w!)" "PLANING(p!)" "ICEBOX(b!)" "CANCELED(c @/!)" "DONE(y!)")))
 )
 
-(add-hook! 'org-mode-hook 'prettify-symbols-mode)
+;; (add-hook! 'org-mode-hook 'prettify-symbols-mode)
 
 (map! :leader
       "/" #'comment-line
       "x" #'kill-current-buffer)
 
-(require 'org-super-agenda)
+;; (require 'org-super-agenda)
 (setq spacemacs-theme-org-agenda-height nil
-      org-agenda-skip-scheduled-if-done t
-      org-agenda-skip-deadline-if-done t
+      ;; org-agenda-skip-scheduled-if-done t
+      ;; org-agenda-skip-deadline-if-done t
       org-agenda-include-deadlines t
       ;; org-agenda-include-diary t
       org-agenda-block-separator nil
       org-agenda-compact-blocks t
       org-agenda-start-with-log-mode t)
-
 
 (setq org-agenda-custom-commands
       '(("z" "Super zaen view"
@@ -133,7 +135,7 @@
           (alltodo "" ((org-agenda-overriding-header "")
                        (org-super-agenda-groups
                         '((:name "Next to do"
-                                 :todo "NEXT"
+                                 :todo "TODO"
                                  :order 1)
                           (:name "Important"
                                  :tag "Important"
@@ -180,7 +182,7 @@
   (setq org-agenda-time-grid
         '((daily today remove-match)  ; 每日时间网格
           (800 1000 1200 1400 1600 1800)  ; 每小时细分
-          "------"  ; 时间网格的分隔线
+          " ─── "  ; 时间网格的分隔线
           "   "))  ; 填充字符
 )
 

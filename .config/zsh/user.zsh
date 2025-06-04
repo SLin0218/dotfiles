@@ -71,3 +71,5 @@ tmuxa () {
 autoload -U add-zsh-hook
 add-zsh-hook chpwd pyvenv_cd
 [[ $PWD != ~ ]] && pyvenv_cd
+
+TENANT_ID=1904380368256430081
