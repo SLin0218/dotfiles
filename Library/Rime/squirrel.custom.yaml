@@ -3,7 +3,9 @@
 patch:
   #us_keyboard_layout: true                         # 键盘选项：应用美式键盘布局
   #show_notifications_when: growl_is_running        # 状态通知，默认装有Growl时显示，全开(always)/全关(never)
-
+  # 禁止 emacs 中默认英文输入
+  app_options/org.gnu.Emacs:
+    ascii_mode: false
   style:
     inline_preedit: true # 非内嵌编码行
 
