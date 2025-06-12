@@ -6,6 +6,8 @@
 (scroll-bar-mode -1)
 (save-place-mode 1)
 
+(setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
+
 (setq confirm-kill-emacs nil ; 关闭 emacs 时无需额外确认
       system-time-locale "C" ; 设置系统时间显示方式
       pop-up-windows nil     ; no pop-up window
@@ -88,6 +90,20 @@
                         (?C . "")))
 )
 
+(use-package gptel
+  :custom (gptel-temperature 0.1)
+  :config
+  (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
+  (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
+  (setq
+   gptel-model 'gemini-1.5-flash
+   gptel-proxy "127.0.0.1:7890"
+   gptel-backend (gptel-make-gemini "Gemini"
+                   :stream t
+                   :key "AIzaSyAPJPi_Id6j9IIRDAqnfn5yXy1RpLp6neM"
+                   :models '(gemini-1.5-flash
+                             gemini-2.0-flash))))
+
 (use-package! org
   :custom
   (org-pretty-entities t)
@@ -100,7 +116,7 @@
   (setq org-startup-indented t)
   (setq org-src-tab-acts-natively t)
   ;; 导出 html 配置
-  (setq org-ellipsis " ⤵")          ; 折叠缩略图标
+  (setq org-ellipsis " ⤵")          ; 折叠缩略图标 󱞤󱞣 ⤵
   (setq org-html-coding-system 'utf-8)
   (setq org-html-doctype "html5")
   (setq org-html-head "<link rel='stylesheet' type='text/css' href='https://gongzhitaao.org/orgcss/org.css'/> ")
@@ -110,8 +126,11 @@
   (setq org-hide-leading-stars t)
   (setq org-hide-emphasis-markers t) ; 隐藏 ~~ ==
   (setq org-time-stamp-formats '("<%Y-%m-%d %a %H:%M:%S>" . "<%Y-%m-%d %a %H:%M:%S>"))
-  (setq org-todo-keywords '((sequence "IDLE(e!)" "NEXT(n)" "TODO(t)" "INPROGRESS(i!)" "WAITING(w!)" "PLANING(p!)" "ICEBOX(b!)" "CANCELED(c @/!)" "DONE(y!)")))
+  (setq org-todo-keywords '((sequence "IDLE(e!)" "NEXT(n)" "TODO(t)" "INPROGRESS(i!)" "WAITING(w!)" "PLANING(p!)" "ICEBOX(b!)" "CANCELED(c @/!)" "DONE(y!)")
+                            (sequence "IDLE(e!)" "CANCELED(c @/!)")))
 )
+
+
 
 ;; (add-hook! 'org-mode-hook 'prettify-symbols-mode)
 

@@ -25,7 +25,6 @@ export PATH="$HOME/.local/bin:$HOME/.local/scripts:$GOPATH/bin:$HOME/.local/shar
 
 export LANG=en_US.UTF-8
 export BAT_THEME="Dracula"
-export EDITOR=/usr/bin/nvim
 export FORGIT_GLO_FORMAT='%C(auto)%h%d %C(magenta)%cn%Creset %s %C(black)%C(bold)%cd%Creset'
 # export FORGIT_LOG_GIT_OPTS='--date=format:"%y/%m/%d %H:%M:%S"'
 
@@ -36,6 +35,9 @@ export JDTLS_JVM_ARGS="-javaagent:$HOME/.local/share/nvim/mason/packages/jdtls/l
 if [ "$(uname)" = "Darwin" ];then
   if [ "$(uname -m)" = "arm64" ];then
     eval "$(/opt/homebrew/bin/brew shellenv)"
+    export EDITOR=/opt/homebrew/bin/nvim
+  else
+    export EDITOR=/usr/bin/nvim
   fi
   export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
   export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
@@ -62,6 +64,7 @@ if [ "$(uname)" = "Darwin" ];then
     mvn $@
   }
 else
+  export EDITOR=/usr/bin/nvim
   export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
   # export XSERVERRC="$XDG_CONFIG_HOME"/X11/xserverrc
   # export XINITRC="$XDG_CONFIG_HOME"/X11/xinitrc

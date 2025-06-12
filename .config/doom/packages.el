@@ -51,3 +51,4 @@
 
 (package! catppuccin-theme)
 (package! org-super-agenda)
+(package! gptel :recipe (:nonrecursive t))
