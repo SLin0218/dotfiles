@@ -8,6 +8,10 @@
 
 (setenv "PATH" (concat "/opt/homebrew/bin:" (getenv "PATH")))
 
+;; (setq url-proxy-services
+;;       '(("http"     . "127.0.0.1:7890")
+;;         ("https"    . "127.0.0.1:7890")))
+
 (setq confirm-kill-emacs nil ; 关闭 emacs 时无需额外确认
       system-time-locale "C" ; 设置系统时间显示方式
       pop-up-windows nil     ; no pop-up window
@@ -82,6 +86,8 @@
  (org-modern-todo-faces '(("TODO" :background "#44475a" :foreground "#bd93f9")
                           ("NEXT" :background "#44475a" :foreground "#bd93f9")
                           ("WAITING" :background "#44475a" :foreground "#bd93f9")
+                          ("BUG" :background "#ff5555" :foreground "#282a36")
+                          ("INVALID" :background "#44475a" :foreground "#50fa7b")
                           ("INPROGRESS" :background "#44475a" :foreground "#bd93f9")
                           ("ICEBOX" :background "#4c4f69" :foreground "#bd93f9")
                           ("DONE" :background "#44475a" :foreground "#50fa7b")))
@@ -126,12 +132,12 @@
   (setq org-hide-leading-stars t)
   (setq org-hide-emphasis-markers t) ; 隐藏 ~~ ==
   (setq org-time-stamp-formats '("<%Y-%m-%d %a %H:%M:%S>" . "<%Y-%m-%d %a %H:%M:%S>"))
-  (setq org-todo-keywords '((sequence "IDLE(e!)" "NEXT(n)" "TODO(t)" "INPROGRESS(i!)" "WAITING(w!)" "PLANING(p!)" "ICEBOX(b!)" "CANCELED(c @/!)" "DONE(y!)")
+  (setq org-todo-keywords '((sequence "IDLE(e!)" "NEXT(n)" "TODO(t)" "INPROGRESS(i!)" "WAITING(w!)" "PLANING(p!)" "ICEBOX(x!)" "CANCELED(c @/!)" "DONE(y!)")
+                            (sequence "BUG(b)" "FEAT(f)" "INVALID" "DONE(y!)")
                             (sequence "IDLE(e!)" "CANCELED(c @/!)")))
 )
 
-
-
+;;(add-hook 'vue-mode-hook #'lsp!)
 ;; (add-hook! 'org-mode-hook 'prettify-symbols-mode)
 
 (map! :leader
