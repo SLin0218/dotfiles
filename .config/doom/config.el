@@ -21,7 +21,7 @@
 (setq user-full-name "DengShilin"
       user-mail-address "dengsl.dev@gmail.com"
       org-directory "~/org/"
-      org-agenda-files '("~/org/agenda/")
+      org-agenda-files '("~/org/")
       doom-theme 'doom-dracula
       display-line-numbers-type 'relative
       ;; 隐藏 title bar
@@ -90,7 +90,8 @@
                           ("INVALID" :background "#44475a" :foreground "#50fa7b")
                           ("INPROGRESS" :background "#44475a" :foreground "#bd93f9")
                           ("ICEBOX" :background "#4c4f69" :foreground "#bd93f9")
-                          ("DONE" :background "#44475a" :foreground "#50fa7b")))
+                          ("CANCELED" :background "#4c4f69" :foreground "#6272a4")
+                          ("DONE" :background "#44475a" :foreground "#6272a4")))
  (org-modern-priority '((?A . "")
                         (?B . "")
                         (?C . "")))
