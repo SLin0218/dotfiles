@@ -21,7 +21,7 @@
 (setq user-full-name "DengShilin"
       user-mail-address "dengsl.dev@gmail.com"
       org-directory "~/org/"
-      org-agenda-files '("~/org/")
+      org-agenda-files '("~/org/agenda")
       doom-theme 'doom-dracula
       display-line-numbers-type 'relative
       ;; 隐藏 title bar
