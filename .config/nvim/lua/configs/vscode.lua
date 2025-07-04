@@ -66,6 +66,15 @@ local editor = {
   previousChange = function()
     require("vscode").action "workbench.action.editor.previousChange"
   end,
+  goToImplementation = function()
+    require("vscode").action "editor.action.goToImplementation"
+  end,
+  navigateToSuperImplementation = function()
+    require("vscode").action "java.action.navigateToSuperImplementation"
+  end,
+  rename = function()
+    require("vscode").action "editor.action.rename"
+  end,
 }
 
 local workbench = {
@@ -224,6 +233,9 @@ local vscode = {
   moveSideBarLeft = function()
     require("vscode").action "workbench.action.moveSideBarLeft"
   end,
+  revealInExplorer = function()
+    require("vscode").action "revealInExplorer"
+  end,
 }
 
 local refactor = {
@@ -241,6 +253,14 @@ end
 local nx_keymap = function(lhs, rhs)
   vim.api.nvim_set_keymap("n", lhs, rhs, { silent = true })
   vim.api.nvim_set_keymap("v", lhs, rhs, { silent = true })
+end
+
+local nohl = function()
+  if vim.v.hlsearch == 0 then
+    return
+  end
+  local keycode = vim.api.nvim_replace_termcodes("<Cmd>nohl<CR>", true, false, true)
+  vim.api.nvim_feedkeys(keycode, "n", false)
 end
 
 --#region keymap
@@ -334,6 +354,12 @@ vim.keymap.set({ "n" }, "<leader>ve", vscode.focusEditor)
 vim.keymap.set({ "n" }, "<leader>vl", vscode.moveSideBarLeft)
 vim.keymap.set({ "n" }, "<leader>vr", vscode.moveSideBarRight)
 
+vim.keymap.set({ "n" }, "<leader>ss", vscode.revealInExplorer)
+vim.keymap.set({ "n" }, "<leader>gm", editor.goToImplementation)
+vim.keymap.set({ "n" }, "<leader>gp", editor.navigateToSuperImplementation)
+vim.keymap.set({ "n" }, "<Esc>", nohl)
+vim.keymap.set({ "n" }, "<leader>nr", editor.rename)
+
 --folding
 -- vim.keymap.set({ "n" }, "<leader>zr", fold.openAll)
 -- vim.keymap.set({ "n" }, "<leader>zO", fold.openRecursive)
@@ -358,3 +384,17 @@ vim.keymap.set({ "n" }, "<leader>vr", vscode.moveSideBarRight)
 
 vim.o.relativenumber = true
 vim.o.clipboard = "unnamedplus"
+
+local autocmd = vim.api.nvim_create_autocmd
+
+autocmd("InsertEnter", {
+  callback = function()
+    vim.o.relativenumber = false
+  end,
+})
+
+autocmd("InsertLeave", {
+  callback = function()
+    vim.o.relativenumber = true
+  end,
+})
