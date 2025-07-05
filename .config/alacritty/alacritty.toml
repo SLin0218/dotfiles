@@ -8,7 +8,7 @@ import = [
 TERM = "xterm-256color"
 
 [font]
-size = 14.0
+size = 12.0
 # normal = { family = "Noto Sans CJK SC", style = "Regular" }
 normal = { family = "JetbrainsMono Nerd Font", style = "Regular" }
 bold = { family = "JetbrainsMono Nerd Font", style = "Bold" }
