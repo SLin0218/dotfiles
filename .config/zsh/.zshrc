@@ -28,6 +28,7 @@ setopt hist_ignore_dups
 [[ ! -f ~/.config/zsh/user.zsh ]] || source ~/.config/zsh/user.zsh
 [[ ! -f ~/.config/zsh/fzf.zsh ]] || source ~/.config/zsh/fzf.zsh
 [[ ! -f ~/.config/zsh/alias.zsh ]] || source ~/.config/zsh/alias.zsh
+[[ ! -f ~/.config/zsh/dev.zsh ]] || source ~/.config/zsh/dev.zsh
 
 # 要放在 autoload -U compinit 之前才生效
 fpath+=("$HOME/.zfunc")
