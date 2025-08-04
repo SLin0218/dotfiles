@@ -44,9 +44,7 @@ export FZF_CTRL_T_OPTS="${FZF_CTRL_R_OPTS}"
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':fzf-tab:*' default-color $'\033[34m'
-# zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 zstyle ':fzf-tab:*' switch-group ',' '.'
 zstyle ':fzf-tab:*' fzf-pad 4
-# --border=none \
-zstyle ':fzf-tab:*' fzf-flags --no-separator \
---color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9 --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9 --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6 --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4
+zstyle ':fzf-tab:*' fzf-flags --no-separator --color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9 --color=fg+:#f8f8f2,bg+:#44475a,hl+:#bd93f9 --color=info:#ffb86c,prompt:#50fa7b,pointer:#ff79c6 --color=marker:#ff79c6,spinner:#ffb86c,header:#6272a4
