@@ -57,3 +57,4 @@ alias ze='z -e'
 # alias ssh='kitten ssh'
 # alias d="kitten diff"
 # alias icat="kitten icat"
+alias snowflake='snowflake_id=$(python3 ~/.local/scripts/snowflake.py);echo $snowflake_id; echo $snowflake_id | pbcopy'
