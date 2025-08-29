@@ -1,6 +1,5 @@
 configuration {
     show-icons:      true;
-    /*display-drun:    "";*/
     disable-history: false;
 }
 
@@ -63,6 +62,7 @@ configuration {
 #element.selected.normal {
     background-color: @selected-background;
     text-color:       @foreground;
+    border-radius:    6;
 }
 #element.selected.urgent {
     background-color: @selected-urgent-background;
@@ -98,11 +98,6 @@ configuration {
     background-color: @selected-background;
     text-color:       @foreground;
 }
-#inputbar {
-    spacing:    0;
-    text-color: @foreground;
-    padding:    1px ;
-}
 #case-indicator {
     spacing:    0;
     text-color: @foreground;
@@ -114,9 +109,13 @@ configuration {
 #prompt {
     spacing:    0;
     text-color: @foreground;
+    padding:    0;
 }
 #inputbar {
+    spacing:    0;
+    text-color: @foreground;
     children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+    padding: 10 0;
 }
 #textbox-prompt-colon {
     expand:     false;
@@ -127,4 +126,7 @@ configuration {
 element-text, element-icon {
     background-color: inherit;
     text-color: inherit;
+}
+element-icon {
+    size: 30px;
 }

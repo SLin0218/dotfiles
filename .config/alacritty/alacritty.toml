@@ -8,11 +8,7 @@ import = [
 TERM = "xterm-256color"
 
 [font]
-{% if yadm.os == "Darwin" %}
-size = 16.0
-{% else %}
 size = 14.0
-{% endif %}
 
 normal = { family = "VictorMono Nerd Font Mono", style = "Regular" }
 bold = { family = "VictorMono Nerd Font Mono", style = "Bold" }

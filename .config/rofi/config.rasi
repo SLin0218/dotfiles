@@ -1,19 +1,17 @@
 configuration {
 	  modi:                       "drun,window,clipboard:~/.config/rofi/cliphist-rofi-img";
-    lines:                      10;
-    font:                       "JetBrainsMonoExtraBold Nerd Font 12";
+    lines:                      6;
+    font:                       "VictorMono Nerd Font Mono 16";
     show-icons:                 true;
     icon-theme:                 "Papirus-Dark";
     terminal:                   "alacritty";
-    drun-display-format:        "{icon} {name}";
+    drun-display-format:        " {name}";
     location:                   0;
     disable-history:            false;
     hide-scrollbar:             true;
-    display-drun:               " 󰀻 ";
-    display-run:                "   Run ";
-    display-window:             " 󰕰  Window";
-    display-clipboard:          " 󱘢  ";
-    /*sidebar-mode:               true;*/
+    display-drun:               "APP ";
+    display-window:             "WIN";
+    display-clipboard:          "CLIP ";
 }
 
 @theme "dracula"
