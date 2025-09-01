@@ -9,9 +9,9 @@ configuration {
     location:                   0;
     disable-history:            false;
     hide-scrollbar:             true;
-    display-drun:               "APP ";
-    display-window:             "WIN";
-    display-clipboard:          "CLIP ";
+    display-drun:               "";
+    display-window:             "";
+    display-clipboard:          "󰅍";
 }
 
 @theme "dracula"
