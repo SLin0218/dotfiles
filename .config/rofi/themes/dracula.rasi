@@ -109,18 +109,22 @@ configuration {
 #prompt {
     spacing:    0;
     text-color: @foreground;
-    padding:    0;
+    padding:    0 5px;
+    font:       "VictorMono Nerd Font Mono 32";
+}
+#entry {
+    font:       "VictorMono Nerd Font Mono 16";
+    vertical-align: 0.5;
 }
 #inputbar {
     spacing:    0;
     text-color: @foreground;
-    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
-    padding: 10 0;
+    children:   [ prompt,textbox-prompt-colon,entry ];
+    padding: 0 0;
 }
 #textbox-prompt-colon {
     expand:     false;
-    /*str:        ">";*/
-    margin:     0px 0.3em 0em 0em ;
+    margin:     0px 0.5em 0em 0em ;
     text-color: @foreground;
 }
 element-text, element-icon {
