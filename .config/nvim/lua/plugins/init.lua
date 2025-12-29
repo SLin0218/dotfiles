@@ -44,6 +44,41 @@ return {
     end,
     cond = not vim.g.vscode,
   },
+  {
+    "iamcco/markdown-preview.nvim",
+    keys = { { "<f7>", "<cmd> MarkdownPreviewToggle <CR>" } },
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = "markdown",
+    build = "cd app && npm install",
+    config = function()
+      vim.api.nvim_exec2(
+        [[
+        function MkdpBrowserFn(url)
+          execute 'silent ! kitty @ launch --dont-take-focus --bias 40 awrit ' . a:url
+        endfunction
+      ]],
+        {}
+      )
+
+      vim.g.mkdp_theme = "dark"
+      vim.g.mkdp_filetypes = { "markdown" }
+      vim.g.mkdp_browserfunc = "MkdpBrowserFn"
+    end,
+  },
+  {
+    "cap153/peek.nvim",
+    event = { "VeryLazy" },
+    build = "deno task --quiet build:fast",
+    config = function()
+      local peek = require "peek"
+      peek.setup {
+        port = 12345,
+        app = { "kitty", "@", "launch", "--dont-take-focus", "--bias", "40", "awrit http://localhost:12345" },
+      }
+      vim.api.nvim_create_user_command("PeekOpen",  require("peek").open, {})
+      vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
+    end,
+  },
   -- 避免被卸载
   { "nvim-lua/plenary.nvim", cond = not vim.g.vscode },
   { "nvchad/base46", cond = not vim.g.vscode },
