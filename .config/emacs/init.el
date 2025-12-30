@@ -6,7 +6,18 @@
 (setq savehist-file (expand-file-name "history" user-emacs-cache-directory))                       ;savehist文件位置
 (setq auto-save-list-file-prefix (expand-file-name "auto-save-list" user-emacs-cache-directory))   ;自动保存文件目录
 (setq package-user-dir (expand-file-name "elpa" user-emacs-cache-directory))                       ;ELPA目录
-(setq tutorial-directory (expand-file-name "tutorial" user-emacs-cache-directory))
+;(setq tutorial-directory (expand-file-name "tutorial" user-emacs-cache-directory))
+
+(setenv "PATH" (concat "/opt/homebrew/bin:/usr/local/bin:/Users/lin/.local/share/nvim/mason/bin/:/Users/lin/.local/bin/:" (getenv "PATH")))
+(setq exec-path (append '("/opt/homebrew/bin" "/usr/local/bin" "/Users/lin/.local/share/nvim/mason/bin" "/Users/lin/.local/bin/") exec-path))
+
+
+
+
+;不生成custom-file文件 使用 use-package custom
+(setq custom-file "/dev/null")
+;M+x历史命令保留
+(savehist-mode 1)
 
 (require 'init-package)
 (require 'init-ui)

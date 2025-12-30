@@ -11,10 +11,4 @@
 (eval-when-compile
   (require 'use-package))
 
-(use-package evil
-  :ensure t
-  :init (evil-mode 1)
-  :config
-  (add-to-list 'evil-emacs-state-modes 'dashboard-mode))
-
 (provide 'init-package)

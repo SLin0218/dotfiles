@@ -23,7 +23,16 @@
 				 #'elisp-completion-at-point  ;原生 Elisp 补全
 				 #'cape-dabbrev               ;文本词汇
 				 #'cape-keyword               ;关键字
-				 #'cape-file))))))            ;文件路径
+				 #'cape-file)))))
+  (add-hook 'eglot-managed-mode-hook
+	    (lambda ()
+	      (setq-local completion-at-point-functions
+			  (list (cape-capf-super
+				 #'eglot-completion-at-point
+				 #'cape-dabbrev               ;文本词汇
+				 #'cape-keyword               ;关键字
+				 #'cape-file)))))             ;文件路径
+  )
 
 
 (use-package vertico
@@ -40,6 +49,19 @@
   (setq completion-styles '(orderless basic)
         orderless-component-separator "\\s-+"))
 
+(use-package eglot
+  :ensure t
+  :config
+  ;; 设置 Pyright 为 Python 的 LSP, 默认会查找 'pyright' 包
+  (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
+
+  ;; （可选）为 Pyright 传递配置，例如在 .dir-locals.el 中
+  ;; (add-to-list 'eglot-workspace-configuration
+  ;;              '(pyright . (("typeCheckingMode" . "basic")
+  ;;                           ("venvPath" . "./.venv"))))
+
+  ;; 当启动 eglot 时自动运行
+  (add-hook 'python-mode-hook #'eglot-ensure)
+)
 
 (provide 'init-complete)
-

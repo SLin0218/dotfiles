@@ -8,10 +8,6 @@
     (setq undo-tree-history-directory-alist `(("." . ,hist-dir))
           undo-tree-auto-save-history t)))
 
-;不生成custom-file文件 使用 use-package custom
-(setq custom-file "/dev/null")
-;M+x历史命令保留
-(savehist-mode 1)
 
 (setq auto-save-default nil)    ;关闭自动保存
 (setq create-lockfiles nil)     ;关闭锁文件

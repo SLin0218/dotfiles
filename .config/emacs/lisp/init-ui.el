@@ -1,5 +1,4 @@
-
-(tool-bar-mode -1)                      ;禁用工具栏
+(tool-bar-mode -3)                      ;禁用工具栏
 (menu-bar-mode -1)                      ;禁用菜单栏
 (scroll-bar-mode -1)                    ;禁用滚动条
 (global-display-line-numbers-mode 1)    ;行号
@@ -64,10 +63,21 @@
   :init
   (setq dashboard-center-content t)
   (setq dashboard-vertically-center-content t)
+  :custom
+  (dashboard-footer-messages '(""))
   :config
   (dashboard-setup-startup-hook)
-  :custom
-  (dashboard-footer-messages '("")))
+  (setq dashboard-display-icons-p t)
+  (setq dashboard-icon-type 'nerd-icons)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (dashboard-modify-heading-icons '((recents   . "nf-oct-file")
+                                    (bookmarks . "nf-oct-bookmark")
+                                    (agenda    . "nf-oct-tasklist")))
+  (setq dashboard-items '((recents   . 10)
+                          (bookmarks .  5)
+                          (agenda    .  5))))
+
 
 
 (use-package centaur-tabs
@@ -144,32 +154,27 @@
 
   )
 
-
-;; 自定义函数：按 centaur-tabs 标签顺序切换 buffer
-(defun my/centaur-tabs-next-buffer-in-order ()
-  "Switch to next buffer in centaur-tabs visual order."
-  (interactive)
-  (let* ((tabs (centaur-tabs--get-tab-from-name))
-         (current-buf (buffer-name))
-         (names (mapcar (lambda (tab) (plist-get tab :name)) tabs))
-         (idx (cl-position current-buf names :test 'string=)))
-    (if idx
-        (let ((next-idx (if (= idx (1- (length names))) 0 (1+ idx))))
-          (switch-to-buffer (nth next-idx names)))
-      (message "Current buffer not found in tabs."))))
-
-(defun my/centaur-tabs-prev-buffer-in-order ()
-  "Switch to previous buffer in centaur-tabs visual order."
-  (interactive)
-  (let* ((tabs (centaur-tabs--get-tab-from-name))
-         (current-buf (buffer-name))
-         (names (mapcar (lambda (tab) (plist-get tab :name)) names))
-         (names (mapcar (lambda (tab) (plist-get tab :name)) tabs))
-         (idx (cl-position current-buf names :test 'string=)))
-    (if idx
-        (let ((prev-idx (if (= idx 0) (1- (length names)) (1- idx))))
-          (switch-to-buffer (nth prev-idx names)))
-      (message "Current buffer not found in tabs."))))
+(use-package indent-bars
+  :custom
+  (indent-bars-no-descend-lists t) ; no extra bars in continued func arg lists
+  (indent-bars-treesit-support t)
+  (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  ;; Add other languages as needed
+  (indent-bars-treesit-scope '((python function_definition class_definition for_statement
+	  if_statement with_statement while_statement)))
+  ;; Note: wrap may not be needed if no-descend-list is enough
+  ;;(indent-bars-treesit-wrap '((python argument_list parameters ; for python, as an example
+  ;;				      list list_comprehension
+  ;;				      dictionary dictionary_comprehension
+  ;;				      parenthesized_expression subscript)))
+  :hook ((python-base-mode yaml-mode) . indent-bars-mode)
+  :config
+  (setq
+    indent-bars-color '(highlight :face-bg t :blend 0.3)
+    indent-bars-pattern " . . . . ." ; play with the number of dots for your usual font size
+    ;;indent-bars-color-by-depth nil
+    indent-bars-width-frac 0.25
+    indent-bars-pad-frac 0.1))
 
 
 (provide 'init-ui)

@@ -1,13 +1,4 @@
 
-(use-package evil-org
-  :ensure t
-  :after org
-  :hook (org-mode . evil-org-mode)
-  :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
-
-
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :weight 'bold :height 1.25 :foreground "#ff6b6b")
   (let ((colors '("#ff6b6b" "#4ecdc4" "#a0c4ff" "#9bf6ff" "#ffd6a5" "#ffadad")))
