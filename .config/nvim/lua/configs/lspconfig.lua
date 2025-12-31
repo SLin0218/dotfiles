@@ -7,7 +7,7 @@ local servers = {
   "html",
   "cssls",
   "clangd",
-  -- "jsonls",
+  "jsonls",
   "pyright",
   "rust_analyzer",
   "marksman",

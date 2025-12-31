@@ -53,12 +53,11 @@ function pyvenv_cd {
   if [[ -n "$VIRTUAL_ENV" ]]; then
     if [[ $PWD != "${VIRTUAL_ENV}"* ]]; then
       deactivate
-      path=(${path:#$VIRTUAL_ENV})
     fi
   else
-    if [[ -d ./bin && -e ./pyvenv.cfg ]]; then
-      source bin/activate
-      export PATH="$PATH:$VIRTUAL_ENV"
+    if [[ -d .venv ]]; then
+      source .venv/bin/activate
+      #export PATH="$PATH:$VIRTUAL_ENV/.venv/bin"
     fi
   fi
 }
