@@ -10,8 +10,12 @@
 ;不生成custom-file文件 使用 use-package custom
 (setq custom-file "/dev/null")
 
-(setenv "PATH" (concat "/opt/homebrew/bin:/usr/local/bin:~/.local/share/nvim/mason/bin/:~/.local/bin/:" (getenv "PATH")))
-(setq exec-path (append '("/opt/homebrew/bin" "/usr/local/bin" "~/.local/share/nvim/mason/bin" "~/.local/bin/") exec-path))
+
+(setq my-paths '("/opt/homebrew/bin" "/usr/local/bin" "~/.local/share/nvim/mason/bin/" "~/.local/bin/"))
+(setq my-paths-join (string-join (mapcar #'expand-file-name my-paths) ":"))
+
+(setenv "PATH" (concat my-paths-join ":" (getenv "PATH")))
+(setq exec-path (append (mapcar #'expand-file-name my-paths) exec-path))
 
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)

@@ -24,8 +24,8 @@
   (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bx") 'kill-current-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bs") 'save-buffer)
-  (evil-define-key 'normal 'global (kbd "<leader>bl") 'centaur-tabs-backward)
-  (evil-define-key 'normal 'global (kbd "<leader>bh") 'centaur-tabs-forward)
+  (evil-define-key 'normal 'global (kbd "<leader>bl") 'awesome-tab-forward-tab)
+  (evil-define-key 'normal 'global (kbd "<leader>bh") 'awesome-tab-backward-tab)
   ;;jump
   (evil-define-key 'normal 'global (kbd "<leader>kk") 'evil-avy-goto-line-above)
   (evil-define-key 'normal 'global (kbd "<leader>jj") 'evil-avy-goto-line-below)

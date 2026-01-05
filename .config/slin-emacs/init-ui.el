@@ -80,81 +80,24 @@
                           (projects  .  5)
                           (agenda    .  5))))
 
-
-
-(use-package centaur-tabs
-  :ensure t
-  :init
-  (setq centaur-tabs-enable-key-bindings t)
+(use-package awesome-tab
+  :load-path "/Users/lin/.config/emacs/lisp/awesome-tab"
   :config
-  (setq centaur-tabs-style "bar"
-        centaur-tabs-height 32
-        centaur-tabs-show-new-tab-button nil
-        centaur-tabs-set-modified-marker t
-        centaur-tabs-show-navigation-buttons nil
-        centaur-tabs-set-bar 'under
-        centaur-tabs-show-count nil
-        centaur-tabs-label-fixed-length 15
-	centaur-tabs-set-icons t
-	centaur-tabs-icon-type 'nerd-icons
-        x-underline-at-descent-line t
-        centaur-tabs-left-edge-margin nil
-	centaur-tabs-cycle-scope 'tabs)
-  (centaur-tabs-headline-match)
-  (centaur-tabs-change-fonts "JetBrainsMono Nerd Font Mono" 160)
-  (centaur-tabs-mode t)
-  ;(centaur-tabs-enable-buffer-reordering)
-  ;(setq centaur-tabs-adjust-buffer-order 'left)
-  (setq uniquify-separator "/")
-  (setq uniquify-buffer-name-style 'forward)
-  (defun centaur-tabs-buffer-groups ()
-    (list
-     (cond
-      ((or (string-equal "*" (substring (buffer-name) 0 1))
-           (memq major-mode '(magit-process-mode
-                              magit-status-mode
-                              magit-diff-mode
-                              magit-log-mode
-                              magit-file-mode
-                              magit-blob-mode
-                              magit-blame-mode
-                              )))
-       "Emacs")
-      ((derived-mode-p 'prog-mode)
-       "Editing")
-      ((derived-mode-p 'dired-mode)
-       "Dired")
-      ((memq major-mode '(helpful-mode
-                          help-mode))
-       "Help")
-      ((memq major-mode '(org-mode
-                          org-agenda-clockreport-mode
-                          org-src-mode
-                          org-agenda-mode
-                          org-beamer-mode
-                          org-indent-mode
-                          org-bullets-mode
-                          org-cdlatex-mode
-                          org-agenda-log-mode
-                          diary-mode))
-       "OrgMode")
-      (t
-       (centaur-tabs-get-group-name (current-buffer))))))
-  :hook
-  (dashboard-mode . centaur-tabs-local-mode)
-  (term-mode . centaur-tabs-local-mode)
-  (calendar-mode . centaur-tabs-local-mode)
-  (org-agenda-mode . centaur-tabs-local-mode)
-  :bind
-  ("C-<prior>" . centaur-tabs-backward)
-  ("C-<next>" . centaur-tabs-forward)
-  ("C-S-<prior>" . centaur-tabs-move-current-tab-to-left)
-  ("C-S-<next>" . centaur-tabs-move-current-tab-to-right)
-  (:map evil-normal-state-map
-        ("g t" . centaur-tabs-forward)
-        ("g T" . centaur-tabs-backward))
-
-  )
+  (setq awesome-tab-height 180)
+  (setq awesome-tab-cycle-scope 'tabs)
+  (setq awesome-tab-dark-active-bar-color "#50fa7b")
+  (set-face-attribute 'tab-line nil :inherit 'default)
+  (when (not (display-graphic-p))
+    (setq frame-background-mode 'dark))
+  (defun awesome-tab-hide-tab (x)
+    (let ((name (format "%s" x)))
+      (or
+       (string-prefix-p "*" name)
+       (string-prefix-p " *" name)
+       (and (string-prefix-p "magit" name)
+            (not (file-name-extension name)))
+       )))
+  (awesome-tab-mode t))
 
 (use-package indent-bars
   :custom
