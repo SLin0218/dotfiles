@@ -4,19 +4,14 @@
 (global-display-line-numbers-mode 1)    ;行号
 
 
-(defun slin/inhibit-line-number-in-special-buffers ()
-  "Return non-nil if current buffer should not show line numbers."
-  (or (eq major-mode 'dashboard-mode)
-      (string-prefix-p "*" (buffer-name))))
-
-
+;; 全局字体设置
 (defun load-font-setup ()
   (when (display-graphic-p)
     (cond
      ((eq window-system 'pgtk)
       (set-face-attribute 'default nil :height 140 :family "JetBrainsMono Nerd Font Mono"))
      (t
-      (let* ((font-size (if (> (frame-pixel-width) 2000) 18 16))
+      (let* ((font-size 15)
              (chinese-font "Sarasa Term SC Nerd")
              (english-font "JetBrainsMono Nerd Font Mono"))
         ;; Set default font
@@ -28,6 +23,7 @@
                             (font-spec :family chinese-font))))))))
 (load-font-setup)
 
+;; org-table单独设置字体
 (with-eval-after-load 'org
   (advice-add #'org-string-width :override #'org--string-width-1)
   (set-face-attribute 'org-table nil :family "Sarasa Term SC Nerd" :height 160))
@@ -37,29 +33,28 @@
            (display-graphic-p))
   (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 
+;; 图标
+(use-package all-the-icons)
 
-(use-package all-the-icons
-  :if (display-graphic-p)
-  :ensure t)
-
+;; dired图标
 (use-package all-the-icons-dired
   :if (display-graphic-p)
   :after (dired all-the-icons)
-  :hook (dired-mode . all-the-icons-dired-mode)
-  :ensure t)
+  :hook (dired-mode . all-the-icons-dired-mode))
 
+;; 状态栏
 (use-package doom-modeline
-  :ensure t
   :init (doom-modeline-mode 1)
   :config
   (setq doom-modeline-buffer-file-name-style 'truncate-nil))
 
+;; 主题
 (use-package dracula-theme
-  :ensure t)
-(load-theme 'dracula t)
+  :config
+  (load-theme 'dracula t))
 
+;; 启动仪表盘
 (use-package dashboard
-  :ensure t
   :init
   (setq dashboard-center-content t)
   (setq dashboard-vertically-center-content t)
@@ -80,14 +75,16 @@
                           (projects  .  5)
                           (agenda    .  5))))
 
+;; 标签栏
 (use-package awesome-tab
-  :load-path "/Users/lin/.config/emacs/lisp/awesome-tab"
+  :ensure nil
   :config
   (setq awesome-tab-height 180)
   (setq awesome-tab-cycle-scope 'tabs)
-  (setq awesome-tab-dark-active-bar-color "#50fa7b")
+  (setq awesome-tab-dark-active-bar-color "#6272a4")
   (set-face-attribute 'tab-line nil :inherit 'default)
   (when (not (display-graphic-p))
+    (setq awesome-tab-display-icon nil)
     (setq frame-background-mode 'dark))
   (defun awesome-tab-hide-tab (x)
     (let ((name (format "%s" x)))
@@ -99,6 +96,7 @@
        )))
   (awesome-tab-mode t))
 
+;; 层级对齐线
 (use-package indent-bars
   :custom
   (indent-bars-no-descend-lists t) ; no extra bars in continued func arg lists
@@ -120,6 +118,53 @@
     ;;indent-bars-color-by-depth nil
     indent-bars-width-frac 0.25
     indent-bars-pad-frac 0.1))
+
+;; minibuffer 增强
+(use-package vertico
+  :custom
+  (vertico-count 13)
+  (vertico-resize t)
+  (vertico-cycle nil)
+  :config
+  (vertico-mode)
+  (defvar +vertico-current-arrow t)
+  (cl-defmethod vertico--format-candidate :around
+    (cand prefix suffix index start &context ((and +vertico-current-arrow
+                                                   (not (bound-and-true-p vertico-flat-mode)))
+                                              (eql t)))
+    (setq cand (cl-call-next-method cand prefix suffix index start))
+    (if (bound-and-true-p vertico-grid-mode)
+        (if (= vertico--index index)
+            (concat #("▶" 0 1 (face vertico-current)) cand)
+          (concat #("_" 0 1 (display " ")) cand))
+      (if (= vertico--index index)
+          (concat
+           #(" " 0 1 (display (left-fringe right-triangle vertico-current)))
+           cand)
+        cand))))
+
+;; minbuffer 相关条目说明注解
+(use-package marginalia
+  :config
+  (marginalia-mode))
+
+;; minibuffer自动补全图标
+(use-package nerd-icons-completion
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package colorful-mode
+  ;; :diminish
+  ;; :ensure t ; Optional
+  :custom
+  (colorful-use-prefix t)
+  (colorful-only-strings 'only-prog)
+  (css-fontify-colors nil)
+  :config
+  (global-colorful-mode t)
+  (add-to-list 'global-colorful-modes 'helpful-mode))
 
 
 (provide 'init-ui)

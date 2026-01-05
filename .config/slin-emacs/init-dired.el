@@ -1,4 +1,5 @@
 (use-package dired
+  :ensure nil
   :hook
   (dired-mode . dired-omit-mode) ;隐藏 .git、.DS_Store 等
   :config
@@ -6,16 +7,10 @@
 
 ;文件类型高亮
 (use-package diredfl
-  :ensure t
   :hook
-  (dired-mode . diredfl-mode)
-  :config
-  ;; 可选：自定义颜色（Doom 风格偏暗色系）
-  ;; (diredfl-set-colors) ; 使用默认即可
-  )
+  (dired-mode . diredfl-mode))
 
 (use-package dired-narrow
-  :ensure t
   :bind (:map dired-mode-map
          ("/" . dired-narrow))
   :config
@@ -23,22 +18,19 @@
   (setq dired-narrow-backend 'consult-line))
 
 (use-package neotree
-  :ensure t
   :bind
   (("C-x C-n" . 'neotree-toggle))
   :hook
+  (neotree-mode . (lambda () (display-line-numbers-mode -1))) ;隐藏行号
   (neotree-mode . (lambda ()
-		    (display-line-numbers-mode -1))) ;隐藏行号
+                    (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+                    (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-enter)
+                    (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+                    (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)))
   :custom
   (neo-window-width 40)
   :config
-  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-  (add-hook 'neotree-mode-hook
-	    (lambda ()
-	      (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
-	      (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-enter)
-	      (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
-              (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter))))
+  (setq neo-theme (if (display-graphic-p) 'icons 'nerd-icons)))
 
 
 (provide 'init-dired)

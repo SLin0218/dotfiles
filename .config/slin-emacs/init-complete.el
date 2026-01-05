@@ -1,5 +1,4 @@
 (use-package corfu
-  :ensure t
   :init
   (global-corfu-mode)         ;全局启用
   :custom
@@ -9,7 +8,6 @@
   (corfu-cycle t))            ;循环选择
 
 (use-package cape
-  :ensure t
   :init
   ;全部配置
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
@@ -33,22 +31,15 @@
   )
 
 
-(use-package vertico
-  :ensure t
-  :init
-  (vertico-mode))
 
-(use-package consult
-  :ensure t)
+(use-package consult)
 
 (use-package orderless
-  :ensure t
   :config
   (setq completion-styles '(orderless basic)
         orderless-component-separator "\\s-+"))
 
 (use-package eglot
-  :ensure t
   :config
 
   (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))

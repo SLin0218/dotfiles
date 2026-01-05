@@ -11,4 +11,8 @@
 (eval-when-compile
   (require 'use-package))
 
+(setq use-package-always-ensure t)
+
+(add-to-list 'load-path (expand-file-name "lisp/awesome-tab" user-emacs-directory))
+
 (provide 'init-package)

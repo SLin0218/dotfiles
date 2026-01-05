@@ -1,5 +1,5 @@
+;;撤销 重新打开文件时记住之前改动
 (use-package undo-tree
-  :ensure t
   :init
   (global-undo-tree-mode)
   :config
@@ -36,10 +36,24 @@
 ;保存前删除末尾空格
 (add-hook 'before-save-hook 'auto-save-delete-trailing-whitespace-except-current-line)
 
-
+;项目管理
 (use-package projectile
-  :ensure t
   :init
   (projectile-mode +1))
+
+
+;;git相关
+(use-package magit)
+(use-package diff-hl
+  :config
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
+  (global-diff-hl-mode))
+
+;;高亮光标处相同变量
+(use-package symbol-overlay
+  :bind
+  ("M-i" . symbol-overlay-put)
+  ("M-n" . symbol-overlay-jump-next)
+  ("M-p" . symbol-overlay-jump-prev))
 
 (provide 'init-session)

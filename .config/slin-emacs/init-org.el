@@ -38,7 +38,6 @@
 
 
 (use-package org-modern
-  :ensure t
   :hook (org-mode . org-modern-mode)
   :config
   (setq org-modern-star '("●" "○" "◆" "◇" "▶" "▷"))
@@ -63,4 +62,5 @@
           ("translate" . (,(nerd-icons-mdicon "nf-md-translate" :face 'nerd-icons-blue)
                           ,(nerd-icons-mdicon "nf-md-translate" :face 'org-block-end-line)))
           )))
+
 (provide 'init-org)
