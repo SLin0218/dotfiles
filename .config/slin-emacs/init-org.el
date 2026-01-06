@@ -1,3 +1,4 @@
+(setq org-agenda-files (list (expand-file-name "~/org/agenda/")))
 
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :weight 'bold :height 1.25 :foreground "#ff6b6b")
@@ -34,7 +35,15 @@
   ;quote高亮
   (setq org-indent-indentation-per-level 2)
   (setq org-fontify-quote-and-verse-blocks t)
-  (setq org-indent-mode-respect-standard-blocks t))
+  (setq org-indent-mode-respect-standard-blocks t)
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c@)")))
+  (setq org-log-done 'time)
+  (setq org-log-into-drawer t)     ; 日志放入 LOGBOOK drawer，保持整洁
+  (setq org-todo-keyword-faces
+        '(("NEXT"     . (:foreground "#4caf50" :weight bold))
+          ("WAITING"  . (:foreground "#ff9800"))
+          ("CANCELLED". (:foreground "#9e9e9e" :strike-through t)))))
 
 
 (use-package org-modern
@@ -43,7 +52,6 @@
   (setq org-modern-star '("●" "○" "◆" "◇" "▶" "▷"))
   (setq org-hide-emphasis-markers t)
   (setq org-pretty-entities t)
-  (setq org-agenda-tags-column 0)
   (setq org-modern-block-name
 	`(("src" . (,(nerd-icons-devicon "nf-dev-codeac" :face 'nerd-icons-blue-alt)
 		    ,(nerd-icons-devicon "nf-dev-codeac" :face 'org-block-end-line)))
@@ -62,5 +70,84 @@
           ("translate" . (,(nerd-icons-mdicon "nf-md-translate" :face 'nerd-icons-blue)
                           ,(nerd-icons-mdicon "nf-md-translate" :face 'org-block-end-line)))
           )))
+
+
+(use-package org-super-agenda
+  :config
+  (org-super-agenda-mode)
+  (setq spacemacs-theme-org-agenda-height nil
+        org-agenda-time-grid '((daily today require-timed) (600 1200 1800) " ········· " "---------------------")
+        ;; org-agenda-time-grid '((daily) () "" "")
+        ;; org-agenda-current-time-string ""
+        org-agenda-skip-scheduled-if-done t
+        org-agenda-skip-deadline-if-done t
+        org-agenda-include-deadlines t
+        calendar-view-holidays-initially t
+        org-agenda-include-diary t
+        org-agenda-align-tags t
+        org-agenda-tags-column 100
+        org-agenda-window-setup 'current-window
+        ;; org-agenda-block-separator nil
+        ;; org-agenda-compact-blocks t
+        ;; org-agenda-prefix-format '((agenda . " %-4e %i %-12:c%?-12t% s ")
+        ;;                            (todo . " %i %-12:c")
+        ;;                            (tags . " %i %-12:c")
+        ;;                            (search . " %i %-12:c"))
+        org-agenda-start-with-log-mode t
+        org-agenda-category-icon-alist `(("task" ,(list (all-the-icons-faicon "book" :height 0.8)) nil nil :ascent center)
+                                         ("diary" ,(list (all-the-icons-faicon "pencil" :height 0.9)) nil nil :ascent center))
+        )
+  (setq org-agenda-custom-commands
+        '(("z" "Super zaen view"
+           ((agenda "" ((org-agenda-span 'day)
+                        (org-super-agenda-groups
+                         '((:name "󰃶 Today"
+                                  :time-grid t
+                                  :date today
+                                  :scheduled today
+                                  :order 1)
+                           (:discard (:not (:scheduled today)))))))
+            (alltodo "" ((org-agenda-overriding-header "")
+                         (org-super-agenda-groups
+                          '((:name " Next to do"
+                                   :todo "NEXT"
+                                   :order 2)
+                            (:name " Important"
+                                   :tag "Important"
+                                   :priority "A"
+                                   :order 4)
+                            (:name " Due Today"
+                                   :deadline today
+                                   :order 1)
+                            (:name " Due Soon"
+                                   :deadline future
+                                   :face (:foreground "#f1fa8c")
+                                   :order 10)
+                            (:name "󰜡 Overdue"
+                                   :deadline past
+                                   :and(:not (:todo "DONE") :scheduled past)
+                                   :face (:foreground "#ff5555")
+                                   :order 3)
+                            (:discard (:anything t))
+                            ))))))))
+  )
+
+(setq diary-file "~/org/diary")
+(defun slin/close-empty-diary ()
+  "Close diary buffer if it's empty."
+  (let ((buf (get-buffer "diary")))
+    (when (and buf (eq (buffer-size buf) 0))
+      (kill-buffer buf))))
+
+(add-hook 'org-agenda-finalize-hook #'slin/close-empty-diary)
+
+(use-package cal-china-x
+  :config
+  (setq calendar-mark-holidays-flag t)
+  (setq cal-china-x-important-holidays cal-china-x-chinese-holidays)
+  (setq cal-china-x-general-holidays '((holiday-lunar 1 15 "元宵节")))
+  (setq calendar-holidays
+        (append cal-china-x-important-holidays
+                cal-china-x-general-holidays)))
 
 (provide 'init-org)

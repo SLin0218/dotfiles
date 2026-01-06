@@ -91,6 +91,7 @@
       (or
        (string-prefix-p "*" name)
        (string-prefix-p " *" name)
+       (string-prefix-p "diary" name)
        (and (string-prefix-p "magit" name)
             (not (file-name-extension name)))
        )))
