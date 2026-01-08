@@ -2,7 +2,7 @@
 
 (with-eval-after-load 'org
   (set-face-attribute 'org-level-1 nil :weight 'bold :height 1.25 :foreground "#ff6b6b")
-  (let ((colors '("#ff6b6b" "#4ecdc4" "#a0c4ff" "#9bf6ff" "#ffd6a5" "#ffadad")))
+  (let ((colors '("#ffb86c" "#4ecdc4" "#a0c4ff" "#8be9fd" "#ffd6a5" "#ffadad")))
     (dolist (i (number-sequence 2 6))
       (set-face-attribute (intern (format "org-level-%d" i)) nil
 			  :weight 'bold
@@ -11,6 +11,7 @@
 
   ;开启标题缩进
   (setq org-startup-indented t)
+  (global-org-modern-mode)
 
   ;code按语言缩进
   (setq org-src-tab-acts-natively t)
@@ -25,25 +26,45 @@
 
   ;block执行代码 通用配置
   (setq org-babel-default-header-args
-      '((:session . "none")         ;是否启用持久会话
-	(:exports . "code")         ;只导出代码
-	(:results . "replace")))    ;替换结果
+        '((:session . "none")         ;是否启用持久会话
+          (:exports . "code")         ;只导出代码
+          (:results . "replace")))    ;替换结果
+  ;; (setq org-modern-hide-stars nil
+      ;; org-modern-todo nil)
 
   ;行间距
   (setq line-spacing 0.25)
+
+  (setq org-use-property-inheritance t)
+  ;; 子任务阻塞父任务
+  (setq org-enforce-todo-dependencies t)
+
+  ;; agenda 里只看叶子任务
+  (setq org-agenda-todo-list-sublevels t)
+
 
   ;quote高亮
   (setq org-indent-indentation-per-level 2)
   (setq org-fontify-quote-and-verse-blocks t)
   (setq org-indent-mode-respect-standard-blocks t)
+  ;; (setq org-agenda-todo-keyword-format "%-8s")
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c@)")))
+        '((sequence "TODO(t)" "NEXT(n)" "ACTIVITY(a)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)     ; 日志放入 LOGBOOK drawer，保持整洁
-  (setq org-todo-keyword-faces
-        '(("NEXT"     . (:foreground "#4caf50" :weight bold))
-          ("WAITING"  . (:foreground "#ff9800"))
-          ("CANCELLED". (:foreground "#9e9e9e" :strike-through t)))))
+  (setq org-modern-todo-faces '(("TODO"     . (:foreground "#bd93f9" :background "#44475a" :height 1.3))
+                                ("NEXT"     . (:foreground "#ffb86c" :background "#44475a" :height 1.3 :weight bold))
+                                ("ACTIVITY" . (:foreground "#ff79c6" :background "#44475a" :height 1.3 :weight bold))
+                                ("WAITING"  . (:foreground "#8be9fd" :background "#44475a" :height 1.3))
+                                ("DONE"     . (:foreground "#50fa7b" :background "#44475a" :height 1.3))
+                                ("CANCELED" . (:foreground "#6272a4" :background "#44475a" :height 1.3 :strike-through t))))
+  (setq org-todo-keyword-faces '(("TODO"     . (:foreground "#bd93f9" :background "#44475a"))
+                                 ("NEXT"     . (:foreground "#ffb86c" :background "#44475a" :weight bold))
+                                 ("ACTIVITY" . (:foreground "#ff79c6" :background "#44475a" :weight bold))
+                                 ("WAITING"  . (:foreground "#8be9fd" :background "#44475a"))
+                                 ("DONE"     . (:foreground "#50fa7b" :background "#44475a"))
+                                 ("CANCELED" . (:foreground "#6272a4" :background "#44475a" :strike-through t))))
+  )
 
 
 (use-package org-modern
@@ -76,9 +97,10 @@
   :config
   (org-super-agenda-mode)
   (setq spacemacs-theme-org-agenda-height nil
-        org-agenda-time-grid '((daily today require-timed) (600 1200 1800) " ········· " "---------------------")
+        org-agenda-time-grid '((daily today require-timed) (600 1200 1800) " ···· " "---------------------")
         ;; org-agenda-time-grid '((daily) () "" "")
         ;; org-agenda-current-time-string ""
+        org-agenda-time-leading-zero t
         org-agenda-skip-scheduled-if-done t
         org-agenda-skip-deadline-if-done t
         org-agenda-include-deadlines t
@@ -87,14 +109,20 @@
         org-agenda-align-tags t
         org-agenda-tags-column 100
         org-agenda-window-setup 'current-window
+        org-agenda-skip-scheduled-if-deadline-is-shown t
+        org-agenda-skip-scheduled-if-done t
+
         ;; org-agenda-block-separator nil
         ;; org-agenda-compact-blocks t
-        ;; org-agenda-prefix-format '((agenda . " %-4e %i %-12:c%?-12t% s ")
-        ;;                            (todo . " %i %-12:c")
-        ;;                            (tags . " %i %-12:c")
-        ;;                            (search . " %i %-12:c"))
+        org-agenda-prefix-format '((agenda   . "  %i %-12c %s %-22t")
+                                   (todo     . "  %i %-12c")
+                                   (tags     . "  %i %-12c")
+                                   (search   . "  %i %-12c"))
+
+;; (setq org-agenda-deadline-leaders (quote ("!D!: " "D%2d: " "")))
+;; (setq org-agenda-scheduled-leaders (quote ("" "S%3d: ")))
         org-agenda-start-with-log-mode t
-        org-agenda-category-icon-alist `(("task" ,(list (all-the-icons-faicon "book" :height 0.8)) nil nil :ascent center)
+        org-agenda-category-icon-alist `(("work" ,(list (all-the-icons-material "computer" :height 0.8)) nil nil :ascent center)
                                          ("diary" ,(list (all-the-icons-faicon "pencil" :height 0.9)) nil nil :ascent center))
         )
   (setq org-agenda-custom-commands
@@ -106,7 +134,7 @@
                                   :date today
                                   :scheduled today
                                   :order 1)
-                           (:discard (:not (:scheduled today)))))))
+                           ))))
             (alltodo "" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
                           '((:name " Next to do"
@@ -149,5 +177,6 @@
   (setq calendar-holidays
         (append cal-china-x-important-holidays
                 cal-china-x-general-holidays)))
+
 
 (provide 'init-org)

@@ -760,7 +760,7 @@
                                     "key_code": "y",
                                     "modifiers": { "mandatory": ["right_command", "right_control", "right_option", "right_shift"] }
                                 },
-                                "to": [{ "shell_command": "open -a 'NeteaseMusic'" }],
+                                "to": [{ "shell_command": "open -a 'QQMusic'" }],
                                 "type": "basic"
                             },
                             {

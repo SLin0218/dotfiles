@@ -82,7 +82,6 @@
   (setq awesome-tab-height 180)
   (setq awesome-tab-cycle-scope 'tabs)
   (setq awesome-tab-dark-active-bar-color "#6272a4")
-  (set-face-attribute 'tab-line nil :inherit 'default)
   (when (not (display-graphic-p))
     (setq awesome-tab-display-icon nil)
     (setq frame-background-mode 'dark))
@@ -95,6 +94,9 @@
        (and (string-prefix-p "magit" name)
             (not (file-name-extension name)))
        )))
+
+  (set-face-attribute 'tab-line nil :inherit 'default)
+  (set-face-attribute 'awesome-tab-unselected-face nil :foreground "#6272a4" :distant-foreground "#6272a4")
   (awesome-tab-mode t))
 
 ;; 层级对齐线
@@ -166,6 +168,5 @@
   :config
   (global-colorful-mode t)
   (add-to-list 'global-colorful-modes 'helpful-mode))
-
 
 (provide 'init-ui)

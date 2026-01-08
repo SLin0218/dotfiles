@@ -62,4 +62,20 @@
 
 )
 
+
+(use-package lua-mode)
+(use-package yaml-mode)
+
+(use-package tree-sitter
+  :hook
+  (lua-mode . tree-sitter-mode)
+  (lua-mode . tree-sitter-hl-mode)
+  (yaml-mode . tree-sitter-mode)
+  (yaml-mode . tree-sitter-hl-mode)
+  :config
+  (require 'tree-sitter-langs))
+
+(use-package tree-sitter-langs)
+
+
 (provide 'init-complete)
