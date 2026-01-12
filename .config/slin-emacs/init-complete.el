@@ -12,25 +12,42 @@
   ;全部配置
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
-  ;elisp配置
+  ;; --------------------------
+  ;; Emacs Lisp 专用
+  ;; --------------------------
   (add-hook 'emacs-lisp-mode-hook
-	    (lambda ()
-	      (setq-local completion-at-point-functions
-			  (list (cape-capf-super
-				 #'elisp-completion-at-point  ;原生 Elisp 补全
-				 #'cape-dabbrev               ;文本词汇
-				 #'cape-keyword               ;关键字
-				 #'cape-file)))))
+            (lambda ()
+              ;; 组合 Elisp 补全 + keyword + 全局 dabbrev/file
+              (setq-local completion-at-point-functions
+                          (cape-capf-super
+                           #'elisp-completion-at-point
+                           #'cape-keyword
+                           #'cape-dabbrev
+                           #'cape-file))))
+  ;; --------------------------
+  ;; Python/Eglot 专用
+  ;; --------------------------
   (add-hook 'eglot-managed-mode-hook
-	    (lambda ()
-	      (setq-local completion-at-point-functions
-			  (list (cape-capf-super
-				 #'eglot-completion-at-point
-				 #'cape-file	     ;;文件路径
-				 #'cape-dabbrev))))) ;;文本词汇
+            (lambda ()
+              ;; 组合 Eglot 补全 + 文件 + dabbrev
+              (setq-local completion-at-point-functions
+                          (cape-capf-super
+                           #'eglot-completion-at-point
+                           #'cape-file
+                           #'cape-dabbrev))))
   )
 
+(use-package blacken
+  :hook (eglot-managed-mode . blacken-mode)
+  :custom
+  (blacken-line-length 88))
 
+(use-package xml-format
+  :demand t
+  :after nxml-mode
+  :hook (nxml-mode . xml-format-on-save-mode)
+  :config
+  (xml-format-on-save-mode t))
 
 (use-package consult)
 

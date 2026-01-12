@@ -39,7 +39,9 @@
 ;项目管理
 (use-package projectile
   :init
-  (projectile-mode +1))
+  (projectile-mode +1)
+  :config
+  (if (string-equal system-type "darwin") (delete "WORKSPACE" projectile-project-root-files)))
 
 
 ;;git相关
