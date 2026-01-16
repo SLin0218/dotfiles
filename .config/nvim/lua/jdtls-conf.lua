@@ -40,17 +40,16 @@ local function get_jdtls_paths()
   path.data_dir = vim.fn.stdpath "cache" .. "/nvim-jdtls"
 
   local jdtls_install = vim.fn.expand("$MASON/packages/jdtls/")
-  print(jdtls_install)
 
-  path.java_agent = jdtls_install .. "/lombok.jar"
-  path.launcher_jar = vim.fn.glob(jdtls_install .. "/plugins/org.eclipse.equinox.launcher_*.jar")
+  path.java_agent = jdtls_install .. "lombok.jar"
+  path.launcher_jar = vim.fn.glob(jdtls_install .. "plugins/org.eclipse.equinox.launcher_*.jar")
 
   if vim.fn.has "mac" == 1 then
-    path.platform_config = jdtls_install .. "/config_mac"
+    path.platform_config = jdtls_install .. "config_mac"
   elseif vim.fn.has "unix" == 1 then
-    path.platform_config = jdtls_install .. "/config_linux"
+    path.platform_config = jdtls_install .. "config_linux"
   elseif vim.fn.has "win32" == 1 then
-    path.platform_config = jdtls_install .. "/config_win"
+    path.platform_config = jdtls_install .. "config_win"
   end
 
   path.bundles = {}
@@ -165,11 +164,11 @@ local function jdtls_setup(_)
 
   local os_name = vim.loop.os_uname().sysname
   if os_name == "Linux" then
-    jcmd = vim.fn.glob("/usr/lib/jvm/*17*/bin/java")
+    jcmd = vim.fn.glob("/usr/lib/jvm/*21*/bin/java")
   elseif os_name == "Darwin" then
-    jcmd = vim.fn.glob("/Library/Java/JavaVirtualMachines/*17*/Contents/Home/bin/java")
+    jcmd = vim.fn.glob("/Library/Java/JavaVirtualMachines/*21*/Contents/Home/bin/java")
   else
-    print("please install jdk 17")
+    print("please install jdk 21")
   end
 
   -- The command that starts the language server
@@ -189,16 +188,10 @@ local function jdtls_setup(_)
     "java.base/java.util=ALL-UNNAMED",
     "--add-opens",
     "java.base/java.lang=ALL-UNNAMED",
-
-    -- 💀
     "-jar",
     path.launcher_jar,
-
-    -- 💀
     "-configuration",
     path.platform_config,
-
-    -- 💀
     "-data",
     data_dir,
   }

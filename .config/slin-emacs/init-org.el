@@ -64,6 +64,97 @@
                                  ("WAITING"  . (:foreground "#8be9fd" :background "#44475a"))
                                  ("DONE"     . (:foreground "#50fa7b" :background "#44475a"))
                                  ("CANCELED" . (:foreground "#6272a4" :background "#44475a" :strike-through t))))
+
+  ;;latex 相关配置
+  (setq org-latex-pdf-process
+        '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
+
+  (unless (boundp 'org-latex-classes)
+    (setq org-latex-classes nil))
+
+  (add-to-list 'org-latex-classes
+               '("ethz"
+                 "\\documentclass[a4paper,11pt,titlepage]{memoir}
+ \\usepackage[utf8]{inputenc}
+ \\usepackage[T1]{fontenc}
+ \\usepackage{fixltx2e}
+ \\usepackage{graphicx}
+ \\usepackage{longtable}
+ \\usepackage{float}
+ \\usepackage{wrapfig}
+ \\usepackage{rotating}
+ \\usepackage[normalem]{ulem}
+ \\usepackage{amsmath}
+ \\usepackage{textcomp}
+ \\usepackage{marvosym}
+ \\usepackage{wasysym}
+ \\usepackage{amssymb}
+ \\usepackage{hyperref}
+ \\usepackage{mathpazo}
+ \\usepackage{color}
+ \\usepackage{enumerate}
+ \\definecolor{bg}{rgb}{0.95,0.95,0.95}
+ \\tolerance=1000
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]
+ \\linespread{1.1}
+ \\hypersetup{pdfborder=0 0 0}"
+                 ("\\chapter{%s}" . "\\chapter*{%s}")
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+
+  (add-to-list 'org-latex-classes
+               '("article"
+                 "\\documentclass[11pt,a4paper]{article}
+ \\usepackage[utf8]{inputenc}
+ \\usepackage[T1]{fontenc}
+ \\usepackage{fixltx2e}
+ \\usepackage{graphicx}
+ \\usepackage{longtable}
+ \\usepackage{float}
+ \\usepackage{wrapfig}
+ \\usepackage{rotating}
+ \\usepackage[normalem]{ulem}
+ \\usepackage{amsmath}
+ \\usepackage{textcomp}
+ \\usepackage{marvosym}
+ \\usepackage{wasysym}
+ \\usepackage{amssymb}
+ \\usepackage{hyperref}
+ \\usepackage{mathpazo}
+ \\usepackage{color}
+ \\usepackage{enumerate}
+ \\definecolor{bg}{rgb}{0.95,0.95,0.95}
+ \\tolerance=1000
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]
+ \\linespread{1.1}
+ \\hypersetup{pdfborder=0 0 0}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")))
+
+
+  (add-to-list 'org-latex-classes '("ebook"
+                                    "\\documentclass[11pt, oneside]{memoir}
+ \\setstocksize{9in}{6in}
+ \\settrimmedsize{\\stockheight}{\\stockwidth}{*}
+ \\setlrmarginsandblock{2cm}{2cm}{*} % Left and right margin
+ \\setulmarginsandblock{2cm}{2cm}{*} % Upper and lower margin
+ \\checkandfixthelayout
+ % Much more laTeX code omitted
+ "
+                                    ("\\chapter{%s}" . "\\chapter*{%s}")
+                                    ("\\section{%s}" . "\\section*{%s}")
+                                    ("\\subsection{%s}" . "\\subsection*{%s}")))
+
   )
 
 
@@ -178,5 +269,31 @@
         (append cal-china-x-important-holidays
                 cal-china-x-general-holidays)))
 
+
+(use-package org-roam
+  :after org
+  :config
+  (setq org-roam-directory (file-truename "~/org/docs"))
+  (setq org-roam-db-location (file-truename (expand-file-name "org-roam.db" org-roam-directory))))
+
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory (file-truename "~/org/docs"))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode))
+
+(use-package org-roam-ui)
+
+(use-package org-roam-bibtex)
 
 (provide 'init-org)

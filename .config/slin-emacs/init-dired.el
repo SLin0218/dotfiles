@@ -28,7 +28,7 @@
                     (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
                     (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)))
   :custom
-  (neo-window-width 40)
+  (neo-window-width 70)
   :config
   (setq neo-theme (if (display-graphic-p) 'icons 'nerd-icons)))
 

@@ -11,7 +11,7 @@
 (setq custom-file "/dev/null")
 
 
-(setq my-paths '("/opt/homebrew/bin" "/usr/local/bin" "~/.local/share/nvim/mason/bin/" "~/.local/bin/"))
+(setq my-paths '("/opt/homebrew/bin" "/usr/local/bin" "~/.local/share/nvim/mason/bin/" "~/.local/bin/" "/Library/TeX/texbin/"))
 (setq my-paths-join (string-join (mapcar #'expand-file-name my-paths) ":"))
 
 (setenv "PATH" (concat my-paths-join ":" (getenv "PATH")))

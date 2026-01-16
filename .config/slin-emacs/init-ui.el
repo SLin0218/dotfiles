@@ -1,9 +1,11 @@
+(when (and (eq system-type 'darwin)
+           (display-graphic-p))
+  (tool-bar-mode -3))                      ;禁用工具栏
 
-(when (eq window-system 'pgtk)
-  (tool-bar-mode -3)                      ;禁用工具栏
-  (menu-bar-mode -1)                      ;禁用菜单栏
+(when (display-graphic-p)
   (scroll-bar-mode -1))                   ;禁用滚动条
 
+(menu-bar-mode -1)                      ;禁用菜单栏
 (global-display-line-numbers-mode 1)    ;行号
 
 
