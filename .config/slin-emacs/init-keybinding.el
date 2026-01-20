@@ -76,29 +76,29 @@
 (use-package evil-nerd-commenter)
 
 ;; 终端
-(use-package vterm
-  :hook (vterm-mode . (lambda () (display-line-numbers-mode -1)))
-  :config
-  ;; 设置 vterm 使用 Solarized Dark 风格
-  (custom-set-faces
-   ;;'(vterm-default-face ((t (:foreground "#839496" :background "#002b36"))))
-   ;; '(vterm-color-black ((t (:foreground "#073642" :background "#073642"))))
-   ;;'(vterm-color-red ((t (:foreground "#dc322f" :background "#dc322f"))))
-   ;;'(vterm-color-green ((t (:foreground "#859900" :background "#859900"))))
-   ;;'(vterm-color-yellow ((t (:foreground "#b58900" :background "#b58900"))))
-   ;;'(vterm-color-blue ((t (:foreground "#268bd2" :background "#268bd2"))))
-   ;;'(vterm-color-magenta ((t (:foreground "#d33682" :background "#d33682"))))
-   ;;'(vterm-color-cyan ((t (:foreground "#2aa198" :background "#2aa198"))))
-   ;;'(vterm-color-white ((t (:foreground "#eee8d5" :background "#eee8d5"))))
-   ;; bright colors (8-15)
-   '(vterm-color-bright-black  ((t (:foreground "#839496" :background "#002b36"))))
-   ;;'(vterm-color-bright-red ((t (:foreground "#cb4b16" :background "#cb4b16"))))
-   ;;'(vterm-color-bright-green ((t (:foreground "#586e75" :background "#586e75"))))
-   ;;'(vterm-color-bright-yellow ((t (:foreground "#657b83" :background "#657b83"))))
-   ;;'(vterm-color-bright-blue ((t (:foreground "#839496" :background "#839496"))))
-   ;;'(vterm-color-bright-magenta ((t (:foreground "#6c71c4" :background "#6c71c4"))))
-   ;;'(vterm-color-bright-cyan ((t (:foreground "#93a1a1" :background "#93a1a1"))))
-   ;;'(vterm-color-bright-white ((t (:foreground "#fdf6e3" :background "#fdf6e3"))))
-   ))
+;; (use-package vterm
+;;   :hook (vterm-mode . (lambda () (display-line-numbers-mode -1)))
+;;   :config
+;;   ;; 设置 vterm 使用 Solarized Dark 风格
+;;   (custom-set-faces
+;;    ;;'(vterm-default-face ((t (:foreground "#839496" :background "#002b36"))))
+;;    ;; '(vterm-color-black ((t (:foreground "#073642" :background "#073642"))))
+;;    ;;'(vterm-color-red ((t (:foreground "#dc322f" :background "#dc322f"))))
+;;    ;;'(vterm-color-green ((t (:foreground "#859900" :background "#859900"))))
+;;    ;;'(vterm-color-yellow ((t (:foreground "#b58900" :background "#b58900"))))
+;;    ;;'(vterm-color-blue ((t (:foreground "#268bd2" :background "#268bd2"))))
+;;    ;;'(vterm-color-magenta ((t (:foreground "#d33682" :background "#d33682"))))
+;;    ;;'(vterm-color-cyan ((t (:foreground "#2aa198" :background "#2aa198"))))
+;;    ;;'(vterm-color-white ((t (:foreground "#eee8d5" :background "#eee8d5"))))
+;;    ;; bright colors (8-15)
+;;    '(vterm-color-bright-black  ((t (:foreground "#839496" :background "#002b36"))))
+;;    ;;'(vterm-color-bright-red ((t (:foreground "#cb4b16" :background "#cb4b16"))))
+;;    ;;'(vterm-color-bright-green ((t (:foreground "#586e75" :background "#586e75"))))
+;;    ;;'(vterm-color-bright-yellow ((t (:foreground "#657b83" :background "#657b83"))))
+;;    ;;'(vterm-color-bright-blue ((t (:foreground "#839496" :background "#839496"))))
+;;    ;;'(vterm-color-bright-magenta ((t (:foreground "#6c71c4" :background "#6c71c4"))))
+;;    ;;'(vterm-color-bright-cyan ((t (:foreground "#93a1a1" :background "#93a1a1"))))
+;;    ;;'(vterm-color-bright-white ((t (:foreground "#fdf6e3" :background "#fdf6e3"))))
+;;    ))
 
 (provide 'init-keybinding)
