@@ -18,7 +18,7 @@ proxy_status() {
 }
 
 proxy_start() {
-    export https_proxy=http://lin:dsl7788@myphone:7890 http_proxy=http://lin:dsl7788@myphone:7890 all_proxy=socks5://lin:dsl7788@myphone:7890
+    export https_proxy=http://myphone:7890 http_proxy=http://myphone:7890 all_proxy=socks5://myphone:7890
     proxy_status
 }
 
