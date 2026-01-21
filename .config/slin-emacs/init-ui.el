@@ -10,6 +10,8 @@
 (global-display-line-numbers-mode 1)    ;行号
 
 (defvar slin/font-size 12)
+(defvar slin/font-family "JetBrainsMono Nerd Font Mono")
+(defvar slin/font-family-cjk "Sarasa Term SC Nerd")
 
 (cond ((eq system-type 'darwin) (setq slin/font-size 16)))
 
@@ -18,11 +20,11 @@
   (when (display-graphic-p)
     (cond
      ((eq window-system 'pgtk)
-      (set-face-attribute 'default nil :height (* slin/font-size 10) :family "JetBrainsMono Nerd Font Mono"))
+      (set-face-attribute 'default nil :height (* slin/font-size 10) :family slin/font-family))
      (t
       (let* ((font-size slin/font-size)
-             (chinese-font "Sarasa Term SC Nerd")
-             (english-font "JetBrainsMono Nerd Font Mono"))
+             (chinese-font slin/font-family-cjk)
+             (english-font slin/font-family))
         ;; Set default font
         (set-frame-font (format "%s-%d" english-font font-size) nil t)
         ;; Set Chinese font for CJK characters
@@ -35,7 +37,7 @@
 ;; org-table单独设置字体
 (with-eval-after-load 'org
   (advice-add #'org-string-width :override #'org--string-width-1)
-  (set-face-attribute 'org-table nil :family "Sarasa Term SC Nerd" :height 160))
+  (set-face-attribute 'org-table nil :family slin/font-family-cjk :height (* slin/font-size 10)))
 
 ;; 在图形界面下启动时最大化窗口（仅 macOS）
 (when (and (eq system-type 'darwin)
@@ -187,7 +189,7 @@
   (setq treemacs-collapse-dirs 2)
   (setq treemacs-width-is-initially-locked t)
   (setq treemacs-follow-after-init t)
-  (setq treemacs-width 80))
+  (setq treemacs-width (* slin/font-size 5)))
 
 (use-package treemacs-all-the-icons
   :after treemacs
