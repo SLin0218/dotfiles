@@ -23,6 +23,12 @@
 ;M+x历史命令保留
 (savehist-mode 1)
 
+;(setenv "HTTP_PROXY" "http://myphone:7890")
+;(setenv "HTTPS_PROXY" "http://myphone:7890")
+;(setenv "ALL_PROXY" "socks5://myphone:7890")
+;(setenv "MAVEN_OPTS" "-Dhttp.proxyHost=myphone -Dhttp.proxyPort=7890 -Dhttps.proxyHost=myphone -Dhttps.proxyPort=7890")
+
+
 (require 'init-package)
 (require 'init-ui)
 (require 'init-keybinding)

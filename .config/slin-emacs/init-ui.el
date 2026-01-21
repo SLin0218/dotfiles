@@ -164,8 +164,6 @@
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
 (use-package colorful-mode
-  ;; :diminish
-  ;; :ensure t ; Optional
   :custom
   (colorful-use-prefix t)
   (colorful-only-strings 'only-prog)
@@ -173,5 +171,30 @@
   :config
   (global-colorful-mode t)
   (add-to-list 'global-colorful-modes 'helpful-mode))
+
+(use-package treemacs
+  :bind (("C-x C-n" . treemacs))
+  :config
+  (setq treemacs-indentation 1)
+  (setq treemacs-collapse-dirs 2)
+  (setq treemacs-width-is-initially-locked t)
+  (setq treemacs-follow-after-init t)
+  (setq treemacs-width 80))
+
+(use-package treemacs-all-the-icons
+  :after treemacs
+  :config
+  (treemacs-load-theme "all-the-icons"))
+
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :config
+  (treemacs-project-follow-mode t) )
+
+(use-package treemacs-magit
+  :after (treemacs magit))
 
 (provide 'init-ui)
