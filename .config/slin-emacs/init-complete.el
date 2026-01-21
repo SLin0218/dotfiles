@@ -162,5 +162,6 @@
 
 ;;     (make-directory (file-name-directory custom-config) t)
 
+(use-package markdown-mode)
 
 (provide 'init-complete)

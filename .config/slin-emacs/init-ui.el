@@ -1,22 +1,26 @@
-(when (and (eq system-type 'darwin)
-           (display-graphic-p))
-  (tool-bar-mode -3))                      ;禁用工具栏
-
 (when (display-graphic-p)
-  (scroll-bar-mode -1))                   ;禁用滚动条
+  ;禁用滚动条
+  (scroll-bar-mode -1)
+  (when (or (eq system-type 'darwin)
+            (eq system-type 'gnu/linux))
+    ;禁用工具栏
+    (tool-bar-mode -3)))
 
 (menu-bar-mode -1)                      ;禁用菜单栏
 (global-display-line-numbers-mode 1)    ;行号
 
+(defvar slin/font-size 12)
+
+(cond ((eq system-type 'darwin) (setq slin/font-size 16)))
 
 ;; 全局字体设置
 (defun load-font-setup ()
   (when (display-graphic-p)
     (cond
      ((eq window-system 'pgtk)
-      (set-face-attribute 'default nil :height 140 :family "JetBrainsMono Nerd Font Mono"))
+      (set-face-attribute 'default nil :height (* slin/font-size 10) :family "JetBrainsMono Nerd Font Mono"))
      (t
-      (let* ((font-size 15)
+      (let* ((font-size slin/font-size)
              (chinese-font "Sarasa Term SC Nerd")
              (english-font "JetBrainsMono Nerd Font Mono"))
         ;; Set default font
@@ -84,7 +88,7 @@
 (use-package awesome-tab
   :ensure nil
   :config
-  (setq awesome-tab-height 180)
+  (setq awesome-tab-height (* slin/font-size 10))
   (setq awesome-tab-cycle-scope 'tabs)
   (setq awesome-tab-dark-active-bar-color "#6272a4")
   (when (not (display-graphic-p))
@@ -96,6 +100,10 @@
        (string-prefix-p "*" name)
        (string-prefix-p " *" name)
        (string-prefix-p "diary" name)
+       (string-prefix-p "*Compile-Log*" name)
+       (string-prefix-p "*epc" name)
+       (string-prefix-p "*helm" name)
+       (string-prefix-p "*lsp" name)
        (and (string-prefix-p "magit" name)
             (not (file-name-extension name)))
        )))
