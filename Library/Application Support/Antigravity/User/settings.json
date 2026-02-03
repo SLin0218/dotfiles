@@ -1,0 +1,11 @@
+{
+    "extensions.experimental.affinity": {
+        "asvetliakov.vscode-neovim": 1
+    },
+    "editor.minimap.enabled": false,
+    "security.promptForLocalFileProtocolHandling": false,
+    "editor.formatOnSave": false,
+    "workbench.colorTheme": "Dracula Theme",
+    "workbench.iconTheme": "material-icon-theme",
+    "editor.fontSize": 14
+}
