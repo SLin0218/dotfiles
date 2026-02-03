@@ -7,5 +7,19 @@
     "editor.formatOnSave": false,
     "workbench.colorTheme": "Dracula Theme",
     "workbench.iconTheme": "material-icon-theme",
-    "editor.fontSize": 14
+    "editor.fontSize": 14,
+    "files.exclude": {
+        ".idea": true,
+        ".vscode": true,
+        "**/.classpath": true,
+        "**/.factorypath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/logs": true,
+        "derby.log": true
+    },
+    "explorer.autoRevealExclude": {
+        "**/logs": true
+    },
+    "explorer.excludeGitIgnore": true
 }
