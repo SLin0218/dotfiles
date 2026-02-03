@@ -72,6 +72,6 @@ else
   export _JAVA_AWT_WM_NONREPARENTING=1
   export SUDO_PROMPT=" 🔐 Password for $USER: "
   if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ];then
-    exec Hyprland
+    exec start-hyprland
   fi
 fi
