@@ -29,7 +29,7 @@
     {
         "key": "escape",
         "command": "workbench.action.focusActiveEditorGroup",
-        "when": "filesExplorerFocus && !inputFocus"
+        "when": "sideBarFocus && !inputFocus"
     },
     {
         "key": "cmd+b",
@@ -49,10 +49,19 @@
     },
     {
         "key": "cmd+2",
-        "command": "antigravity.openAgent"
+        "command": "antigravity.prioritized.chat.open"
     },
     {
         "key": "alt+cmd+b",
         "command": "-antigravity.openAgent"
+    },
+    {
+        "key": "cmd+3",
+        "command": "spring.apps.focus"
+    },
+    {
+        "key": "cmd+3",
+        "command": "workbench.action.toggleSidebarVisibility",
+        "when": "focusedView === 'spring.apps'"
     }
 ]

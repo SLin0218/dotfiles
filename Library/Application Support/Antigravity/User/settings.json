@@ -6,7 +6,6 @@
     "security.promptForLocalFileProtocolHandling": false,
     "editor.formatOnSave": false,
     "workbench.colorTheme": "Dracula Theme",
-    "workbench.iconTheme": "material-icon-theme",
     "editor.fontSize": 14,
     "files.exclude": {
         ".idea": true,
@@ -21,5 +20,9 @@
     "explorer.autoRevealExclude": {
         "**/logs": true
     },
-    "explorer.excludeGitIgnore": true
+    "explorer.excludeGitIgnore": true,
+    "workbench.activityBar.location": "top",
+    "workbench.preferredDarkColorTheme": "Dracula Theme",
+    "workbench.tree.renderIndentGuides": "always",
+    "workbench.tree.indent": 16
 }
