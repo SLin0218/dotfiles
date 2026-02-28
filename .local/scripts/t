@@ -1,5 +1,5 @@
 #!/bin/bash
 
-source $HOME/.local/scripts/translate/bin/activate
+source $HOME/.local/scripts/translate/.venv/bin/activate
 
 $HOME/.local/scripts/translate/main.py $@

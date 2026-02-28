@@ -25,7 +25,7 @@ alias cat='bat --style=changes'
 alias cls='clear'
 alias aria2p="aria2p -H http://192.168.0.245 -p 6800 -s 7096d190-3d75-47a3-8278-4b6209880cd8"
 alias aria2p="aria2p -H http://127.0.0.1 -p 6800 -s 7096d190-3d75-47a3-8278-4b6209880cd8"
-alias fetch="neofetch --ascii ~/.config/ascii/arch"
+alias fetch="fastfetch"
 
 # git
 alias gl="git pull"
