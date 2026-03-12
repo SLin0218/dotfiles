@@ -1,0 +1,59 @@
+@use "colors.scss" as *;
+
+* {
+  font-size: .8rem;
+}
+
+.button-padding {
+  background: transparent;
+  border: none;
+}
+
+.dashboard-container {
+  padding: 1rem;
+}
+
+.calendar-header {
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+
+  label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: $theme-fg-color;
+  }
+}
+
+.today-button {
+  background-color: #{'alpha(' + $theme_unfocused_selected_bg_color + ', 0.3)'};
+  border-radius: 8px;
+  padding: 4px 12px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $theme-fg-color;
+
+    label {
+      color: $theme-fg-color;
+    }
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: bold;
+  }
+}
+
+window {
+  background: none;
+}
+
+button {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+label {
+  box-shadow: none;
+}

@@ -1,0 +1,12 @@
+@use "sass:string";
+@use "sass:color";
+
+$theme-fg-color: #{"@theme_fg_color"};
+$theme-bg-color: #{"@theme_bg_color"};
+$theme_unfocused_selected_bg_color: #{"@theme_unfocused_selected_bg_color"};
+$blue_1: #{"@$blue_1"};
+$borders: #{"@$borders"};
+$theme-bg-color-transparent: #{'alpha(' + $theme-bg-color + ', 0.5)'};
+$theme-selected-bg-color: #{"@theme_selected_bg_color"};
+$success-color: #{"@success_color"};
+$error_color: #{"@error_color"}

@@ -1,0 +1,46 @@
+@use "colors.scss" as *;
+
+.osd-window-outer {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.osd-window {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.osd-box {
+  background-color: $theme-bg-color;
+  border-radius: 30px;
+  padding: 20px 10px;
+  margin-left: 20px;
+
+  scale {
+    trough {
+      min-width: 20px;
+
+      slider {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+      }
+
+      border-radius: 5px;
+
+      highlight {
+        border: 0;
+        border-radius: 0;
+      }
+    }
+  }
+}
+
+@mixin rounded-full {
+  border-radius: 9999px;
+}
+
+.osd-bar {
+  min-height: 10rem;
+}

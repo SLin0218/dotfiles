@@ -1,0 +1,85 @@
+@use "colors.scss" as *;
+
+
+window.Bar {
+  background: transparent;
+  color: $theme-fg-color;
+  font-weight: bold;
+  // font-size: 0.8rem;
+
+  >centerbox {
+    background-color: $theme-bg-color-transparent;
+    padding: 0 10px 0 10px;
+  }
+
+  button {
+    border: none;
+    background-color: transparent;
+    padding: 4px;
+  }
+
+  .focused {
+    color: $success_color;
+  }
+
+  .calendar-popover {
+    arrow {
+      background-color: #{'alpha(' + $theme-bg-color + ', 0.6)'};
+      border: none;
+      box-shadow: none;
+    }
+
+    contents {
+      background-color: #{'alpha(' + $theme-bg-color + ', 0.6)'};
+      box-shadow: none;
+    }
+
+    color: $theme-fg-color;
+
+    // GTK日历特定样式
+    calendar {
+
+      padding: 0.5em;
+      border: none;
+      box-shadow: none;
+      background-color: transparent;
+
+      // 日历网格样式
+      &.view {
+        background-color: transparent;
+        border-radius: 12px;
+        padding: 0.5rem;
+      }
+
+      >grid>label {
+        font-size: 0.8rem;
+      }
+
+      // 当前日期样式
+      label:focus {
+        border: none;
+        outline: none;
+        box-shadow: none;
+      }
+
+      label:selected {
+        box-shadow: none;
+      }
+
+      .today {
+        box-shadow: 0 -2px #{"@red_5"} inset;
+      }
+
+      .day-name {
+        color: #{"@blue_1"};
+        font-weight: bold;
+      }
+    }
+
+    .lunar-box {
+      padding: .9rem;
+      border-top: 1px solid color(srgb 0.870588 0.894118 0.882353 /0.15);
+    }
+  }
+
+}
