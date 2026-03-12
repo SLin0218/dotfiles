@@ -24,5 +24,6 @@
     "workbench.activityBar.location": "top",
     "workbench.preferredDarkColorTheme": "Dracula Theme",
     "workbench.tree.renderIndentGuides": "always",
-    "workbench.tree.indent": 16
+    "workbench.tree.indent": 16,
+    "editor.largeFileOptimizations": false
 }
