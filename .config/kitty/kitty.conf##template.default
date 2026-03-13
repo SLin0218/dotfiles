@@ -22,8 +22,8 @@ tab_bar_margin_height 5 5
 tab_bar_style custom
 tab_separator ""
 tab_title_max_length 30
-tab_title_template "{fmt.fg.color0} 󰄰 {' ' if layout_name == 'stack' else ''}{title} {fmt.bg.default}"
-active_tab_title_template  "{fmt.bg.default} {fmt.fg._c6a0f6}󰐾 {fmt.fg.yellow + ' ' if layout_name == 'stack' else ''}{fmt.fg.color7}{title} {fmt.bg.default}"
+tab_title_template "{fmt.fg.color0} 󰄰 {' ' if layout_name == 'stack' else ''}{fmt.fg.color7}{title} {fmt.bg.default}"
+active_tab_title_template  "{fmt.bg.color0} {fmt.fg._c6a0f6}󰐾 {fmt.fg.yellow + ' ' if layout_name == 'stack' else ''}{fmt.fg.color6}{title} {fmt.bg.default}"
 
 # bind keymap
 map alt+v paste_from_clipboard
