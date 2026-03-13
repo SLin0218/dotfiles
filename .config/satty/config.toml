@@ -1,0 +1,10 @@
+[general]
+output-filename = "~/Pictures/Screenshots/satty-%Y%m%d-%H:%M:%S.png"
+early-exit = true
+fullscreen = false
+resize = {mode = "smart"}
+zoom-factor = 1.0
+corner-roundness = 12
+floating-hack = true
+copy-command = "wl-copy"
+actions-on-escape = ["save-to-clipboard", "exit"]
