@@ -21,9 +21,9 @@ tab_bar_edge top
 tab_bar_margin_height 5 5
 tab_bar_style fade
 tab_fade 1 1 1 1
-tab_activity_symbol "󰈸"
-tab_title_template "{fmt.fg.yellow + '' if layout_name == 'stack' else ''} {fmt.fg.red}{bell_symbol}{activity_symbol}{fmt.fg.tab}{tab.last_focused_progress_percent}{title}"
-active_tab_title_template "{fmt.fg.yellow + '' if layout_name == 'stack' else ''} {fmt.fg.green}{fmt.fg.red}{bell_symbol}{activity_symbol}{fmt.fg.tab}{tab.last_focused_progress_percent} {title}"
+#tab_activity_symbol "󰈸"
+#tab_title_template "{fmt.fg.yellow + '' if layout_name == 'stack' else ''} {fmt.fg.red}{bell_symbol}{activity_symbol}{fmt.fg.tab}{tab.last_focused_progress_percent}{title}"
+#active_tab_title_template "{fmt.fg.yellow + '' if layout_name == 'stack' else ''} {fmt.fg.green}{fmt.fg.red}{bell_symbol}{activity_symbol}{fmt.fg.tab}{tab.last_focused_progress_percent} {title}"
 
 # bind keymap
 map alt+v paste_from_clipboard
