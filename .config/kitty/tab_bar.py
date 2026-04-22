@@ -80,7 +80,7 @@ def _draw_left_status(
         screen.cursor.x -= extra + 1
         # Don't change `ICON`
         screen.cursor.x = max(screen.cursor.x, ICON_LENGTH)
-        screen.draw("…")
+        screen.draw("… ")
     if trailing_spaces:
         screen.draw(" " * trailing_spaces)
 

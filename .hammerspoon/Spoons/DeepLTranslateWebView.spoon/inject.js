@@ -22,3 +22,4 @@ window.delById("lmt_pro_ad_container_1");
 window.delById("lmt_pro_ad_container_2");
 window.delById("lmt_quotes_article");
 window.delByClass("dl_footer");
+window.delByClass("[.is-home_&]:hidden")

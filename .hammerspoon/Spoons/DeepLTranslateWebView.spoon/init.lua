@@ -1,68 +1,88 @@
 ---@diagnostic disable: undefined-global
-local obj={}
+local obj = {}
 obj.__index = obj
-obj.webview = nil
 
-obj.popup_size = hs.geometry.size(900, 700)
-
-obj.popup_style = hs.webview.windowMasks.utility|hs.webview.windowMasks.HUD|hs.webview.windowMasks.titled|hs.webview.windowMasks.closable
--- 获取当前脚本路径
-local function script_path()
-    local str = debug.getinfo(2, "S").source:sub(2)
-    return str:match("(.*/)")
-end
-
-function obj:init()
-  local file = io.open(script_path() .. '/inject.js', 'r')
-  self.js = file:read('*a')
-  io.close(file)
-end
+function obj:init() end
 
 local function current_selection()
-   local elem=hs.uielement.focusedElement()
-   local sel=nil
-   if elem then
-      sel=elem:selectedText()
-   end
-   if (not sel) or (sel == "") then
-      hs.eventtap.keyStroke({"cmd"}, "c")
-      hs.timer.usleep(100000)
-      sel=hs.pasteboard.getContents()
-   else
-      print("sel:" .. sel)
-   end
-   return (sel or "")
+	local elem = hs.uielement.focusedElement()
+	local sel = nil
+	if elem then
+		sel = elem:selectedText()
+	end
+	if (not sel) or (sel == "") then
+		hs.eventtap.keyStroke({ "cmd" }, "c")
+		hs.timer.usleep(100000)
+		sel = hs.pasteboard.getContents()
+	else
+		print("sel:" .. sel)
+	end
+	return (sel or "")
+end
+
+MY_CANVAS = nil
+MY_CANVAS_CLOSE_KEY = nil
+
+local function closeCanva()
+	-- 关闭并销毁画布
+	if MY_CANVAS ~= nil then
+		MY_CANVAS:delete()
+		MY_CANVAS = nil
+	end
+	if MY_CANVAS_CLOSE_KEY ~= nil then
+		-- 注销 Esc 键监听，避免影响后续正常的 Esc 使用
+		MY_CANVAS_CLOSE_KEY:delete()
+		MY_CANVAS_CLOSE_KEY = nil
+	end
 end
 
 local function translate(text)
-  if obj.webview == nil then
-    local rect = hs.geometry.rect(0, 0, obj.popup_size.w, obj.popup_size.h)
-    rect.center = hs.screen.mainScreen():frame().center
-    local usercontent = hs.webview.usercontent.new('initScript')
-    usercontent:injectScript({
-      source=obj.js .. "window.inputValue(\"" .. text .. "\");",
-      injectionTime="documentEnd"
-    })
-    obj.webview = hs.webview.new(rect, {}, usercontent) :allowTextEntry(true)
-       :windowStyle(obj.popup_style)
-       :closeOnEscape(true)
-       :size({w=obj.popup_size.w, h=obj.popup_size.h})
-    obj.webview:url("https://www.deepl.com/translator")
-        :bringToFront()
-        :show()
-  else
-    obj.webview:evaluateJavaScript("window.inputValue(\"" .. text .. "\");")
-  end
-  obj.webview:bringToFront():show()
-  obj.webview:hswindow():focus()
+	closeCanva()
+
+	-- 2. 获取当前鼠标位置
+	local mousePos = hs.mouse.absolutePosition()
+	local padding = 25
+	local canvasW = 600
+	local canvasH = 500
+
+	-- 3. 创建 Canvas 窗口
+	MY_CANVAS = hs.canvas.new({
+		x = mousePos.x,
+		y = mousePos.y,
+		w = canvasW,
+		h = canvasH,
+	})
+
+	-- 背景矩形
+	MY_CANVAS[1] = {
+		type = "rectangle",
+		action = "fill",
+		fillColor = { hex = "#11111b" },
+		roundedRectRadii = { xRadius = 7, yRadius = 7 },
+	}
+
+	-- 文字内容
+	MY_CANVAS[2] = {
+		type = "text",
+		text = text,
+		textSize = 16,
+		lineBreak = "wordWrap",
+		textColor = { hex = "#cdd6f4" },
+		textAlignment = "left",
+		frame = { x = padding, y = padding, w = "95%", h = "95%" },
+	}
+
+	-- 让窗口始终在最前并显示
+	MY_CANVAS:level(hs.canvas.windowLevels.overlay)
+	MY_CANVAS:show()
+	MY_CANVAS_CLOSE_KEY = hs.hotkey.bind({}, "escape", closeCanva)
 end
 
-hs.hotkey.bind('alt', 'i', nil, function()
-  local text = current_selection()
-  text = string.gsub(text, "\"", "\\\"")
-  text = string.gsub(text, "\n", "\\n")
-  translate(text)
+hs.hotkey.bind("alt", "e", nil, function()
+	local text = current_selection()
+	text = string.gsub(text, '"', '\\"')
+	text = string.gsub(text, "\n", "\\n")
+	translate(text)
 end)
 
 return obj
-

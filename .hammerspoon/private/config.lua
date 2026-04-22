@@ -1,10 +1,6 @@
 hspoon_list = {
-    -- "SpeedMenu",
+    "SpeedMenu",
     --"Weather",
     "WinWin",
-    -- "IntelTemperature",
-    -- "YouDaoTranslate",
-    -- "YouDaoTranslateFree",
-    -- "QQTranslateWebView"
-    --"DeepLTranslateWebView"
+    "DeepLTranslateWebView"
 }
