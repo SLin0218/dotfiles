@@ -1,0 +1,10 @@
+# vim: set ft=bash :
+
+eval "$(starship init bash)"
+
+export GPG_TTY=$(tty)
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+
+alias vim=nvim
+
+gpg-connect-agent /bye > /dev/null 2>&1

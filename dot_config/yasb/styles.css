@@ -1,0 +1,637 @@
+* {
+	font-size: 12px;
+	color: #cdd6f4;
+	font-weight: 500;
+	font-family: "JetBrainsMono NFP";
+	margin: 0;
+	padding: 0;
+}
+.yasb-bar {
+	padding: 0 8px;
+	margin: 0;
+  background-color: #1e1e2e;
+  border-radius: 8px;
+}
+.widget {
+	padding: 0 10px;
+	margin: 0;
+}
+.widget .label {
+	padding: 2px 2px 1px 2px;
+}
+.widget .label.alt {
+	padding: 1px 8px 1px 8px;
+}
+ .clock-widget .label {
+    padding-left:8px;
+    font-size: 13px;
+}
+.komorebi-workspaces .ws-btn {
+	font-size: 18px;
+  background-color: transparent;
+	padding: 0 4px 0 4px;
+	color: #95a0ad;
+  border: none;
+}
+
+.komorebi-workspaces .ws-btn.populated {
+	color: #74c7ec;
+}
+.komorebi-workspaces .ws-btn:hover,
+.komorebi-workspaces .ws-btn.populated:hover,
+.komorebi-workspaces .ws-btn.active {
+	color: #89b4fa;
+}
+/*POWER MENU WIDGET*/
+/* Uptime text */
+.uptime {
+	font-size: 14px;
+	margin-bottom: 10px;
+	color: rgba(191, 202, 219, 0.726);
+	font-weight: 600;
+	font-family: "Microsoft YaHei UI";
+}
+.power-widget .label {
+  font-size: 13px;
+}
+.power-menu-widget .label {
+	color: #eba0ac;
+	font-size: 16px;
+}
+.power-menu-popup .button {
+	padding: 0;
+	width: 160px;
+	height: 240px;
+	border-radius: 4px;
+	background-color: rgba(41, 42, 58, 0.75);
+	font-family: "Microsoft YaHei UI";
+	color: white;
+	border: 4px solid rgba(255, 255, 255, 0);
+}
+.power-menu-popup .button.hover {
+	background-color: rgb(55, 56, 75);
+	border: 4px solid rgb(55, 56, 75);
+}
+.power-menu-popup .button .label {
+	margin-bottom: 8px;
+	font-size: 16px;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.6);
+	font-family: "Microsoft YaHei UI";
+}
+.power-menu-popup .button .icon {
+	font-size: 64px;
+	padding-top: 54px;
+	color: rgba(255, 255, 255, 0.25);
+}
+.power-menu-popup .button.cancel .icon {
+	color: rgba(243, 139, 168, 0.55);
+}
+.power-menu-popup .button.cancel .label {
+	color: rgba(243, 139, 168, 0.95);
+}
+
+/* ICONS */
+.icon {
+	font-size: 16px;
+}
+.volume-widget .icon {
+	color: #89b4fa;
+	margin: 1px 2px 0 0;
+}
+
+.volume-widget .label {
+  font-size: 13px;
+}
+
+.start-menu .icon {
+    font-size: 18px;
+	color: #89b4fa
+}
+.clock-widget .icon {
+	color: #cba6f7;
+  font-size: 13px;
+}
+/* WEATHER WIDGET */
+.weather-widget .icon {
+	font-size: 16px;
+	margin: 0 2px 0px 0;
+}
+.weather-widget .icon.sunnyDay {
+	color: rgb(221, 210, 107);
+}
+.weather-widget .icon.clearNight {
+	color: rgb(107, 189, 221);
+	font-size: 18px;
+	margin: -1px 2px 0px 0;
+}
+.weather-widget .icon.rainyNight {
+    font-size: 16px;
+}
+.weather-widget .icon.cloudyDay {
+    font-size: 18px;
+    color: rgb(221, 210, 107);
+}
+.weather-widget .icon.rainyDay {
+    color: rgb(245, 224, 220)
+}
+.media-widget {
+	padding: 0;
+	margin: 0;
+}
+.media-widget .label {
+	color: #b4befe;
+    padding: 0px;
+	padding-right: 4px;
+}
+ /* Hide media widget buttons */
+.media-widget .btn {
+	padding: 0;
+	margin: 0 -6px;
+    padding-left: 4px;
+}
+
+/* Quick Launch Widget */
+.quick-launch-widget .icon {
+	font-size: 14px;
+	padding: 0 4px;
+}
+.quick-launch-widget .icon:hover {
+	color: #fff;
+}
+
+/* Quick Launch Popup - main window */
+.quick-launch-popup .container {
+	background-color: rgba(29, 29, 29, 0.452);
+}
+/* Search bar container */
+.quick-launch-popup .search {
+	padding: 12px 16px;
+	background-color: transparent;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+/* Search loader line color */
+.quick-launch-popup .search .loader-line {
+	color: #449bff;
+}
+.quick-launch-popup .search .search-icon {
+	font-family: "Segoe Fluent Icons";
+	font-size: 18px;
+	color: rgba(255, 255, 255, 0.6);
+	padding-right: 8px;
+	min-width: 18px;
+}
+.quick-launch-popup .search .search-submit-icon {
+	font-family: "Segoe Fluent Icons";
+	font-size: 18px;
+	color: rgba(255, 255, 255, 0.6);
+	min-width: 18px;
+}
+.quick-launch-popup .search .search-input {
+	background: transparent;
+	border: none;
+	color: #ffffff;
+	font-size: 16px;
+	font-family: "Microsoft YaHei UI";
+	font-weight: 400;
+	padding: 4px 0;
+}
+/* Search prefix styling (e.g., ">" for commands) */
+.quick-launch-popup .search .prefix {
+	background: #2167d8;
+	border-radius: 6px;
+	color: #ffffff;
+	padding: -2px 8px 0px 8px;
+	margin-top: 2px;
+	margin-right: 4px;
+	font-size: 13px;
+	font-weight: 600;
+	font-family: "Microsoft YaHei UI";
+	max-height: 28px;
+}
+
+/* Results list */
+.quick-launch-popup .results {
+	background: transparent;
+	padding: 8px;
+}
+/* Individual result item here you can set font szie for title */
+.quick-launch-popup .results-list-view {
+	font-size: 16px;
+	font-family: "Microsoft YaHei UI";
+	font-weight: 600;
+	color: #ffffff;
+}
+.quick-launch-popup .results-list-view .description {
+	color: rgba(255, 255, 255, 0.6);
+	font-size: 11px;
+	font-family: "Microsoft YaHei UI";
+	font-weight: 600;
+}
+.quick-launch-popup .results-list-view .separator {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    font-family: 'Microsoft YaHei UI';
+    font-weight: 600;
+    padding: 4px 0 4px 12px;
+}
+/* Result item hover and selected states */
+.quick-launch-popup .results-list-view::item {
+	padding: 12px;
+	border-radius: 8px;
+}
+.quick-launch-popup .results-list-view::item:hover,
+.quick-launch-popup .results-list-view::item:selected {
+	background-color: rgba(128, 130, 158, 0.1);
+}
+/* Empty state when no results found */
+.quick-launch-popup .results-empty-text {
+	font-size: 24px;
+	font-family: "Microsoft YaHei UI";
+	color: rgb(255, 255, 255);
+	padding-top: 8px;
+}
+
+/* Preview Pane */
+.quick-launch-popup .preview {
+	background: rgba(0, 0, 0, 0);
+	border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+.quick-launch-popup .preview .preview-text {
+	font-size: 13px;
+	color: rgba(255, 255, 255, 0.85);
+	padding: 8px 12px;
+	font-family: "Microsoft YaHei UI";
+	background-color: rgba(255, 255, 255, 0.03);
+	border: none;
+}
+.quick-launch-popup .preview .preview-image {
+	background-color: rgba(255, 255, 255, 0.03);
+	padding: 8px 12px;
+}
+.quick-launch-popup .preview .preview-meta {
+	padding: 6px 12px;
+	border-top: 1px solid rgba(255, 255, 255, 0.06);
+	font-family: "Microsoft YaHei UI";
+}
+.quick-launch-popup .preview .preview-meta .preview-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: rgb(255, 255, 255);
+	font-family: "Microsoft YaHei UI";
+	margin-bottom: 10px;
+	margin-left: -2px;
+}
+
+.quick-launch-popup .preview .preview-meta .preview-subtitle {
+	font-size: 12px;
+	color: rgba(255, 255, 255, 0.8);
+	font-family: "Microsoft YaHei UI";
+	padding-bottom: 1px;
+}
+
+/* Preview inline edit form (.preview.edit) */
+.quick-launch-popup .preview.edit .preview-title {
+	font-size: 13px;
+	font-family: "Microsoft YaHei UI";
+	font-weight: 600;
+	color: #ffffff;
+	padding: 8px 12px 4px 12px;
+}
+.quick-launch-popup .preview.edit .preview-line-edit {
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 4px;
+	color: #ffffff;
+	font-size: 13px;
+	font-family: "Microsoft YaHei UI";
+	padding: 6px 8px;
+	margin: 0 12px;
+}
+.quick-launch-popup .preview.edit .preview-line-edit:focus {
+	border-color: rgba(255, 255, 255, 0.3);
+}
+.quick-launch-popup .preview.edit .preview-text-edit {
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 4px;
+	color: #ffffff;
+	font-size: 13px;
+	font-family: "Microsoft YaHei UI";
+	padding: 6px 8px;
+	margin: 0 12px;
+}
+.quick-launch-popup .preview.edit .preview-text-edit:focus {
+	border-color: rgba(255, 255, 255, 0.3);
+}
+.quick-launch-popup .preview.edit .preview-actions {
+	padding: 8px 12px;
+}
+.quick-launch-popup .preview.edit .preview-btn {
+	background: rgb(45, 46, 48);
+	border: none;
+	border-radius: 4px;
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 12px;
+	font-family: "Microsoft YaHei UI";
+	font-weight: 600;
+	padding: 4px 16px;
+}
+.quick-launch-popup .preview.edit .preview-btn:hover {
+	background: rgb(59, 60, 63);
+}
+.quick-launch-popup .preview.edit .preview-btn.save {
+	background: rgb(12, 81, 190);
+	color: #ffffff;
+}
+.quick-launch-popup .preview.edit .preview-btn.save:hover {
+	background: rgb(19, 90, 204);
+}
+
+.systray {
+    background: transparent;
+    border: none;
+    margin: 0;
+}
+.systray .unpinned-container {
+    background: transparent;
+}
+.systray .pinned-container {
+    background: transparent;
+}
+.systray .button {
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.systray .button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+/* Icon being dragged, we already apply some transparency to it so you don't need to use it */
+.systray .button.dragging {}
+
+.systray .button.drag-over {
+     background: rgba(255, 255, 255, 0.4);
+}
+
+.systray .pinned-container.drop-target {
+    background: rgba(255, 255, 255, 0.1);
+}
+.systray .unpinned-visibility-btn {
+    border-radius: 4px;
+    height: 20px;
+    width: 16px;
+    border: none;
+    outline: none;
+}
+
+.systray .unpinned-visibility-btn:checked {
+    background: transparent;
+}
+
+.systray .unpinned-visibility-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.battery-widget {
+    padding: 0 8px;
+}
+.battery-widget .label {
+    font-size: 13px;
+    color: #e0e0e0;
+}
+.battery-widget .icon {
+    font-size: 14px;
+    margin-right: 6px;
+}
+/* Critical - red */
+.battery-widget .icon.status-critical {
+    color: #ff4444;
+}
+.battery-widget .label.status-critical {
+    color: #ff6b6b;
+}
+/* Low - orange */
+.battery-widget .icon.status-low {
+    color: #ff9800;
+}
+.battery-widget .label.status-low {
+    color: #ffb74d;
+}
+/* Medium - yellow */
+.battery-widget .icon.status-medium {
+    color: #ffc107;
+}
+/* High - light green */
+.battery-widget .icon.status-high {
+    color: #8bc34a;
+}
+/* Full - green */
+.battery-widget .icon.status-full {
+    color: #4caf50;
+}
+/* Charging - cyan */
+.battery-widget .icon.status-charging {
+    color: #00bcd4;
+}
+.battery-widget .label.status-charging {
+    color: #4dd0e1;
+}
+
+.brightness-menu {
+    background-color: rgba(36, 36, 36, 0.75);
+    min-width: 300px;
+}
+/* Grouping for monitor rows including title and sliders */
+.brightness-menu .monitor-row {
+    background-color: rgba(139, 69, 19, 0);
+    margin: 12px;
+}
+/*
+.monitor-0 is indexed as the first monitor row,
+adjust if you have multiple monitors and want to style them differently correctly.
+*/
+.brightness-menu .monitor-row.monitor-0 {
+    margin-bottom: 0;
+}
+.brightness-menu .monitor-title  {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-top: 4px;
+}
+.brightness-menu .monitor-subtitle {
+    font-size: 11px;
+    color: #a6adc8;
+    margin-top: 2px;
+    margin-bottom: 8px;
+}
+/* Container for the sliders to create a grouped appearance including icons and sliders */
+.brightness-menu .slider-rows {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+}
+.brightness-menu .slider-icon {
+    font-family: "Segoe Fluent Icons";
+}
+.brightness-menu .slider-row {
+    margin: 4px 0;
+    padding: 8px 0px;
+}
+/* optional styles for the brightness and contrast sliders */
+.brightness-slider::groove {}
+.contrast-slider::groove {}
+.brightness-slider::handle{} 
+.contrast-slider::handle{}
+
+/* Brightness progress bar styles if enabled */
+.brightness-widget .progress-container {} 
+
+.brightness-widget .widget-container .label {
+  font-size: 13px;
+}
+
+.wifi-widget .label {
+  font-size: 13px;
+}
+
+.wifi-menu {
+    font-family: 'Segoe UI';
+    background-color: rgba(17, 17, 27, 0.4);
+    max-height: 350px;
+    min-height: 375px;
+    min-width: 375px;
+}
+
+.wifi-menu .progress-bar {
+    max-height: 2px;
+    color: #4cc2ff;
+}
+
+.wifi-menu .header {
+    font-family: 'Segoe UI';
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    padding: 12px;
+    background-color: rgba(17, 17, 27, 0.6);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wifi-menu .error-message {
+    font-family: 'Segoe UI';
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    padding: 12px;
+    background-color: red;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wifi-menu .wifi-list {
+    background-color: rgba(17, 17, 27, 0.8);
+    margin-right: 3px;
+}
+
+.wifi-menu .wifi-item {
+    min-height: 35px;
+    padding: 2px 12px;
+    margin: 2px 4px;
+}
+
+.wifi-menu .wifi-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+}
+
+.wifi-menu .wifi-item[active=true] {
+    background-color: rgba(255, 255, 255, 0.15);
+    font-size: 14px;
+    border-radius: 6px;
+    min-height: 80px;
+}
+
+.wifi-menu .wifi-item .icon {
+    font-family: 'Segoe Fluent Icons';
+    font-size: 26px;
+    margin-right: 10px;
+}
+
+.wifi-menu .wifi-item .name {
+    font-family: 'Segoe UI';
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.wifi-menu .wifi-item .password {
+    font-family: 'Segoe UI';
+    background-color: transparent;
+    font-size: 14px;
+}
+
+.wifi-menu .wifi-item .status {
+    font-family: 'Segoe UI';
+    font-size: 14px;
+}
+
+.wifi-menu .wifi-item .strength {
+    font-family: 'Segoe UI';
+    font-size: 14px;
+}
+
+.wifi-menu .wifi-item .controls-container {
+    padding-top: 8px;
+}
+
+.wifi-menu .wifi-item .connect {
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 4px 30px;
+    border-radius: 4px;
+    border: none;
+    font-size: 14px;
+}
+
+.wifi-menu .wifi-item .connect:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.wifi-menu .wifi-item .connect:pressed {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.wifi-menu .footer {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 12px;
+    margin-top: 2px;
+    color: #9399b2;
+    background-color: rgba(17, 17, 27, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wifi-menu .footer .settings-button {
+    font-family: 'Segoe UI';
+    background-color: transparent;
+    border: none;
+    padding: 0 2px;
+    min-width: 26px;
+    min-height: 26px;
+    color: #fff;
+}
+
+.wifi-menu .footer .refresh-icon {
+    font-family: 'Segoe Fluent Icons';
+    background-color: transparent;
+    border: none;
+    min-width: 26px;
+    min-height: 26px;
+    color: #fff;
+}
+
+.wifi-menu .footer .refresh-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}

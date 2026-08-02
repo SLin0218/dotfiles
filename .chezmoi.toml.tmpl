@@ -1,0 +1,19 @@
+encryption = "gpg" # or age
+mode = "file" # file, symlink
+progress = true
+
+[git]
+autoAdd = true # Add changes to the source state after any change
+autoCommit = false
+autoPush = false
+
+[completion]
+custom = true
+
+[edit]
+command = "nvim"
+
+[diff]
+command = "delta"
+pager = "delta"
+args = ["--paging=never"]

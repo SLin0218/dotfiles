@@ -1,0 +1,13 @@
+[wsl2]
+networkingMode=Mirrored
+dnsProxy=false
+dnsTunneling=false
+firewall=true
+autoProxy=false
+memory=16GB
+swap=8GB
+swapFile=%USERPROFILE%\\wsl-swap.vhdx
+
+[experimental]
+hostAddressLoopback=true
+autoMemoryReclaim=dropcache

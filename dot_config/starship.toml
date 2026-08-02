@@ -1,0 +1,135 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = false
+format = "$username$hostname$directory$git_branch$git_state$git_status$cmd_duration$java$nix_shell$line_break$python$character"
+palette = "catppuccin_mocha"
+
+[character]
+error_symbol = "[❯](red)"
+success_symbol = "[❯](purple)"
+vimcmd_symbol = "[❮](green)"
+
+[cmd_duration]
+format = "[$duration]($style) "
+style = "yellow"
+
+[directory]
+style = "blue"
+
+[git_branch]
+format = "[$branch]($style)"
+style = "bright-black"
+
+[git_state]
+format = "([$state( $progress_current/$progress_total)]($style)) "
+style = "bright-black"
+
+[git_status]
+conflicted = ""
+deleted = ""
+format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style) "
+modified = ""
+renamed = ""
+staged = ""
+stashed = "≡"
+style = "cyan"
+untracked = ""
+
+[java]
+format = "[$symbol($version )]($style)"
+
+[nix_shell]
+disabled = false
+format = "[$symbol($name)]($style) "
+symbol = "☃️ "
+
+[palettes.catppuccin_mocha]
+base = "#1e1e2e"
+blue = "#89b4fa"
+crust = "#11111b"
+flamingo = "#f2cdcd"
+green = "#a6e3a1"
+lavender = "#b4befe"
+mantle = "#181825"
+maroon = "#eba0ac"
+mauve = "#cba6f7"
+overlay0 = "#6c7086"
+overlay1 = "#7f849c"
+overlay2 = "#9399b2"
+peach = "#fab387"
+pink = "#f5c2e7"
+red = "#f38ba8"
+rosewater = "#f5e0dc"
+sapphire = "#74c7ec"
+sky = "#89dceb"
+subtext0 = "#a6adc8"
+subtext1 = "#bac2de"
+surface0 = "#313244"
+surface1 = "#45475a"
+surface2 = "#585b70"
+teal = "#94e2d5"
+text = "#cdd6f4"
+yellow = "#f9e2af"
+
+[python]
+detect_extensions = []
+detect_files = []
+format = "[$virtualenv]($style) "
+style = "bright-black"
+
+format = """
+$username\
+$hostname\
+[$shell](purple) \
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$cmd_duration\
+$line_break\
+$python\
+$character"""
+
+[directory]
+style = "blue"
+
+[character]
+success_symbol = "[❯](purple)"
+error_symbol = "[❯](red)"
+vimcmd_symbol = "[❮](green)"
+
+[git_branch]
+format = "[$branch]($style)"
+style = "bright-black"
+
+[git_status]
+format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)"
+style = "cyan"
+conflicted = "​"
+untracked = "​"
+modified = "​"
+staged = "​"
+renamed = "​"
+deleted = "​"
+stashed = "≡"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bright-black"
+
+[cmd_duration]
+format = "[$duration]($style) "
+style = "yellow"
+
+[python]
+format = "[$virtualenv]($style) "
+style = "bright-black"
+detect_extensions = []
+detect_files = []
+
+[shell]
+powershell_indicator = 'pwsh'
+bash_indicator = 'bash'
+style = 'bg:purple fg:black'
+format = '[$indicator]($style)'
+disabled = false

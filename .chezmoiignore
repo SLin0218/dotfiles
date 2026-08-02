@@ -1,0 +1,25 @@
+# vim: set ft=gitignore.gotmpl:
+
+{{ if eq .chezmoi.os "windows" }}
+
+{{ else }}
+
+.config/autohotkey/
+.config/autohotkey/**
+.config/komorebi/
+.config/microsoft-office/
+.config/scoop/
+.config/scoop/**
+.config/whkdrc/
+.config/yasb/
+
+.wslconfig
+.inputrc
+.bashrc
+
+AppData/
+AppData/**
+Documents/
+Documents/**
+
+{{ end }}

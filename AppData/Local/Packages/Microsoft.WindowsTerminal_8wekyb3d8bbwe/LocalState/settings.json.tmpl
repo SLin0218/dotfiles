@@ -1,0 +1,191 @@
+// vim: set ft=jsonc :
+{
+  "$help": "https://aka.ms/terminal-documentation",
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "actions": [
+    {
+      "command": {
+        "action": "splitPane",
+        "split": "left"
+      },
+      "id": "User.splitPane.left"
+    },
+    {
+      "command": {
+        "action": "splitPane",
+        "split": "down"
+      },
+      "id": "User.splitPane.down"
+    }
+  ],
+  "useAcrylicInTabRow": true,
+  "compatibility.enableUnfocusedAcrylic": true,
+  "copyFormatting": "none",
+  "copyOnSelect": false,
+  "defaultProfile": "{d510c7f4-dfa3-4324-af88-b36d565c3755}",
+  "disabledProfileSources": [
+    "Windows.Terminal.Wsl",
+    "Windows.Terminal.Azure",
+    "Windows.Terminal.PowershellCore"
+  ],
+  "keybindings": [
+    {
+      "id": "Terminal.MoveFocusUp",
+      "keys": "ctrl+shift+k"
+    },
+    {
+      "id": null,
+      "keys": "alt+shift+minus"
+    },
+    {
+      "id": "User.splitPane.down",
+      "keys": "ctrl+shift+5"
+    },
+    {
+      "id": "User.splitPane.left",
+      "keys": "ctrl+shift+'"
+    },
+    {
+      "id": "Terminal.CopyToClipboard",
+      "keys": "ctrl+shift+c"
+    },
+    {
+      "id": "Terminal.FindText",
+      "keys": "ctrl+shift+f"
+    },
+    {
+      "id": "Terminal.DuplicatePaneAuto",
+      "keys": "alt+shift+d"
+    },
+    {
+      "id": null,
+      "keys": "alt+shift+plus"
+    },
+    {
+      "id": null,
+      "keys": "alt+up"
+    },
+    {
+      "id": "Terminal.MoveFocusDown",
+      "keys": "ctrl+shift+j"
+    },
+    {
+      "id": null,
+      "keys": "alt+down"
+    },
+    {
+      "id": "Terminal.MoveFocusRight",
+      "keys": "ctrl+shift+l"
+    },
+    {
+      "id": null,
+      "keys": "alt+right"
+    },
+    {
+      "id": "Terminal.MoveFocusLeft",
+      "keys": "ctrl+shift+h"
+    },
+    {
+      "id": null,
+      "keys": "alt+left"
+    }
+  ],
+  "launchMode": "maximized",
+  "newTabMenu": [
+    {
+      "type": "remainingProfiles"
+    }
+  ],
+  "profiles": {
+    "defaults": {
+      "adjustIndistinguishableColors": "indexed",
+      "antialiasingMode": "grayscale",
+      "bellStyle": [
+        "window",
+        "taskbar"
+      ],
+      "colorScheme": "Catppuccin Mocha",
+      "cursorShape": "underscore",
+      "experimental.retroTerminalEffect": false,
+      "font": {
+        "face": "JetBrainsMono Nerd Font Mono",
+        "size": 12,
+        "weight": "normal"
+      },
+      "intenseTextStyle": "bold",
+      "opacity": 90,
+      "padding": "20,20,10,0",
+      "scrollbarState": "hidden",
+      "useAcrylic": true,
+      "backgroundImageOpacity": 1.0
+    },
+    "list": [
+      {
+        "commandline": "C:\\Windows\\system32\\wsl.exe",
+        "guid": "{101403c7-4377-4e98-8231-bef144c66cba}",
+        "hidden": false,
+        "icon": "%USERPROFILE%\\images\\nixos.ico",
+        "name": "NixOS",
+        "pathTranslationStyle": "wsl",
+        "startingDirectory": "~"
+      },
+      {
+        "commandline": "pwsh.exe",
+        "guid": "{d510c7f4-dfa3-4324-af88-b36d565c3755}",
+        "hidden": false,
+        "icon": "%USERPROFILE%\\images\\powershell.png",
+        "name": "PowerShell 7",
+        "startingDirectory": "%USERPROFILE%"
+      }
+    ]
+  },
+  "schemes": [
+    {
+      "background": "#1E1E2E",
+      "black": "#45475A",
+      "blue": "#89B4FA",
+      "brightBlack": "#585B70",
+      "brightBlue": "#89B4FA",
+      "brightCyan": "#94E2D5",
+      "brightGreen": "#A6E3A1",
+      "brightPurple": "#F5C2E7",
+      "brightRed": "#F38BA8",
+      "brightWhite": "#A6ADC8",
+      "brightYellow": "#F9E2AF",
+      "cursorColor": "#F5E0DC",
+      "cyan": "#94E2D5",
+      "foreground": "#CDD6F4",
+      "green": "#A6E3A1",
+      "name": "Catppuccin Mocha",
+      "purple": "#F5C2E7",
+      "red": "#F38BA8",
+      "selectionBackground": "#585B70",
+      "white": "#BAC2DE",
+      "yellow": "#F9E2AF"
+    }
+  ],
+  "tabSwitcherMode": "disabled",
+  "theme": "Catppuccin Mocha",
+  "themes": [
+    {
+      "name": "Catppuccin Mocha",
+      "tab": {
+        "background": "#1E1E2EFF",
+        "iconStyle": "default",
+        "showCloseButton": "always",
+        "unfocusedBackground": null
+      },
+      "tabRow": {
+        "background": "#181825FF",
+        "unfocusedBackground": "#11111BFF"
+      },
+      "window": {
+        "applicationTheme": "dark",
+        "experimental.rainbowFrame": false,
+        "frame": null,
+        "unfocusedFrame": null,
+        "useMica": false
+      }
+    }
+  ]
+}
