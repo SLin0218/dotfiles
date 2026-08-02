@@ -1,3 +1,5 @@
+# vim: set ft=zsh.gotmpl:
+
 alias ls='eza'
 alias l='eza -l'
 alias la='eza -a'
@@ -50,5 +52,13 @@ alias ze='z -e'
 # alias d="kitten diff"
 # alias icat="kitten icat"
 alias snowflake='snowflake_id=$(~/.local/scripts/snowflake/snowflake.py);echo $snowflake_id; echo $snowflake_id | pbcopy'
+
+{{ if eq .chezmoi.os "darwin" }}
+
 alias update="sudo -H darwin-rebuild switch --flake ."
-# "sudo nixos-rebuild switch --flake ."
+
+{{ else }}
+
+alias update="sudo nixos-rebuild switch --flake ."
+
+{{ end }}
