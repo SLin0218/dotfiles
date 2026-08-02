@@ -2,6 +2,12 @@
 
 {{ if eq .chezmoi.os "windows" }}
 
+.config/nvim
+.config/emacs
+.config/slin-emacs
+.config/zsh
+.zshenv
+
 {{ else }}
 
 .config/autohotkey/
@@ -12,6 +18,7 @@
 .config/scoop/**
 .config/whkdrc/
 .config/yasb/
+.config/starship.toml
 
 .wslconfig
 .inputrc
