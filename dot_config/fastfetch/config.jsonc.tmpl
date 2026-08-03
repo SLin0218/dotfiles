@@ -1,0 +1,42 @@
+// vim: set ft=jsonc.gotmpl:
+{
+  "logo": {
+    "height": 16,
+    "padding": {
+      "left": 2,
+      "top": 3
+    },
+    "source": "{{ .chezmoi.homeDir }}/.config/nix-config/config/logo.png",
+    "type": "kitty",
+    "width": 40
+  },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "host",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "display",
+    "de",
+    "wm",
+    "wmtheme",
+    "theme",
+    "icons",
+    "font",
+    "cursor",
+    "terminal",
+    "terminalfont",
+    "cpu",
+    "gpu",
+    "memory",
+    "disk",
+    "battery",
+    "poweradapter",
+    "locale",
+    "break",
+    "colors"
+  ]
+}

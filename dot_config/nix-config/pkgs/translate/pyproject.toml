@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "t"
+version = "1.0.0"
+dependencies = [
+  "cryptography>=44.0.0",
+  "requests>=2.32.3",
+  "rich>=13.9.4",
+]
+
+[tool.setuptools]
+py-modules = ["db", "translate", "volc", "iciba", "main"]
+
+[project.scripts]
+t = "main:main"

@@ -1,6 +1,12 @@
-encryption = "gpg" # or age
+# vim: set ft=toml.gotmpl:
+
+encryption = "gpg"
+
 mode = "file" # file, symlink
 progress = true
+
+[gpg]
+recipient = "E68923AA9D3C1082EA808047A160E397C3BA6D0E"
 
 [git]
 autoAdd = true # Add changes to the source state after any change

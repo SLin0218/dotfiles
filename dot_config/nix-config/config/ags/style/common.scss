@@ -1,0 +1,30 @@
+@use "colors.scss" as *;
+
+window {
+  background: none;
+}
+
+button {
+  background: none;
+  border: none;
+  box-shadow: none;
+  &:hover {
+    background: none;
+  }
+  &:focus {
+    outline: 0;
+  }
+}
+
+label {
+  box-shadow: none;
+}
+
+.button-padding {
+  background: transparent;
+  border: none;
+}
+
+.dashboard-container {
+  padding: 1rem;
+}

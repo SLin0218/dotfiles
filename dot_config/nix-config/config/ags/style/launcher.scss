@@ -1,0 +1,78 @@
+@use "colors.scss" as *;
+
+.launcher {
+  background-color: $dialog_bg_color;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+
+  // 强制尺寸
+  min-width: 800px;
+  min-height: 500px;
+
+  .search-box {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: none;
+
+    entry {
+      background: none;
+      border: none;
+      box-shadow: none;
+      color: white;
+      font-size: 1.2rem;
+      outline: none;
+    }
+  }
+
+  .app-list {
+    min-height: 300px;
+  }
+
+  .app-item {
+    padding: 0.5rem;
+    border-radius: 8px;
+    margin-bottom: 0.2rem;
+    color: $theme_text_color;
+
+    &.selected {
+      background-color: $theme_selected_bg_color;
+      color: $dialog_bg_color;
+    }
+
+    .app-icon {
+      margin-right: 1rem;
+    }
+
+    .app-name {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .app-description {
+      font-size: 0.8rem;
+      opacity: 0.5;
+    }
+  }
+  .cliphist-layout {
+  }
+
+  .preview-panel {
+    margin-left: 10px;
+    padding: 15px;
+    border-left: solid 1px rgba(255, 255, 255, 0.05);
+    font-family: "JetBrainsMono Nerd Font";
+  }
+}
+
+.button-padding {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+
+  &:hover {
+    background-color: transparent;
+  }
+}

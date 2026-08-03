@@ -1,0 +1,41 @@
+{
+  "name": "apifox-cli",
+  "version": "2.2.7",
+  "description": "Apifox 命令行运行工具",
+  "main": "bin/cli.js",
+  "bin": {
+    "apifox": "./bin/cli.js"
+  },
+  "scripts": {},
+  "files": [
+    "README.md",
+    "package.json",
+    "bin/assets",
+    "bin/cli.js",
+    "bin/cli.js.LICENSE.txt"
+  ],
+  "dependencies": {
+    "chokidar": "3.5.2",
+    "clickhouse": "2.6.0",
+    "dmdb": "1.0.17128",
+    "live-plugin-manager": "^0.15.1",
+    "mongoose": "^7.6.3",
+    "mssql": "^6.3.1",
+    "mysql2": "^2.3.3",
+    "pg": "^8.5.1",
+    "ssh2": "^1.11.0"
+  },
+  "optionalDependencies": {
+    "ibm_db": "^3.2.4",
+    "oracledb": "^5.1.0",
+    "kerberos": "^2.1.0"
+  },
+  "author": "Apifox Team",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=14"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  }
+}

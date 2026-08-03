@@ -1,0 +1,55 @@
+@use "colors.scss" as *;
+
+// 全屏暗色遮罩
+.screenshot-overlay {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+// 顶部工具条
+.screenshot-toolbar {
+  border-radius: 10px;
+  padding: 4px 6px;
+  margin-top: 8px;
+  background-color: #{'alpha(' + $theme-bg-color + ', 0.8)'};
+
+  .screenshot-mode-btn {
+    border-radius: 8px;
+    padding: 6px 12px;
+    min-width: 0;
+    min-height: 0;
+    background: none;
+    transition: background-color 150ms ease;
+
+    &:hover {
+      // background-color: #{'alpha(' + $primary + ', 0.2)'};
+
+      image,
+      .mode-label {
+        color: $theme-fg-color;
+      }
+    }
+
+    image {
+      color: $theme-fg-color;
+    }
+
+    .mode-label {
+      font-size: 0.7rem;
+      color: $theme-fg-color;
+    }
+  }
+}
+
+// 空白区域的关闭按钮（透明无样式）
+.screenshot-dismiss {
+  background: none;
+  border: none;
+  box-shadow: none;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+
+  &:hover {
+    background: none;
+  }
+}

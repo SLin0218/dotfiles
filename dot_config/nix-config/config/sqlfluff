@@ -1,0 +1,53 @@
+[sqlfluff]
+# 指定你使用的 SQL 方言 (例如: mysql, postgres, hive, snowflake, sparksql 等)
+dialect = mysql
+# 关键配置：允许使用 placeholder 变量
+templater = placeholder
+
+[sqlfluff:templater:placeholder]
+# 允许问号作为占位符
+param_style = question_mark
+
+# 排除不需要检查的目录（如过渡生成的临时表目录）
+exclude_path = dbt_modules,target
+
+# 基础布局设置
+[sqlfluff:layout:type:comma]
+# 逗号后置
+line_position = trailing
+# 1. 强制括号内（IN 列表）的所有元素采用行内（inline）平铺模式
+[sqlfluff:layout:type:bracketed]
+spacing_within = single:inline
+
+[sqlfluff:rules]
+
+# 缩进设置：使用 4 个空格
+[sqlfluff:rules:indentation]
+tab_space_size = 4
+indent_unit = space
+
+# 关键字必须大写 (SELECT, FROM, WHERE...)
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+# 内置函数名必须大写 (COUNT, SUM, MAX...)
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = upper
+
+# 数据类型必须大写 (INT, VARCHAR, TIMESTAMP...)
+[sqlfluff:rules:capitalisation.types]
+extended_capitalisation_policy = upper
+
+# 表名、字段名等标识符必须小写
+[sqlfluff:rules:capitalisation.identifiers]
+extended_capitalisation_policy = lower
+
+# 别名设置：强制显式使用 AS 关键字
+[sqlfluff:rules:aliasing.length]
+aliasing = explicit
+
+[sqlfluff:rules:layout.bracket_content]
+# inline：如果内容简短，允许保持在同一行（不会被强制换行）
+config = inline
+# functional：智能识别，当列表元素较多且短小时尽量紧凑排列
+# config = functional
