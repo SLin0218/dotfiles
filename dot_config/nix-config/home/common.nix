@@ -24,9 +24,6 @@ in
     ./modules/theme.nix
   ];
 
-  home.file.".sqlfluff".source = ../config/sqlfluff;
-  home.file.".gitconfig".source = ../config/gitconfig;
-
   xdg.configFile."emacs/init.el".text = ''
     ;; -*- lexical-binding: t; -*-
     (setq nix-librime-path "${pkgs.librime}")

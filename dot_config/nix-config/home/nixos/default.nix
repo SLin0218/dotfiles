@@ -1,4 +1,9 @@
-{ inputs, config, pkgs, ... }:
+{
+  inputs,
+  config,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
@@ -10,9 +15,6 @@
     ./modules/music.nix
     ./modules/lang.nix
   ];
-
-  # 静态配置
-  xdg.configFile."keyd/app.conf".source = ../../config/keyd/app.conf;
 
   home = {
     homeDirectory = "/home/lin";

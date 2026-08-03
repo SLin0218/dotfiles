@@ -71,7 +71,4 @@
 
   };
 
-  xdg.configFile."kitty/tab_bar.py".source = ../../config/kitty/tab_bar.py;
-  xdg.configFile."kitty/default.s".source = ../../config/kitty/default.s;
-
 }

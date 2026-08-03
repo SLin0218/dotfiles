@@ -1,13 +1,16 @@
-{ inputs, pkgs, config, lib, ... }:
+{
+  inputs,
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 let
   mySystem = pkgs.stdenv.hostPlatform.system;
   agsPath = "${config.home.homeDirectory}/.config/nix-config/config/ags/";
 in
 {
-
-  xdg.configFile."ags".source = config.lib.file.mkOutOfStoreSymlink agsPath;
-
-  home.activation.linkAgsModules = lib.hm.dag.entryAfter ["writeBoundary"] ''
+  home.activation.linkAgsModules = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     if [[ ! -d ${agsPath}/node_modules ]];then
       $DRY_RUN_CMD mkdir -p ${agsPath}/node_modules
     fi

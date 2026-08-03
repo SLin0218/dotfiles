@@ -25,7 +25,7 @@
 
 (cond ((eq system-type 'darwin) (setq slin/font-size 16)))
 (when sys/wsl-p
-  (setq slin/font-size 12))
+  (setq slin/font-size 14))
 
 (defun load-font-setup (&optional frame)
   "根据当前 FRAME 设置默认英文字体与中文字体映射."
