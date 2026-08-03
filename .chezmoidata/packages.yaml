@@ -19,6 +19,9 @@ packages:
       - "main/jq"
       - "main/zoxide"
       - "main/git"
+      - "main/flameshot"
+      - "main/copyq"
+      - "main/python"
 
       # wm
       # - "extras/komorebi"
@@ -27,8 +30,9 @@ packages:
       - "extras/powertoys"
       - "extras/scoop-completion"
       - "extras/autohotkey"
+      - "extras/ultravnc"
       - "extras/wezterm"
-
+      - "extras/Maple-Mono-NF-CN"
 
     importRegistry:
       # - '$env:USERPROFILE\scoop\apps\windows-terminal\current\install-context.reg'

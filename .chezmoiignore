@@ -24,6 +24,8 @@
 .inputrc
 .bashrc
 
+.chezmoiscripts/windows/**
+
 AppData/
 AppData/**
 Documents/
