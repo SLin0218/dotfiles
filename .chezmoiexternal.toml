@@ -2,12 +2,6 @@
 
 {{ if eq .chezmoi.os "windows" }}
 
-# 自动拉取并部署 Neovim 配置
-["AppData/Local/nvim"]
-type = "git-repo"
-url = "https://github.com/SLin0218/nvim-config.git"
-refreshPeriod = "168h"
-
 # 自动拉取并部署 Rime（小狼毫）配置
 ["AppData/Roaming/Rime"]
 type = "git-repo"
@@ -15,10 +9,5 @@ url = "https://github.com/SLin0218/rime-config.git"
 refreshPeriod = "168h"
 
 {{ else }}
-
-[".config/nvim"]
-type = "git-repo"
-url = "https://github.com/SLin0218/nvim-config.git"
-refreshPeriod = "168h"
 
 {{ end }}

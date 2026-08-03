@@ -2,7 +2,6 @@
 
 {{ if eq .chezmoi.os "windows" }}
 
-.config/nvim
 .config/emacs
 .config/slin-emacs
 .config/zsh
