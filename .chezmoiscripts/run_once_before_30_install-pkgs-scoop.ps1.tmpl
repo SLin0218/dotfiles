@@ -1,0 +1,31 @@
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+if (-not (Get-Command "scoop" -ErrorAction SilentlyContinue))
+{
+  Write-Error "Scoop hasn't been installed!"
+  exit
+}
+
+{{ if .packages.scoop.buckets }}
+Write-Host 'ADDING SCOOP BUCKETS...'
+  {{ range $bucket := .packages.scoop.buckets }}
+scoop bucket add '{{ $bucket }}'
+  {{ end }}
+{{ end }}
+
+{{ if .packages.scoop.pkgs }}
+Write-Host 'INSTALLING SCOOP PACKAGES...'
+  {{ range $pkg := .packages.scoop.pkgs }}
+scoop install '{{ $pkg }}'
+  {{ end }}
+{{ end }}
+
+{{ if .packages.scoop.importRegistry }}
+Write-Host 'IMPORTING SCOOP REGISTRY...'
+{{ range $reg := .packages.scoop.importRegistry }}
+if (Test-Path -Path "{{ $reg }}" -PathType Leaf)
+{
+  reg import "{{ $reg }}" # Need for env expansion
+}
+{{ end }}
+{{ end }}

@@ -1,0 +1,29 @@
+config:
+  windows:
+    envs:
+      path:
+        - '%LOCALAPPDATA%\nvim-data\mason\bin'
+        - '%USERPROFILE%\scoop\apps\git\current\usr\bin'
+        - '%USERPROFILE%\.local\bin'
+      others:
+        FZF_DEFAULT_OPTS: >-
+          --layout=reverse
+          --height=100%
+          --border
+          --no-separator
+          --bind "alt-y:execute-silent(powershell -NoProfile -Command Set-Clipboard -Value {})"
+          --color=bg:#1e1e2e,bg+:#313244,border:#6c7086,fg:#cdd6f4,fg+:#cdd6f4,header:#b4befe,hl:#b4befe,hl+:#b4befe,info:#b4befe,label:#cdd6f4,marker:#b4befe,pointer:#b4befe,prompt:#b4befe,selected-bg:#45475a,spinner:#f5e0dc
+        FZF_DEFAULT_COMMAND: 'fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build}'
+        FZF_CTRL_T_COMMAND: '$env:FZF_DEFAULT_COMMAND'
+        FZF_ALT_C_COMMAND: 'fd --type d --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build}'
+    features:
+      enable:
+        # - 'Microsoft-Hyper-V-All'
+        # - 'HypervisorPlatform'
+        # - 'NetFx4Extended-ASPNET45'
+        - "VirtualMachinePlatform"
+        - "Microsoft-Windows-Subsystem-Linux"
+        # - "NetFx3"
+        # - "NetFx4-AdvSrvs"
+      disable:
+        - "MicrosoftWindowsPowerShellV2"

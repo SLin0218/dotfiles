@@ -1,0 +1,13 @@
+{{ if .packages.psGallery }}
+
+exit 0 # It doesn't work yet
+
+Import-Module PowerShellGet
+
+Write-Host 'INSTALLING PSGALLERY MODULES...'
+
+{{ range $module := .packages.psGallery }}
+Install-Module -Name '{{ $module }}' -Repository PSGallery -Force -AcceptLicense -SkipPublisherCheck
+{{ end }}
+
+{{ end }}
