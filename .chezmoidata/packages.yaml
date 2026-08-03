@@ -2,6 +2,7 @@ packages:
   scoop:
     buckets:
       - "extras"
+      - "nerd-fonts"
     pkgs:
       - "main/7zip"
       - "main/unrar"
@@ -32,7 +33,7 @@ packages:
       - "extras/autohotkey"
       - "extras/ultravnc"
       - "extras/wezterm"
-      - "extras/Maple-Mono-NF-CN"
+      - "nerd-fonts/Maple-Mono-NF-CN"
 
     importRegistry:
       # - '$env:USERPROFILE\scoop\apps\windows-terminal\current\install-context.reg'
