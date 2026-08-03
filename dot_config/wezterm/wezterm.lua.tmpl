@@ -59,8 +59,9 @@ config.window_background_opacity = 1.0
 -- config.window_decorations = "RESIZE"
 config.default_cursor_style = "BlinkingUnderline"
 config.window_decorations = "RESIZE"
-config.show_new_tab_button_in_tab_bar = false -- 隐藏添加标签的 "+" 按钮
-config.use_fancy_tab_bar = false -- 关闭原生花哨样式，使用自定义文本样式
+-- 隐藏添加标签的 "+" 按钮
+config.show_new_tab_button_in_tab_bar = false
+config.use_fancy_tab_bar = false
 
 local colors = wezterm.color.get_builtin_schemes()[config.color_scheme]
 
@@ -73,6 +74,7 @@ local SPLIT_ICONS = { "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹", "¹�
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
 	local pane = tab.active_pane
 	local icon = ICON_WIN
+  local icon_color = "#0078D6"
 	local title_text = ""
 	local tab_panes = tab.panes -- 获取当前 Tab 的所有分屏列表
 	local panes_size = #tab_panes -- 计算当前 Tab 的分屏总数
@@ -98,23 +100,36 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 		title_text = string.gsub(pane.title, "%.exe", "")
 		if is_wsl_process then
 			icon = ICON_WSL
+	    if tab.is_active then
+        icon_color = "#5277C3";
+      else
+        icon_color = "#7EBAE4";
+      end
 			if string.match(title_text, "wsl.-") or title_text == "wsl" then
 				title_text = "WSL"
 			end
 		end
 	end
+  icon = " " .. icon
 
 	-------------------------------------------------------------
 	-- 4. 拼接最终显示的标签文本格式
-	local final_title = string.format(" %s%s %s.%s ", icon, split_icon, tab_index + 1, title_text)
+	local final_title = string.format("%s %s.%s ", split_icon, tab_index + 1, title_text)
 	-- 5. 根据是否是当前活跃标签，返回不同的样式
 	if tab.is_active then
 		return {
 			{ Attribute = { Intensity = "Bold" } },
+		  { Foreground = { Color = icon_color } },
+      { Text = icon },
+		  { Foreground = { Color = colors.tab_bar.active_tab.fg_color } },
 			{ Text = final_title },
 		}
 	end
+
 	return {
+		{ Foreground = { Color = icon_color } },
+    { Text = icon },
+    { Foreground = { Color = colors.tab_bar.inactive_tab.fg_color } },
 		{ Text = final_title },
 	}
 end)

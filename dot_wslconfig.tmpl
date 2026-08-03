@@ -6,7 +6,7 @@ firewall=true
 autoProxy=false
 memory=16GB
 swap=8GB
-swapFile=%USERPROFILE%\\wsl-swap.vhdx
+swapFile={{ .chezmoi.homeDir }}/wsl-swap.vhdx
 
 [experimental]
 hostAddressLoopback=true
