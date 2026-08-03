@@ -15,17 +15,18 @@ config.color_scheme = "Catppuccin Mocha"
 {{ if eq .chezmoi.os "windows" }}
 
 -- 设置默认启动为 PowerShell 7 (pwsh)
-config.default_prog = { "pwsh.exe", "-NoLogo" }
--- 配置右上角「+」号下拉菜单的终端列表
-config.launch_menu = {
-	{
-		label = "PowerShell 7",
-		args = { "pwsh.exe", "-NoLogo" },
-	},
-	{
-		label = "NixOS",
-		args = { "wsl.exe", "--cd", "~" },
-	},
+config.default_prog = { "pwsh.exe" }
+
+config.default_domain = 'local'
+config.wsl_domains = {
+  {
+    -- 必填：该域在 WezTerm 中的显示名称
+    name = 'WSL:NixOS',
+    -- 必填：你 WSL 发行版的准确名称（可以通过在 cmd 运行 `wsl -l -v` 查看）
+    distribution = 'NixOS',
+    -- 选填：进入 WSL 后的初始默认工作目录
+    default_cwd = '~',
+  },
 }
 
 {{ else }}
@@ -174,7 +175,66 @@ config.keys = {
 	-- CTRL + SHIFT + t : 快速打开下拉菜单选择终端
 	{ key = "t", mods = "LEADER", action = wezterm.action.ShowLauncher },
 	-- 分屏 (默认复制当前运行的 Shell)
-	{ key = "%", mods = "LEADER|SHIFT", action = wezterm.action.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ key = "%", mods = "LEADER|SHIFT",
+    action = wezterm.action_callback(function(window, pane)
+      -- Here you can dynamically construct a longer list if needed
+      local workspaces = {
+        { id = 'split-h-wsl',  label = '水平分屏：WSL' },
+        { id = 'split-h-pwsh',  label = '水平分屏：PWSH' },
+      }
+      window:perform_action(
+        act.InputSelector {
+          action = wezterm.action_callback(
+            function(inner_window, inner_pane, id, label)
+              if not id and not label then
+                wezterm.log_info 'cancelled'
+              else
+                inner_window:perform_action(
+                  act.SplitHorizontal({ domain = { DomainName = 'WSL:NixOS' } }),
+                  inner_pane
+                )
+              end
+            end
+          ),
+          title = 'Choose Domain',
+          choices = workspaces,
+          fuzzy = true,
+          fuzzy_description = 'Fuzzy find and/or make a workspace',
+        },
+        pane
+      )
+    end),
+  },
+  { key = '"', mods = "LEADER|SHIFT",
+    action = wezterm.action_callback(function(window, pane)
+      -- Here you can dynamically construct a longer list if needed
+      local workspaces = {
+        { id = 'split-v-wsl',  label = '垂直分屏：WSL' },
+        { id = 'split-v-pwsh',  label = '垂直分屏：PWSH' },
+      }
+      window:perform_action(
+        act.InputSelector {
+          action = wezterm.action_callback(
+            function(inner_window, inner_pane, id, label)
+              if not id and not label then
+                wezterm.log_info 'cancelled'
+              else
+                inner_window:perform_action(
+                  act.SplitHorizontal({ domain = { DomainName = 'WSL:NixOS' } }),
+                  inner_pane
+                )
+              end
+            end
+          ),
+          title = 'Choose Domain',
+          choices = workspaces,
+          fuzzy = true,
+          fuzzy_description = 'Fuzzy find and/or make a workspace',
+        },
+        pane
+      )
+    end),
+  },
 	{ key = '"', mods = "LEADER|SHIFT", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
 	-- 切换面板
