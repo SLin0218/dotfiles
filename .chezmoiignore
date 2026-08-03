@@ -6,6 +6,7 @@
 .config/slin-emacs
 .config/zsh
 .zshenv
+.local/share/fcitx5
 
 {{ else }}
 
@@ -27,5 +28,11 @@ AppData/
 AppData/**
 Documents/
 Documents/**
+
+{{ end }}
+
+{{ if eq .chezmoi.os "darwin" }}
+
+.local/share/fcitx5
 
 {{ end }}

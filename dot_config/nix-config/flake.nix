@@ -48,11 +48,6 @@
       url = "github:ohmyzsh/ohmyzsh";
       flake = false;
     };
-
-    rime-config = {
-      url = "github:SLin0218/rime-config";
-      flake = false;
-    };
   };
 
   outputs =

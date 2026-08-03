@@ -8,10 +8,6 @@
   # 映射特定的 Rime 配置文件与 Hammerspoon 配置
   home.file = {
     ".hammerspoon".source = ../../config/hammerspoon;
-    "Library/Rime" = {
-      source = inputs.rime-config;
-      recursive = true;
-    };
   };
 
   home = {

@@ -14,12 +14,6 @@
   # 静态配置
   xdg.configFile."keyd/app.conf".source = ../../config/keyd/app.conf;
 
-  # 动态配置
-  home.file.".local/share/fcitx5/rime" = {
-    source = inputs.rime-config;
-    recursive = true;
-  };
-
   home = {
     homeDirectory = "/home/lin";
   };

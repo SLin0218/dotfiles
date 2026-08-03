@@ -1,7 +1,0 @@
-**/node_modules/**
-config/ags/@girs/
-.DS_store
-**/lazy-lock.json
-jmssub
-*.elc
-pkgs/jar-launcher/target

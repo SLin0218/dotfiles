@@ -1,0 +1,84 @@
+patch:
+  us_keyboard_layout: true                         # 键盘选项：应用美式键盘布局
+  show_notifications_when: growl_is_running        # 状态通知，默认装有Growl时显示，全开(always)/全关(never)
+
+  style:
+    color_scheme: catppuccin_latte
+    color_scheme_dark: catppuccin_mocha
+    font_face: "Microsoft YaHei"
+    label_font_face: "Microsoft YaHei"
+    comment_font_face: "Microsoft YaHei"
+    font_point: 14
+    label_font_point: 14
+    comment_font_point: 14
+    fullscreen: false
+    horizontal: true
+    label_format: "%s."
+    mark_text: ""
+    ascii_tip_follow_cursor: false
+    enhanced_position: false
+    display_tray_icon: false
+    antialias_mode: default
+    candidate_abbreviate_length: 0
+    inline_preedit: false
+    preedit_type: composition
+    hover_type: none
+    paging_on_scroll: true
+    click_to_capture: false
+    layout:
+      baseline: 0
+      linespacing: 0
+      align_type: center
+      max_height: 0
+      max_width: 0
+      min_height: 0
+      min_width: 160
+      type: horizontal
+      border_width: 3
+      margin_x: 12
+      margin_y: 12
+      spacing: 10
+      candidate_spacing: 10
+      hilite_spacing: 4
+      hilite_padding_x: 10
+      hilite_padding_y: 5
+      shadow_offset_x: 4
+      shadow_offset_y: 4
+      shadow_radius: 0
+      corner_radius: 4
+      round_corner: 4
+
+  # 皮肤主题，颜色参数均使用(#aabbggrr)
+  preset_color_schemes:
+    catppuccin_latte:
+      name: Catppuccin Latte
+
+      back_color: 0xE8E0DC
+      border_color: 0xEFE9E6
+      text_color: 0x775F5C
+      label_color: 0x856F6C
+      candidate_text_color: 0x694F4C
+      hilited_back_color: 0xef3988
+      hilited_candidate_text_color: 0xF5F1EF
+      hilited_candidate_label_color: 0xDAD0CC
+      hilited_text_color: 0xBEB0AC
+      hilited_comment_text_color: 0xDAD0CC
+      comment_text_color: 0xBEB0AC
+
+    catppuccin_mocha:
+      name: Catppuccin Mocha
+
+      back_color: 0x1B1111
+      border_color: 0x251818
+      text_color: 0xDEC2BA
+      label_color: 0xC8ADA6
+      candidate_text_color: 0xF4D6CD
+      hilited_mark_color: 0xf38ba8
+      hilited_text_color: 0xDEC2BA
+      hilited_back_color: 0x1B1111
+      hilited_label_color: 0x1B1111
+      hilited_candidate_text_color: 0x2E1E1E
+      hilited_candidate_label_color: 0x443231
+      hilited_candidate_back_color: 0xF7A6CB
+      hilited_comment_text_color: 0x443231
+      comment_text_color: 0x705B58
