@@ -1,0 +1,51 @@
+# vim: set ft=zsh.gotmpl :
+export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_CACHE_HOME="${HOME}/.cache"
+export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_STATE_HOME="${HOME}/.local/state"
+
+export PLM_RELEASE=$HOME/Workspace/plm-doc/docs/.vuepress/public/release
+export MAVEN_USERNAME=admin
+export MAVEN_PASSWORD=honeycomb
+export WORKSPACE="${HOME}/Workspace"
+export PROXYCHAINS_CONF_FILE="${HOME}/.config/proxychains/proxychains.conf"
+export PASSWORD_STORE_DIR="$HOME/.password-store"
+export N_PREFIX=$HOME/.local/
+
+# Manpage 使用 bat 渲染
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANROFFOPT="-c"
+export BAT_THEME="{{ .theme }}"
+
+export GOPATH="$WORKSPACE"/go
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export PATH="$HOME/.local/bin:$HOME/.local/scripts:$GOPATH/bin:$HOME/.local/share/JetBrains/Toolbox/apps/intellij-idea-ultimate/bin:$HOME/.config/emacs/bin:$PATH"
+
+export LANG=en_US.UTF-8
+export FORGIT_GLO_FORMAT='%C(auto)%h%d %C(magenta)%cn%Creset %s %C(black)%C(bold)%cd%Creset'
+export HISTORY_IGNORE="(pwd|ls|cd|ls -a|ll|clear)"
+export JDTLS_JVM_ARGS="-javaagent:$HOME/.local/share/nvim/mason/packages/jdtls/lombok.jar"
+export EDITOR=nvim
+
+{{- if eq .chezmoi.os "darwin" }}
+
+export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
+export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
+export PATH="$HOME/.jenv/bin:$HOME/Library/Application Support/JetBrains/Toolbox/scripts:$PATH"
+
+{{- if eq .chezmoi.arch "amd64" }}
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- end }}
+
+{{- end }}
+
+{{- if eq .chezmoi.os "linux" }}
+export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
+export _JAVA_AWT_WM_NONREPARENTING=1
+export SUDO_PROMPT=" 🔐 Password for $USER: "
+
+# 登录 TTY1 自动启动 Hyprland 桌面
+if [ -z "${DISPLAY}" ] && [ "${XDG_VTNR}" -eq 1 ];then
+  exec start-hyprland
+fi
+{{- end }}

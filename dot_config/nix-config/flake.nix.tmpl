@@ -1,9 +1,17 @@
+# vim: set ft=nix.gotmpl:
 {
   description = "my nix config";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+{{- if eq .chezmoi.os "linux" }}
+{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL/main";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+{{- else }}
     hyprland = {
       url = "github:hyprwm/Hyprland";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -18,6 +26,15 @@
       url = "github:aylur/ags";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+{{- end }}
+{{- end }}
+
+{{- if eq .chezmoi.os "darwin" }}
+    darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+{{- end }}
 
     catppuccin = {
       url = "github:catppuccin/nix";
@@ -29,25 +46,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    darwin = {
-      url = "github:LnL7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nixos-wsl = {
-      url = "github:nix-community/NixOS-WSL/main";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     antigravity-nix = {
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ohmyzsh = {
-      url = "github:ohmyzsh/ohmyzsh";
-      flake = false;
-    };
   };
 
   outputs =
@@ -64,6 +67,35 @@
       packages = { };
 
       nixosConfigurations = {
+
+{{- if eq .chezmoi.os "linux" }}
+{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+    {{- range (list "DESKTOP-I8CKT04" "wsl-home-desktop") }}
+        {{ . }} = nixpkgs.lib.nixosSystem {
+          specialArgs = { inherit inputs; };
+          modules = [
+            inputs.nixos-wsl.nixosModules.default
+            ./platforms/wsl/configuration.nix
+            ./hosts/{{ . }}
+
+            { nixpkgs.overlays = overlays; }
+
+            inputs.home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.lin = {
+                imports = [
+                  ./home/wsl
+                  inputs.catppuccin.homeModules.catppuccin
+                ];
+              };
+              home-manager.extraSpecialArgs = { inherit inputs; };
+            }
+          ];
+        };
+    {{- end }}
+{{- else }}
         inspiron-lin = nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs; };
           modules = [
@@ -88,58 +120,12 @@
             }
           ];
         };
+{{- end }}
+{{- end }}
 
-        DESKTOP-I8CKT04 = nixpkgs.lib.nixosSystem {
-          specialArgs = { inherit inputs; };
-          modules = [
-            inputs.nixos-wsl.nixosModules.default
-            ./platforms/wsl/configuration.nix
-            ./hosts/DESKTOP-I8CKT04
-
-            # 直接引用上面定义的统一 Overlay
-            { nixpkgs.overlays = overlays; }
-
-            inputs.home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.users.lin = {
-                imports = [
-                  ./home/wsl
-                  inputs.catppuccin.homeModules.catppuccin
-                ];
-              };
-              home-manager.extraSpecialArgs = { inherit inputs; };
-            }
-          ];
-        };
-
-        wsl-home-desktop = nixpkgs.lib.nixosSystem {
-          specialArgs = { inherit inputs; };
-          modules = [
-            inputs.nixos-wsl.nixosModules.default
-            ./platforms/wsl/configuration.nix
-            ./hosts/wsl-home-desktop
-
-            # 直接引用上面定义的统一 Overlay
-            { nixpkgs.overlays = overlays; }
-
-            inputs.home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.users.lin = {
-                imports = [
-                  ./home/wsl
-                  inputs.catppuccin.homeModules.catppuccin
-                ];
-              };
-              home-manager.extraSpecialArgs = { inherit inputs; };
-            }
-          ];
-        };
       };
 
+{{- if eq .chezmoi.os "darwin" }}
       darwinConfigurations = {
         fcdeMac-mini = inputs.darwin.lib.darwinSystem {
           specialArgs = { inherit inputs; };
@@ -193,6 +179,7 @@
           ];
         };
       };
+{{- end }}
 
     };
 }

@@ -71,4 +71,10 @@ autoload -U add-zsh-hook
 add-zsh-hook chpwd pyvenv_cd
 [[ $PWD != ~ ]] && pyvenv_cd
 
-TENANT_ID=1904380368256430081
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+export GPG_TTY=$(tty)
+if [[ -n "$TTY" ]]; then
+    export GPG_TTY="$TTY"
+    # 自动通知 gpg-agent 更新当前终端 TTY，解决 pinentry 弹窗失败问题
+    gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+fi
