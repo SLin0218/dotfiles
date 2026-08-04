@@ -17,7 +17,7 @@ if [ "$PINENTRY_GUI" = "1" ]; then
   else
     # 仅在确实开启了图形界面（存在 DISPLAY 或 WAYLAND_DISPLAY）时才调用 GUI pinentry
     if [ -n "$DISPLAY" ] || [ -n "$WAYLAND_DISPLAY" ]; then
-      if command -v pinentry-gnome2 >/dev/null 2>&1; then
+      if command -v pinentry-gnome3 >/dev/null 2>&1; then
         exec pinentry-gnome3 "$@"
       elif command -v pinentry-qt >/dev/null 2>&1; then
         exec pinentry-qt "$@"

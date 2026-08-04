@@ -5,22 +5,19 @@ local config = wezterm.config_builder()
 local act = wezterm.action
 local nerdfonts = wezterm.nerdfonts
 
--- config.color_scheme = "Catppuccin Mocha"
-config.color_scheme = "Catppuccin Mocha"
+config.color_scheme = "{{ .theme }}"
 
 -- ==========================================
 -- 1. 核心启动与环境配置 (PowerShell 7 & WSL)
 -- ==========================================
-
-{{ if eq .chezmoi.os "windows" }}
-
+{{- if eq .chezmoi.os "windows" }}
 -- 设置默认启动为 PowerShell 7 (pwsh)
-config.default_prog = { "pwsh.exe", '-NoLogo' }
+config.default_prog = { "pwsh.exe" }
 config.default_domain = 'local'
 config.launch_menu = {
   {
     label = 'PWSH',
-    args = { 'pwsh.exe', '-NoLogo' },
+    args = { 'pwsh.exe' },
   },
   {
     label = 'NixOS',
@@ -37,13 +34,9 @@ config.wsl_domains = {
     default_cwd = '~',
   },
 }
-
-{{ else }}
-
+{{- else }}
 config.default_prog = { "zsh" }
-
-{{ end }}
-
+{{- end }}
 -- ==========================================
 -- 2. 界面与外观优化
 -- ==========================================
@@ -75,17 +68,21 @@ config.use_fancy_tab_bar = false
 
 local colors = wezterm.color.get_builtin_schemes()[config.color_scheme]
 
--- 2. 定义图标常量（使用 Nerd Font 字符）
-local ICON_WSL = wezterm.nerdfonts.linux_nixos or "󱄅"
-local ICON_WIN = wezterm.nerdfonts.custom_windows or ""
+{{- if eq .chezmoi.os "windows" }}
+-- 定义图标常量（使用 Nerd Font 字符）
+local ICON_WSL = nerdfonts.linux_nixos or "󱄅"
+local ICON_WIN = nerdfonts.custom_windows or ""
+local windows_color = "#0078D6"
+local nixos_color = { "#5277C3", "#7EBAE4" }
+{{- end }}
 local SPLIT_ICONS = { "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹", "¹⁰" }
 
--- 3. 动态判断并格式化标签标题
+-- 动态判断并格式化标签标题
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
 	local pane = tab.active_pane
-	local icon = ICON_WIN
-  local icon_color = "#0078D6"
-	local title_text = ""
+	local icon = ""
+  local icon_color = ""
+	local title_text = pane.title
 	local tab_panes = tab.panes -- 获取当前 Tab 的所有分屏列表
 	local panes_size = #tab_panes -- 计算当前 Tab 的分屏总数
 	local split_icon = ""
@@ -97,35 +94,58 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	-------------------------------------------------------------
 	-- 优先检测用户是否手动修改了 Tab 标题
 	-------------------------------------------------------------
+  {{- if eq .chezmoi.os "windows" }}
 	local is_wsl_process = pane.foreground_process_name and string.match(pane.foreground_process_name, "wsl")
+  {{- end }}
+
+	if tab.is_active then
+    icon = nerdfonts.md_checkbox_blank_circle
+    icon_color = colors.brights[3]
+  else
+    icon = nerdfonts.md_checkbox_blank_circle_outline
+    icon_color = colors.brights[1]
+  end
+
+  {{- if eq .chezmoi.os "windows" }}
+	if is_wsl_process then
+    if tab.is_active then
+      icon_color = nixos_color[1]
+    else
+      icon_color = nixos_color[2]
+    end
+  else
+    icon_color = windows_color
+  end
+  {{- end }}
+
 	if tab.tab_title and #tab.tab_title > 0 then
+  {{- if eq .chezmoi.os "windows" }}
 		if is_wsl_process then
 			icon = ICON_WSL
+    else
+      icon = ICON_WIN
 		end
+  {{- end }}
 		title_text = tab.tab_title
+  {{- if eq .chezmoi.os "windows" }}
 	else
 		-------------------------------------------------------------
-		-- 用户未手动修改标题时，自动推断标题
+		-- 用户未手动修改标题
 		-------------------------------------------------------------
-		title_text = string.gsub(pane.title, "%.exe", "")
 		if is_wsl_process then
 			icon = ICON_WSL
-	    if tab.is_active then
-        icon_color = "#5277C3";
-      else
-        icon_color = "#7EBAE4";
-      end
       title_text = "WSL"
     else
+      icon = ICON_WIN
       title_text = "PWSH"
 		end
+  {{- end }}
 	end
   icon = " " .. icon
-
 	-------------------------------------------------------------
-	-- 4. 拼接最终显示的标签文本格式
+	-- 拼接最终显示的标签文本格式
 	local final_title = string.format("%s %s.%s ", split_icon, tab_index + 1, title_text)
-	-- 5. 根据是否是当前活跃标签，返回不同的样式
+	-- 根据是否是当前活跃标签，返回不同的样式
 	if tab.is_active then
 		return {
 			{ Attribute = { Intensity = "Bold" } },
@@ -188,7 +208,7 @@ config.leader = { key = "b", mods = "CTRL", timeout_milliseconds = 1000 }
 
 config.keys = {
 	-- CTRL + SHIFT + t : 快速打开下拉菜单选择终端
-	{ key = "t", mods = "LEADER", action = wezterm.action.ShowLauncher },
+	{ key = "t", mods = "LEADER", action = act.ShowLauncher },
 	-- 分屏 (默认复制当前运行的 Shell)
 	{ key = "%", mods = "LEADER|SHIFT",
   {{- if eq .chezmoi.os "windows" }}
@@ -223,7 +243,7 @@ config.keys = {
       )
     end),
   {{- else }}
-  action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' }
+  action = act.SplitHorizontal { domain = 'CurrentPaneDomain' }
   {{- end }}
   },
   { key = '"', mods = "LEADER|SHIFT",
@@ -259,38 +279,38 @@ config.keys = {
       )
     end),
   {{- else }}
-  action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' }
+  action = act.SplitVertical { domain = 'CurrentPaneDomain' }
   {{- end }}
   },
 
 	-- 切换面板
-	{ key = "h", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Left") },
-	{ key = "j", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Down") },
-	{ key = "k", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Up") },
-	{ key = "l", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Right") },
+	{ key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
+	{ key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
+	{ key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
+	{ key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
 
 	-- 模拟 Tmux 调整窗格大小 (Ctrl + b 激活后，按 Ctrl + 方向键微调)
-	{ key = "h", mods = "LEADER|SHIFT", action = wezterm.action.AdjustPaneSize({ "Left", 5 }) },
-	{ key = "l", mods = "LEADER|SHIFT", action = wezterm.action.AdjustPaneSize({ "Right", 5 }) },
-	{ key = "k", mods = "LEADER|SHIFT", action = wezterm.action.AdjustPaneSize({ "Up", 5 }) },
-	{ key = "j", mods = "LEADER|SHIFT", action = wezterm.action.AdjustPaneSize({ "Down", 5 }) },
+	{ key = "h", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Left", 5 }) },
+	{ key = "l", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Right", 5 }) },
+	{ key = "k", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Up", 5 }) },
+	{ key = "j", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Down", 5 }) },
 
 	-- 切换标签
-	{ key = "1", mods = "LEADER", action = wezterm.action.ActivateTab(0) },
-	{ key = "2", mods = "LEADER", action = wezterm.action.ActivateTab(1) },
-	{ key = "3", mods = "LEADER", action = wezterm.action.ActivateTab(2) },
-	{ key = "4", mods = "LEADER", action = wezterm.action.ActivateTab(3) },
-	{ key = "5", mods = "LEADER", action = wezterm.action.ActivateTab(4) },
-	{ key = "6", mods = "LEADER", action = wezterm.action.ActivateTab(5) },
-	{ key = "7", mods = "LEADER", action = wezterm.action.ActivateTab(6) },
-	{ key = "8", mods = "LEADER", action = wezterm.action.ActivateTab(7) },
-	{ key = "9", mods = "LEADER", action = wezterm.action.ActivateTab(-1) },
+	{ key = "1", mods = "LEADER", action = act.ActivateTab(0) },
+	{ key = "2", mods = "LEADER", action = act.ActivateTab(1) },
+	{ key = "3", mods = "LEADER", action = act.ActivateTab(2) },
+	{ key = "4", mods = "LEADER", action = act.ActivateTab(3) },
+	{ key = "5", mods = "LEADER", action = act.ActivateTab(4) },
+	{ key = "6", mods = "LEADER", action = act.ActivateTab(5) },
+	{ key = "7", mods = "LEADER", action = act.ActivateTab(6) },
+	{ key = "8", mods = "LEADER", action = act.ActivateTab(7) },
+	{ key = "9", mods = "LEADER", action = act.ActivateTab(-1) },
 
 	-- 进入复制模式
-	{ key = "Enter", mods = "LEADER", action = wezterm.action.ActivateCopyMode },
-	{ key = "z", mods = "LEADER", action = wezterm.action.TogglePaneZoomState },
-	{ key = "r", mods = "CTRL|SHIFT", action = wezterm.action.ReloadConfiguration },
-	{ key = "w", mods = "CTRL|SHIFT", action = wezterm.action.CloseCurrentTab({ confirm = true }) },
+	{ key = "Enter", mods = "LEADER", action = act.ActivateCopyMode },
+	{ key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+	{ key = "r", mods = "CTRL|SHIFT", action = act.ReloadConfiguration },
+	{ key = "w", mods = "CTRL|SHIFT", action = act.CloseCurrentTab({ confirm = true }) },
 	{
 		key = "r",
 		mods = "LEADER",
@@ -302,7 +322,7 @@ config.keys = {
 	{
 		key = ",",
 		mods = "LEADER",
-		action = wezterm.action.PromptInputLine({
+		action = act.PromptInputLine({
 			description = "Enter new tab title:",
 			action = wezterm.action_callback(function(window, _, line)
 				if line then
@@ -312,9 +332,9 @@ config.keys = {
 		}),
 	},
 	-- 向左移动标签页
-	{ key = "<", mods = "LEADER|SHIFT", action = wezterm.action.MoveTabRelative(-1) },
+	{ key = "<", mods = "LEADER|SHIFT", action = act.MoveTabRelative(-1) },
 	-- 向右移动标签页
-	{ key = ">", mods = "LEADER|SHIFT", action = wezterm.action.MoveTabRelative(1) },
+	{ key = ">", mods = "LEADER|SHIFT", action = act.MoveTabRelative(1) },
 }
 
 -- 1. 获取 WezTerm 默认的 copy_mode 快捷键表
@@ -323,30 +343,31 @@ local default_copy_mode = wezterm.gui.default_key_tables().copy_mode
 table.insert(default_copy_mode, {
   key = '/',
   mods = 'NONE',
-  action = wezterm.action.Search { CaseInSensitiveString = '' }
+  action = act.Search { CaseInSensitiveString = '' }
 })
 
 config.key_tables = {
   copy_mode = default_copy_mode,
 	resize_pane = {
 		{ key = "LeftArrow", action = act.AdjustPaneSize({ "Left", 1 }) },
-		{ key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
 		{ key = "RightArrow", action = act.AdjustPaneSize({ "Right", 1 }) },
-		{ key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
 		{ key = "UpArrow", action = act.AdjustPaneSize({ "Up", 1 }) },
-		{ key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
 		{ key = "DownArrow", action = act.AdjustPaneSize({ "Down", 1 }) },
+
+		{ key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
+		{ key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
+		{ key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
 		{ key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
 		{ key = "Escape", action = "PopKeyTable" },
 	},
   search_mode = {
-    { key = 'n', mods = 'CTRL', action = wezterm.action.CopyMode 'NextMatch' },
-    { key = 'p', mods = 'CTRL', action = wezterm.action.CopyMode 'PriorMatch' },
-    { key = 'Enter', mods = 'NONE', action = wezterm.action.Multiple {
-      wezterm.action.CopyMode 'ClearPattern',
-      wezterm.action.CopyMode 'AcceptPattern',
+    { key = 'n', mods = 'CTRL', action = act.CopyMode 'NextMatch' },
+    { key = 'p', mods = 'CTRL', action = act.CopyMode 'PriorMatch' },
+    { key = 'Enter', mods = 'NONE', action = act.Multiple {
+      act.CopyMode 'ClearPattern',
+      act.CopyMode 'AcceptPattern',
     }},
-    { key = 'Escape', mods = 'NONE', action = wezterm.action.CopyMode 'Close' },
+    { key = 'Escape', mods = 'NONE', action = act.CopyMode 'Close' },
   },
 }
 

@@ -62,6 +62,13 @@ function pyvenv_cd {
   fi
 }
 
+wpath() {
+  local win_path
+  win_path=$(powershell.exe -NoProfile -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; \$p = Get-Clipboard; if (\$p) { \$p.ToString().Trim('\"').Replace('\', '/') }" 2>/dev/null | tr -d '\r')
+  if [ -n "$win_path" ]; then
+     wslpath -u "$win_path"
+  fi
+}
 
 tmuxa () {
   ~/.config/alacritty/tmux-dev.py && tmux a
