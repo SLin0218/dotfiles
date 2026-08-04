@@ -115,5 +115,9 @@ in
     btop.enable = true;
     eza.enable = true;
     bat.enable = true;
+    zoxide = {
+      enable = true;
+      enableZshIntegration = true;
+    };
   };
 }
