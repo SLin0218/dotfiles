@@ -15,9 +15,18 @@ config.color_scheme = "Catppuccin Mocha"
 {{ if eq .chezmoi.os "windows" }}
 
 -- 设置默认启动为 PowerShell 7 (pwsh)
-config.default_prog = { "pwsh.exe" }
-
+config.default_prog = { "pwsh.exe", '-NoLogo' }
 config.default_domain = 'local'
+config.launch_menu = {
+  {
+    label = 'PWSH',
+    args = { 'pwsh.exe', '-NoLogo' },
+  },
+  {
+    label = 'NixOS',
+    domain = { DomainName = 'WSL:NixOS' },
+  }
+}
 config.wsl_domains = {
   {
     -- 必填：该域在 WezTerm 中的显示名称
@@ -106,9 +115,9 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
       else
         icon_color = "#7EBAE4";
       end
-			if string.match(title_text, "wsl.-") or title_text == "wsl" then
-				title_text = "WSL"
-			end
+      title_text = "WSL"
+    else
+      title_text = "PWSH"
 		end
 	end
   icon = " " .. icon
@@ -135,22 +144,28 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	}
 end)
 
--- arg1 window arg2 pane
+local mode_mapping = {
+  ["copy_mode"] = " Copy ",
+  ["resize_pane"] = "Resize",
+  ["search_mode"] = "Search",
+}
+
 wezterm.on("update-status", function(window, _)
 	local name = window:active_key_table()
 	local mode = ""
+  local bg_index = 5
 	if name then
+    mode = mode_mapping[name]
 		if name == "copy_mode" then
-			mode = "Copy"
-		elseif name == "resize_pane" then
-			mode = "Resize"
+      bg_index = 4
 		end
 	else
+    bg_index = 5
 		mode = "Normal"
 	end
-	mode = string.format(" %s %s ", nerdfonts.fa_flag, mode)
+	mode = string.format(" %s %s ", nerdfonts.dev_vim, mode)
 	window:set_left_status(wezterm.format({
-		{ Background = { Color = colors.ansi[5] } },
+		{ Background = { Color = colors.ansi[bg_index] } },
 		{ Foreground = { Color = colors.ansi[1] } },
 		{ Text = mode },
 		{ Background = { Color = colors.background } },
@@ -176,11 +191,11 @@ config.keys = {
 	{ key = "t", mods = "LEADER", action = wezterm.action.ShowLauncher },
 	-- 分屏 (默认复制当前运行的 Shell)
 	{ key = "%", mods = "LEADER|SHIFT",
+  {{- if eq .chezmoi.os "windows" }}
     action = wezterm.action_callback(function(window, pane)
-      -- Here you can dynamically construct a longer list if needed
       local workspaces = {
-        { id = 'split-h-wsl',  label = '水平分屏：WSL' },
-        { id = 'split-h-pwsh',  label = '水平分屏：PWSH' },
+        { id = 'split-h-wsl',  label = 'WSL:NixOS' },
+        { id = 'split-h-pwsh',  label = 'local' },
       }
       window:perform_action(
         act.InputSelector {
@@ -188,29 +203,35 @@ config.keys = {
             function(inner_window, inner_pane, id, label)
               if not id and not label then
                 wezterm.log_info 'cancelled'
-              else
+              elseif id == 'split-h-wsl' then
                 inner_window:perform_action(
-                  act.SplitHorizontal({ domain = { DomainName = 'WSL:NixOS' } }),
+                  act.SplitHorizontal({ domain = { DomainName = "WSL:NixOS" } }),
+                  inner_pane
+                )
+              elseif id == 'split-h-pwsh' then
+                inner_window:perform_action(
+                  act.SplitHorizontal({ domain = { DomainName = "local" } }),
                   inner_pane
                 )
               end
             end
           ),
           title = 'Choose Domain',
-          choices = workspaces,
-          fuzzy = true,
-          fuzzy_description = 'Fuzzy find and/or make a workspace',
+          choices = workspaces
         },
         pane
       )
     end),
+  {{- else }}
+  action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' }
+  {{- end }}
   },
   { key = '"', mods = "LEADER|SHIFT",
+  {{- if eq .chezmoi.os "windows" }}
     action = wezterm.action_callback(function(window, pane)
-      -- Here you can dynamically construct a longer list if needed
-      local workspaces = {
-        { id = 'split-v-wsl',  label = '垂直分屏：WSL' },
-        { id = 'split-v-pwsh',  label = '垂直分屏：PWSH' },
+      local splits = {
+        { id = 'split-v-wsl',  label = 'WSL:NixOS' },
+        { id = 'split-v-pwsh',  label = 'local' },
       }
       window:perform_action(
         act.InputSelector {
@@ -218,24 +239,29 @@ config.keys = {
             function(inner_window, inner_pane, id, label)
               if not id and not label then
                 wezterm.log_info 'cancelled'
-              else
+              elseif id == 'split-v-wsl' then
                 inner_window:perform_action(
-                  act.SplitHorizontal({ domain = { DomainName = 'WSL:NixOS' } }),
+                  act.SplitVertical({ domain = { DomainName = "WSL:NixOS" } }),
+                  inner_pane
+                )
+              elseif id == 'split-v-pwsh' then
+                inner_window:perform_action(
+                  act.SplitVertical({ domain = { DomainName = "local" } }),
                   inner_pane
                 )
               end
             end
           ),
           title = 'Choose Domain',
-          choices = workspaces,
-          fuzzy = true,
-          fuzzy_description = 'Fuzzy find and/or make a workspace',
+          choices = splits,
         },
         pane
       )
     end),
+  {{- else }}
+  action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' }
+  {{- end }}
   },
-	{ key = '"', mods = "LEADER|SHIFT", action = wezterm.action.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
 	-- 切换面板
 	{ key = "h", mods = "LEADER", action = wezterm.action.ActivatePaneDirection("Left") },
@@ -273,7 +299,6 @@ config.keys = {
 			one_shot = false,
 		}),
 	},
-
 	{
 		key = ",",
 		mods = "LEADER",
@@ -287,20 +312,22 @@ config.keys = {
 		}),
 	},
 	-- 向左移动标签页
-	{
-		key = "<",
-		mods = "LEADER|SHIFT",
-		action = wezterm.action.MoveTabRelative(-1),
-	},
+	{ key = "<", mods = "LEADER|SHIFT", action = wezterm.action.MoveTabRelative(-1) },
 	-- 向右移动标签页
-	{
-		key = ">",
-		mods = "LEADER|SHIFT",
-		action = wezterm.action.MoveTabRelative(1),
-	},
+	{ key = ">", mods = "LEADER|SHIFT", action = wezterm.action.MoveTabRelative(1) },
 }
 
+-- 1. 获取 WezTerm 默认的 copy_mode 快捷键表
+local default_copy_mode = wezterm.gui.default_key_tables().copy_mode
+-- 2. 将自定义的 '/' 键加入到默认的 copy_mode 中
+table.insert(default_copy_mode, {
+  key = '/',
+  mods = 'NONE',
+  action = wezterm.action.Search { CaseInSensitiveString = '' }
+})
+
 config.key_tables = {
+  copy_mode = default_copy_mode,
 	resize_pane = {
 		{ key = "LeftArrow", action = act.AdjustPaneSize({ "Left", 1 }) },
 		{ key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
@@ -312,6 +339,15 @@ config.key_tables = {
 		{ key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
 		{ key = "Escape", action = "PopKeyTable" },
 	},
+  search_mode = {
+    { key = 'n', mods = 'CTRL', action = wezterm.action.CopyMode 'NextMatch' },
+    { key = 'p', mods = 'CTRL', action = wezterm.action.CopyMode 'PriorMatch' },
+    { key = 'Enter', mods = 'NONE', action = wezterm.action.Multiple {
+      wezterm.action.CopyMode 'ClearPattern',
+      wezterm.action.CopyMode 'AcceptPattern',
+    }},
+    { key = 'Escape', mods = 'NONE', action = wezterm.action.CopyMode 'Close' },
+  },
 }
 
 return config
