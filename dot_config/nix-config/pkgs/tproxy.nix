@@ -11,14 +11,14 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 # 定义核心规则集函数
 apply_rules() {
-    ip route add local default dev lo table 100
-    ip rule add fwmark 1 lookup 100
+    ip route replace local default dev lo table 100
+    ip rule add fwmark 1 lookup 100 2>/dev/null || true
 
     echo "正在加载 nftables 代理规则..."
-    nft -f - <<EOF
-# 清理现有的所有规则集
-flush ruleset
+    # 清理现有的 singbox 代理表（切勿使用 flush ruleset，避免毁坏 Docker/系统防火墙规则）
+    nft delete table ip singbox 2>/dev/null || true
 
+    nft -f - <<EOF
 # 代理流量导向表
 table ip singbox {
   set reserved_clusters {
@@ -38,17 +38,29 @@ table ip singbox {
 
   chain prerouting {
     type filter hook prerouting priority mangle; policy accept;
-    iifname "virbr0" return
-    udp dport 53 mark set 1 tproxy to 127.0.0.1:9898 accept
+    # 放行 Docker 网桥及虚拟网卡流量，避免干涉容器网络与容器内 DNS
+    iifname { "docker0", "virbr0" } return
+    iifname "br-*" return
+    iifname "veth*" return
+
+    # 优先强行发往 Mihomo 的特殊 CIDR（如 172.16.90.0/24，避免在下文被 172.16.0.0/12 直连拦截）
+    ip daddr 172.16.90.0/24 meta l4proto {tcp, udp} mark set 1 tproxy to 127.0.0.1:9898 accept
+
+    # 先排除内网/保留网段及 Docker 内部 DNS，再处理外网 53 端口与代理流量
     ip daddr @reserved_clusters return
+    udp dport 53 mark set 1 tproxy to 127.0.0.1:9898 accept
     meta l4proto {tcp, udp} mark set 1 tproxy to 127.0.0.1:9898 accept
   }
 
   chain output {
     type route hook output priority mangle; policy accept;
     meta skuid "mihomo" accept
-    udp dport 53 mark set 1 accept
+
+    # 优先强行发往 Mihomo 的特殊 CIDR
+    ip daddr 172.16.90.0/24 meta l4proto {tcp, udp} mark set 1 accept
+
     ip daddr @reserved_clusters return
+    udp dport 53 mark set 1 accept
     meta l4proto {tcp, udp} mark set 1 accept
   }
 }
@@ -60,13 +72,12 @@ EOF
 # 清除代理规则函数（恢复默认）
 flush_rules() {
 
-    ip route del local default dev lo table 100
-    ip rule del fwmark 1 lookup 100
+    ip route del local default dev lo table 100 2>/dev/null || true
+    ip rule del fwmark 1 lookup 100 2>/dev/null || true
 
-    echo "正在清理代理规则并恢复默认..."
-    # 清空所有规则，如果你是在 NixOS 下，后续可能需要执行 systemctl restart firewall 恢复系统默认
-    nft flush ruleset
-    echo "nftables 规则已全部清空！[状态: 已关闭]"
+    echo "正在清理代理规则..."
+    nft delete table ip singbox 2>/dev/null || true
+    echo "代理规则已清理完毕！[状态: 已关闭]"
 }
 
 # 检查当前状态函数

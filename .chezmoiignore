@@ -5,17 +5,16 @@
 .config/emacs
 .config/slin-emacs
 .config/zsh
+.local/kitty
+.local/nix-config
 .zshenv
-.local/share/fcitx5
 
 {{ else }}
 
 .config/autohotkey/
-.config/autohotkey/**
 .config/komorebi/
 .config/microsoft-office/
 .config/scoop/
-.config/scoop/**
 .config/whkdrc/
 .config/yasb/
 .config/starship.toml
@@ -36,5 +35,19 @@ Documents/**
 {{ if eq .chezmoi.os "darwin" }}
 
 .local/share/fcitx5
+
+{{ else }}
+
+.hammerspoon
+
+{{ end }}
+
+{{ if eq .chezmoi.os "linux" }}
+
+{{ else }}
+
+.local/share/fcitx5
+.local/keyd
+.local/ags
 
 {{ end }}
