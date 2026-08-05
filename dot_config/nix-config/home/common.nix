@@ -15,7 +15,7 @@ let
 in
 {
   imports = [
-    # ./modules/zsh.nix
+    ./modules/zsh.nix
     # ./modules/starship.nix
     # ./modules/kitty.nix
     # ./modules/wezterm.nix
@@ -105,7 +105,6 @@ in
     ];
 
   home.sessionVariables = {
-    EDITOR = "nvim";
     JAVA_HOME = "${pkgs.jbrsdk-17.home or pkgs.jbrsdk-17}";
     JAVA21_HOME = "${pkgs.openjdk21}";
   };

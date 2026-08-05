@@ -27,28 +27,6 @@ login() {
 }
 
 
-zz() {
-  r=$(z -l $1 | grep -v '^common:' | awk '{print $2}')
-  filtered=''
-  echo $r | while IFS= read -r line; do
-    if [[ $(basename "$line") == *$1* ]]; then
-      if [[ $filtered != '' ]]; then
-        filtered+="\n"
-      fi
-      filtered+="${line//#$HOME/~}"
-    fi
-  done
-
-  if [[ $(echo $filtered | wc -l | awk '{print $1}') == 1 ]]; then
-    cd ${filtered//#\~/$HOME}
-  else
-    dir=$(echo $filtered | fzf)
-    if [[ -n $dir ]];then
-      cd ${dir//#\~/$HOME}
-    fi
-  fi
-}
-
 function pyvenv_cd {
   if [[ -n "$VIRTUAL_ENV" ]]; then
     if [[ $PWD != "${VIRTUAL_ENV}"* ]]; then
