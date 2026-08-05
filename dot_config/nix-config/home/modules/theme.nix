@@ -18,7 +18,7 @@
     eza.enable = true;
     bat.enable = true;
     fzf.enable = true;
-    zsh-syntax-highlighting.enable = true;
+    lazygit.enable = true;
     fcitx5 = lib.mkIf pkgs.stdenv.isLinux {
       enable = true;
       enableRounded = true;
