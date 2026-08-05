@@ -1,20 +1,10 @@
-export FZF_DEFAULT_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build}"
-
 export THEME=" \
---color=bg+:#363A4F,bg:#24273A,spinner:#F4DBD6,hl:#ED8796 \
---color=fg:#CAD3F5,header:#ED8796,info:#C6A0F6,pointer:#F4DBD6 \
---color=marker:#B7BDF8,fg+:#CAD3F5,prompt:#C6A0F6,hl+:#ED8796 \
---color=selected-bg:#494D64 \
---color=border:#6E738D,label:#CAD3F5"
+--color=bg+:#313244,bg:#1E1E2E,spinner:#F5E0DC,hl:#F38BA8 \
+--color=fg:#CDD6F4,header:#F38BA8,info:#CBA6F7,pointer:#F5E0DC \
+--color=marker:#B4BEFE,fg+:#CDD6F4,prompt:#CBA6F7,hl+:#F38BA8 \
+--color=selected-bg:#45475A \
+--color=border:#6C7086,label:#CDD6F4"
 
-export FZF_DEFAULT_OPTS="
---layout=reverse
---height '100%'
---border
---no-separator
---bind 'alt-y:execute(echo -n {} | xclip -selection clipboard)'
-${THEME}
-"
 
 export FORGIT_BLAME_FZF_OPTS="--preview-window='right:60%'"
 export FORGIT_FZF_DEFAULT_OPTS="
@@ -27,19 +17,11 @@ export FORGIT_FZF_DEFAULT_OPTS="
 ${THEME}
 "
 
-export FZF_CTRL_R_OPTS=$FORGIT_FZF_DEFAULT_OPTS
-export FZF_CTRL_T_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build}"
-export FZF_CTRL_T_OPTS="${FZF_CTRL_R_OPTS}"
-
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':fzf-tab:*' default-color $'\033[34m'
+zstyle ':fzf-tab:*' default-color $'\033[38;2;180;190;254m'
+zstyle ':fzf-tab:*' group-title-color $'\033[38;2;203;166;247m'
 zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 zstyle ':fzf-tab:*' switch-group ',' '.'
 zstyle ':fzf-tab:*' fzf-pad 4
-zstyle ':fzf-tab:*' fzf-flags --no-separator \
---color=bg+:#363A4F,bg:#24273A,spinner:#F4DBD6,hl:#ED8796 \
---color=fg:#CAD3F5,header:#ED8796,info:#C6A0F6,pointer:#F4DBD6 \
---color=marker:#B7BDF8,fg+:#CAD3F5,prompt:#C6A0F6,hl+:#ED8796 \
---color=selected-bg:#494D64 \
---color=border:#6E738D,label:#CAD3F5
+zstyle ':fzf-tab:*' fzf-flags --no-separator ${(s: :)THEME}

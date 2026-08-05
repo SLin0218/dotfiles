@@ -3,9 +3,7 @@
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
-
     defaultCommand = "fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build}";
-
     defaultOptions = [
       "--layout=reverse"
       "--height 100"
@@ -32,16 +30,11 @@
       # 修正 vi 模式下的 backspace 行为
       bindkey '^?' backward-delete-char
 
+      [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
       [[ ! -f ~/.config/zsh/env.zsh ]] || source ~/.config/zsh/env.zsh
       [[ ! -f ~/.config/zsh/zinit.zsh ]] || source ~/.config/zsh/zinit.zsh
-      [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
-      [[ ! -f ~/.config/zsh/browser.zsh ]] || source ~/.config/zsh/browser.zsh
-      [[ ! -f ~/.config/zsh/proxy.zsh ]] || source ~/.config/zsh/proxy.zsh
-      [[ ! -f ~/.config/zsh/git.zsh ]] || source ~/.config/zsh/git.zsh
       [[ ! -f ~/.config/zsh/user.zsh ]] || source ~/.config/zsh/user.zsh
       [[ ! -f ~/.config/zsh/fzf.zsh ]] || source ~/.config/zsh/fzf.zsh
-      [[ ! -f ~/.config/zsh/alias.zsh ]] || source ~/.config/zsh/alias.zsh
-      [[ ! -f ~/.config/zsh/dev.zsh ]] || source ~/.config/zsh/dev.zsh
     '';
 
     enable = true;
@@ -65,25 +58,44 @@
         else
           "sudo nixos-rebuild switch --flake .";
       nix-shell = "nix-shell --command zsh";
+      cp = "rsync -aP";
+      vim = "nvim";
+      cat = "bat";
+      cls = "clear";
+      fetch = "fastfetch";
+      gl = "git pull";
+      gp = "git push";
+      gcmsg = "git commit -m";
+      gss = "git status -s";
+      gst = "git status";
+      gsw = "git switch";
+      gswc = "git switch --create";
+      gswm = "git switch $(git_main_branch)";
+      gswd = "git switch $(git_develop_branch)";
+      gm = "git merge";
+      gma = "git merge --abort";
+      gbr = "git br";
+      gcl = "git clone";
+      grv = "git remote --verbose";
+      feh = "feh -F";
+      neomutt = "TERM=xterm-direct proxychains -q neomutt";
+      datetime = "date '+%Y-%m-%d %H:%M:%S'";
+      bc = "bc -ql";
+      zz = "zoxide query -i";
     };
 
     # 历史记录配置
     history = {
       size = 10000;
       path = "$HOME/.zsh_history";
-
       # 忽略连续重复的命令 (setopt HIST_IGNORE_DUPS)
       ignoreDups = true;
-
       # 忽略以空格开头的命令 (setopt HIST_IGNORE_SPACE)
       ignoreSpace = true;
-
       # 多个终端会话共享历史 (setopt SHARE_HISTORY)
       share = true;
-
       # 立即写入历史文件，而不是等退出时 (setopt INC_APPEND_HISTORY)
       append = true;
-
       # 记录命令执行的时间戳 (对应 omz 的 history 格式)
       expireDuplicatesFirst = true;
     };

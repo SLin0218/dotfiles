@@ -18,8 +18,6 @@ zinit wait"0a" lucid blockf light-mode for \
 zinit wait lucid light-mode for \
     OMZL::git.zsh \
     OMZP::sudo \
-    OMZP::safe-paste \
-    OMZP::fzf \
     wfxr/forgit
 
 # 4. fzf-tab、自动建议与高亮（ strictly ordered: compinit/fzf-tab -> autosuggestions -> fast-syntax-highlighting）
