@@ -6,5 +6,16 @@ export GPG_TTY=$(tty)
 export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 
 alias vim=nvim
+alias gl="git pull"
+alias gc="git clone"
+alias gp="git push"
+alias gst="git status"
+alias gcmsg="git commit -m"
+alias ga="git add"
+alias la='eza -a'
+alias ll='eza -l'
+alias lla='eza -la'
+alias ls=eza
+alias lt='eza --tree'
 
 gpg-connect-agent /bye > /dev/null 2>&1

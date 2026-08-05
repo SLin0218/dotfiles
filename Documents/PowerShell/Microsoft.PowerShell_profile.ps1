@@ -67,11 +67,6 @@ function gbash {
     & '~\scoop\apps\git\current\bin\bash.exe' @args
 }
 
-Set-Alias -Name vim -Value nvim
-Set-Alias -Name ls -Value exa
-Set-Alias -Name vim -Value nvim
-Set-Alias -Name fetch -Value fastfetch
-
 function ll {
   exa -al @args
 }
@@ -81,10 +76,14 @@ function l {
 }
 
 function gst { git status @args }
-function gl { git pull @args }
 function gcl { git clone @args }
 function gcms { git commit -m @args }
 function gp { git puth @args }
+
+Set-Alias -Name vim -Value nvim
+Set-Alias -Name ls -Value exa
+Set-Alias -Name vim -Value nvim
+Set-Alias -Name fetch -Value fastfetch
 
 # 自动完成
 $CompletionDir = Join-Path (Split-Path $PROFILE) "completions"

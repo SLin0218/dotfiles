@@ -225,12 +225,20 @@ config.keys = {
                 wezterm.log_info 'cancelled'
               elseif id == 'split-h-wsl' then
                 inner_window:perform_action(
-                  act.SplitHorizontal({ domain = { DomainName = "WSL:NixOS" } }),
+                  act.SplitHorizontal({
+                    label = "WSL",
+                    cwd = "~",
+                    domain = { DomainName = "WSL:NixOS" }
+                  }),
                   inner_pane
                 )
               elseif id == 'split-h-pwsh' then
                 inner_window:perform_action(
-                  act.SplitHorizontal({ domain = { DomainName = "local" } }),
+                  act.SplitHorizontal({
+                    label = 'PWSH',
+                    cwd = "~",
+                    domain = { DomainName = "local" }
+                  }),
                   inner_pane
                 )
               end
@@ -261,12 +269,20 @@ config.keys = {
                 wezterm.log_info 'cancelled'
               elseif id == 'split-v-wsl' then
                 inner_window:perform_action(
-                  act.SplitVertical({ domain = { DomainName = "WSL:NixOS" } }),
+                  act.SplitVertical({
+                    label = "WSL",
+                    cwd = "~",
+                    domain = { DomainName = "WSL:NixOS" }
+                  }),
                   inner_pane
                 )
               elseif id == 'split-v-pwsh' then
                 inner_window:perform_action(
-                  act.SplitVertical({ domain = { DomainName = "local" } }),
+                  act.SplitVertical({
+                    label = "PWSH",
+                    cwd = "~",
+                    domain = { DomainName = "local" }
+                  }),
                   inner_pane
                 )
               end

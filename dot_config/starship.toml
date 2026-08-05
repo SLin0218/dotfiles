@@ -1,9 +1,9 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
+$shell\
 $username\
 $hostname\
-[$shell](purple) \
 $directory\
 $git_branch\
 $git_state\
@@ -15,6 +15,7 @@ $character"""
 
 [directory]
 style = "blue"
+truncate_to_repo = false
 
 [character]
 success_symbol = "[❯](purple)"
@@ -51,8 +52,8 @@ detect_extensions = []
 detect_files = []
 
 [shell]
-powershell_indicator = 'pwsh'
-bash_indicator = 'bash'
-style = 'bg:purple fg:black'
-format = '[$indicator]($style)'
+powershell_indicator = 'PWSH'
+bash_indicator = 'BASH'
+style = 'fg:yellow'
+format = '[$indicator ]($style)'
 disabled = false
