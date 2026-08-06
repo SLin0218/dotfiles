@@ -1,5 +1,8 @@
 # vim: set ft=gitignore.gotmpl:
 
+###############################
+#           Windows           #
+###############################
 {{ if eq .chezmoi.os "windows" }}
 
 .config/emacs
@@ -32,6 +35,9 @@ Documents/**
 
 {{ end }}
 
+###############################
+#             MacOS           #
+###############################
 {{ if eq .chezmoi.os "darwin" }}
 
 .local/share/fcitx5
@@ -42,6 +48,9 @@ Documents/**
 
 {{ end }}
 
+###############################
+#             Linux           #
+###############################
 {{ if eq .chezmoi.os "linux" }}
 
 {{ else }}

@@ -26,6 +26,7 @@
                           :foreground (nth (- i 2) colors))))
 
   (setq org-startup-indented t)         ; 开启标题缩进
+  (setq org-hide-leading-stars t)       ; 隐藏标题星号
   (setq org-src-tab-acts-natively t)    ; code按语言缩进
   (setq org-src-preserve-indentation nil)
   (setq org-blank-before-new-entry
@@ -248,7 +249,10 @@
 (use-package org-modern
   :hook (org-mode . org-modern-mode)
   :config
-  (setq org-modern-star '("●" "○" "◆" "◇" "▶" "▷"))
+  (setq org-modern-star 'replace)
+  ;; (setq org-modern-star '("●" "○" "◆" "◇" "▶" "▷"))
+  (setq org-modern-replace-stars '("" "" "" "" ""))
+  (setq org-modern-hide-stars t)
   (setq org-hide-emphasis-markers t)
   (setq org-pretty-entities t)
   (setq org-modern-block-name
