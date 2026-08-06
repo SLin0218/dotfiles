@@ -79,6 +79,7 @@ local colors = wezterm.color.get_builtin_schemes()[config.color_scheme]
 -- 定义图标常量（使用 Nerd Font 字符）
 local ICON_WSL = nerdfonts.linux_nixos or "󱄅"
 local ICON_WIN = nerdfonts.custom_windows or ""
+local ICON_GIT = nerdfonts.dev_git
 local windows_color = "#0078D6"
 local nixos_color = { "#5277C3", "#7EBAE4" }
 {{- end }}
@@ -109,6 +110,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	-------------------------------------------------------------
   {{- if eq .chezmoi.os "windows" }}
 	local is_wsl_process = pane.foreground_process_name and string.match(pane.foreground_process_name, "wsl")
+	local is_bash_process = pane.foreground_process_name and string.match(pane.foreground_process_name, "bash")
   {{- end }}
 
 	if tab.is_active then
@@ -148,6 +150,9 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 		if is_wsl_process then
 			icon = ICON_WSL
       title_text = "WSL"
+    elseif is_bash_process then
+			icon = ICON_GIT
+      title_text = "BASH"
     else
       icon = ICON_WIN
       title_text = "PWSH"
