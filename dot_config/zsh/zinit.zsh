@@ -8,8 +8,6 @@ source "${ZINIT_HOME}/zinit.zsh"
 zinit depth"1" light-mode for \
     romkatv/powerlevel10k
 
-zinit snippet OMZL::history.zsh
-
 # 2. 补全定义增强（需在 compinit 之前加载）
 zinit wait"0a" lucid blockf light-mode for \
     zsh-users/zsh-completions

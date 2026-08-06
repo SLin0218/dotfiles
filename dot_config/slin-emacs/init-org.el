@@ -60,6 +60,82 @@
           ("DONE"     . (:foreground ,(catppuccin-color 'green)    :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
           ("CANCELED" . (:foreground ,(catppuccin-color 'surface2) :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :strike-through t ))))
 
+  ;; 设置 Org 打开文件链接时在当前窗口打开 (不分屏)
+  (setq org-link-frame-setup
+        '((vm . vm-visit-folder)
+          (vm-imap . vm-visit-imap-folder)
+          (gnus . org-gnus-no-new-news)
+          (file . find-file)
+          (wl . wl)))
+
+  ;; 切换当前行/光标处图片的内联预览
+  (defun my/org-toggle-inline-image-at-point ()
+    "Toggle inline image display for the image link on the current line."
+    (let ((beg (line-beginning-position))
+          (end (line-end-position)))
+      (if (or (get-char-property (point) 'org-image-overlay)
+              (get-char-property beg 'org-image-overlay))
+          (org-remove-inline-images beg end)
+        (org-display-inline-images t t beg end))))
+
+  ;; 智能回车 (RET)：按链接类型分别处理 (跳转 Org / 图片预览 / 浏览器打开 URL)
+  (defun my/org-dwim-at-point ()
+    "Smart RET in Org-mode:
+- On an Org file link: jump to the corresponding Org file in current window.
+- On an image link: toggle inline image preview.
+- On a URL link: open in web browser.
+- Otherwise: execute default RET behavior."
+    (interactive)
+    (let* ((context (org-element-context))
+           (type (org-element-type context))
+           (link (cond
+                  ((eq type 'link) context)
+                  (t (org-element-lineage context '(link) t)))))
+      (if link
+          (let* ((link-type (org-element-property :type link))
+                 (path (or (org-element-property :path link) ""))
+                 (raw-link (or (org-element-property :raw-link link) ""))
+                 (clean-path (car (split-string path "::"))))
+            (cond
+             ;; 1. 图片链接 -> 开启/关闭内联预览
+             ((or (and (stringp clean-path)
+                       (not (string-empty-p clean-path))
+                       (fboundp 'image-type-from-file-name)
+                       (image-type-from-file-name clean-path))
+                  (string-match-p "\\.\\(png\\|jpg\\|jpeg\\|gif\\|svg\\|webp\\|bmp\\)$" (downcase raw-link)))
+              (my/org-toggle-inline-image-at-point))
+
+             ;; 2. URL 链接 -> 使用默认浏览器打开
+             ((or (member link-type '("http" "https" "ftp" "mailto"))
+                  (string-match-p "^https?://" raw-link))
+              (browse-url raw-link))
+
+             ;; 3. Org 文件链接 / 双链 -> 跳转至 Org 文件 (当前窗口打开)
+             ((or (and (equal link-type "file")
+                       (string-match-p "\\.org$" (downcase clean-path)))
+                  (member link-type '("id" "denote" "custom-id")))
+              (org-open-at-point))
+
+             ;; 4. 其他普通文件/链接 -> 默认调用 org-open-at-point
+             (t (org-open-at-point))))
+        ;; 非链接位置 -> 命令模式 (Normal State) 下不换行仅向下移动光标；编辑模式下正常换行
+        (cond
+         ((and (bound-and-true-p evil-state)
+               (eq evil-state 'normal))
+          (if (fboundp 'evil-next-line)
+              (evil-next-line)
+            (forward-line 1)))
+         (t
+          (call-interactively (or (command-remapping 'org-return)
+                                  #'org-return)))))))
+
+  (define-key org-mode-map (kbd "RET") #'my/org-dwim-at-point)
+  (define-key org-mode-map (kbd "<return>") #'my/org-dwim-at-point)
+
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal org-mode-map (kbd "RET") #'my/org-dwim-at-point)
+    (evil-define-key 'normal org-mode-map (kbd "<return>") #'my/org-dwim-at-point))
+
   ;; ----------------- LaTeX / PDF 导出配置 -----------------
   (setq org-latex-pdf-process
         '("xelatex -interaction nonstopmode -shell-escape -output-directory %o %f"
