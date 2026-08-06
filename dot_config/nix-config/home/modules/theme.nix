@@ -1,15 +1,24 @@
-{ pkgs, lib, config, ...}:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 
 {
   catppuccin = {
-    enable = true;      # 默认为所有支持的应用开启
+    enable = true; # 默认为所有支持的应用开启
     autoEnable = true;
-    flavor = "mocha";   # latte, frappe, macchiato, mocha
+    flavor = "mocha"; # latte, frappe, macchiato, mocha
     accent = "lavender"; # blue, flamingo, green, pink, etc.
     hyprlock = lib.mkIf pkgs.stdenv.isLinux {
       enable = true;
       useDefaultConfig = false;
     };
+    eza.enable = true;
+    bat.enable = true;
+    fzf.enable = true;
+    lazygit.enable = true;
     fcitx5 = lib.mkIf pkgs.stdenv.isLinux {
       enable = true;
       enableRounded = true;

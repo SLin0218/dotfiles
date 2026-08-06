@@ -50,7 +50,6 @@ in
       ripgrep
       nodejs
       pnpm
-      delta
       fzf
       mycli
       httpie
@@ -114,6 +113,8 @@ in
     btop.enable = true;
     eza.enable = true;
     bat.enable = true;
+    lazygit.enable = true;
+    delta.enable = true;
     zoxide = {
       enable = true;
       enableZshIntegration = true;

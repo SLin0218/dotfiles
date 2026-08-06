@@ -12,16 +12,23 @@ config.color_scheme = "{{ .theme }}"
 -- ==========================================
 {{- if eq .chezmoi.os "windows" }}
 -- 设置默认启动为 PowerShell 7 (pwsh)
-config.default_prog = { "pwsh.exe" }
+config.default_prog = { "pwsh.exe", "--noLogo" }
 config.default_domain = 'local'
 config.launch_menu = {
   {
     label = 'PWSH',
     domain = { DomainName = 'local' },
+    cwd = '~',
   },
   {
     label = 'NixOS',
     domain = { DomainName = 'WSL:NixOS' },
+    cwd = '~',
+  },
+  {
+    label = 'Git',
+    args = { '{{ .chezmoi.homeDir }}/scoop/apps/git/current/bin/bash.exe', '--login', '-i' },
+    domain = { DomainName = 'local' },
   }
 }
 config.wsl_domains = {
@@ -72,6 +79,7 @@ local colors = wezterm.color.get_builtin_schemes()[config.color_scheme]
 -- 定义图标常量（使用 Nerd Font 字符）
 local ICON_WSL = nerdfonts.linux_nixos or "󱄅"
 local ICON_WIN = nerdfonts.custom_windows or ""
+local ICON_GIT = nerdfonts.dev_git
 local windows_color = "#0078D6"
 local nixos_color = { "#5277C3", "#7EBAE4" }
 {{- end }}
@@ -83,19 +91,26 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	local icon = ""
   local icon_color = ""
 	local title_text = pane.title
-	local tab_panes = tab.panes -- 获取当前 Tab 的所有分屏列表
-	local panes_size = #tab_panes -- 计算当前 Tab 的分屏总数
 	local split_icon = ""
 	local tab_index = tab.tab_index
 
+  -- 获取真实的 pane 数量
+  local mux_tab = wezterm.mux.get_tab(tab.tab_id)
+  local real_panes = mux_tab and mux_tab:panes() or tab.panes
+  local panes_size = #real_panes
+
 	if panes_size > 1 then
 		split_icon = SPLIT_ICONS[panes_size - 1]
+    if pane.is_zoomed then
+      split_icon = ' ' .. split_icon
+    end
 	end
 	-------------------------------------------------------------
 	-- 优先检测用户是否手动修改了 Tab 标题
 	-------------------------------------------------------------
   {{- if eq .chezmoi.os "windows" }}
 	local is_wsl_process = pane.foreground_process_name and string.match(pane.foreground_process_name, "wsl")
+	local is_bash_process = pane.foreground_process_name and string.match(pane.foreground_process_name, "bash")
   {{- end }}
 
 	if tab.is_active then
@@ -135,6 +150,9 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 		if is_wsl_process then
 			icon = ICON_WSL
       title_text = "WSL"
+    elseif is_bash_process then
+			icon = ICON_GIT
+      title_text = "BASH"
     else
       icon = ICON_WIN
       title_text = "PWSH"
@@ -204,6 +222,26 @@ end)
 -- ==========================================
 -- 快捷键配置 (快速新建与分屏)
 -- ==========================================
+local active_pane_info = function(tab)
+  for _, item in ipairs(tab:panes_with_info()) do
+    if item.is_active then
+      return item
+    end
+  end
+end
+
+local activate_pane_direction_keep_zoom_state = function(window, pane, direction)
+  local tab = pane:tab()
+  local is_zoomed = active_pane_info(tab).is_zoomed
+  window:perform_action(
+    act.ActivatePaneDirection(direction),
+    pane
+  )
+  if is_zoomed then
+    window:perform_action(act.TogglePaneZoomState, pane)
+  end
+end
+
 config.leader = { key = "b", mods = "CTRL", timeout_milliseconds = 1000 }
 
 config.keys = {
@@ -300,16 +338,31 @@ config.keys = {
   },
 
 	-- 切换面板
-	{ key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
-	{ key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
-	{ key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
-	{ key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
+	-- { key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
+	-- { key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
+	-- { key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
+	-- { key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
 
-	-- 模拟 Tmux 调整窗格大小 (Ctrl + b 激活后，按 Ctrl + 方向键微调)
-	{ key = "h", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Left", 5 }) },
-	{ key = "l", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Right", 5 }) },
-	{ key = "k", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Up", 5 }) },
-	{ key = "j", mods = "LEADER|SHIFT", action = act.AdjustPaneSize({ "Down", 5 }) },
+	{ key = "h", mods = "LEADER", action = wezterm.action_callback(
+    function(window, pane)
+      activate_pane_direction_keep_zoom_state(window, pane, "Left")
+    end)
+  },
+	{ key = "j", mods = "LEADER", action = wezterm.action_callback(
+    function(window, pane)
+      activate_pane_direction_keep_zoom_state(window, pane, "Down")
+    end)
+  },
+	{ key = "k", mods = "LEADER", action = wezterm.action_callback(
+    function(window, pane)
+      activate_pane_direction_keep_zoom_state(window, pane, "Up")
+    end)
+  },
+	{ key = "l", mods = "LEADER", action = wezterm.action_callback(
+    function(window, pane)
+      activate_pane_direction_keep_zoom_state(window, pane, "Right")
+    end)
+  },
 
 	-- 切换标签
 	{ key = "1", mods = "LEADER", action = act.ActivateTab(0) },
