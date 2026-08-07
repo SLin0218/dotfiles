@@ -60,7 +60,7 @@ config.window_padding = {
 	bottom = 10,
 }
 
-config.font_size = 16.0
+config.font_size = 14.0
 
 -- Windows 11/10 磨砂玻璃效果
 config.win32_system_backdrop = "Acrylic"
@@ -81,6 +81,7 @@ local ICON_WSL = nerdfonts.linux_nixos or "󱄅"
 local ICON_WIN = nerdfonts.custom_windows or ""
 local ICON_GIT = nerdfonts.dev_git
 local windows_color = "#0078D6"
+local git_color = "#F1502F"
 local nixos_color = { "#5277C3", "#7EBAE4" }
 {{- end }}
 local SPLIT_ICONS = { "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹", "¹⁰" }
@@ -128,6 +129,8 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
     else
       icon_color = nixos_color[2]
     end
+  elseif is_bash_process then
+    icon_color = git_color
   else
     icon_color = windows_color
   end
@@ -162,7 +165,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
   icon = " " .. icon
 	-------------------------------------------------------------
 	-- 拼接最终显示的标签文本格式
-	local final_title = string.format("%s %s.%s ", split_icon, tab_index + 1, title_text)
+	local final_title = string.format("%s %s-%s ", split_icon, tab_index + 1, title_text)
 	-- 根据是否是当前活跃标签，返回不同的样式
 	if tab.is_active then
 		return {
@@ -171,14 +174,20 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
       { Text = icon },
 		  { Foreground = { Color = colors.tab_bar.active_tab.fg_color } },
 			{ Text = final_title },
+      { Background = { Color = colors.tab_bar.background } },
+		  { Text = " " },
 		}
 	end
 
 	return {
 		{ Foreground = { Color = icon_color } },
+    { Background = { Color = colors.ansi[1] } },
     { Text = icon },
     { Foreground = { Color = colors.tab_bar.inactive_tab.fg_color } },
 		{ Text = final_title },
+    { Foreground = { Color = colors.tab_bar.inactive_tab.fg_color } },
+    { Background = { Color = colors.tab_bar.background } },
+		{ Text = " " },
 	}
 end)
 
