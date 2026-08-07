@@ -106,14 +106,12 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
   local split_icon = ""
   local tab_index = tab.tab_index
 
-  -- 直接通过传入的 panes 计算分屏数量，省去 Mux API 查找开销
-  local panes_size = #panes
+  -- 获取当前 tab 真实的 pane 数量 (事件第3参数 panes 为全局激活 Tab 的 pane 列表)
+  local mux_tab = wezterm.mux.get_tab(tab.tab_id)
+  local panes_size = mux_tab and #mux_tab:panes() or 1
 
   if panes_size > 1 then
     split_icon = SPLIT_ICONS[panes_size - 1] or ""
-    if pane.is_zoomed then
-      split_icon = " " .. split_icon
-    end
   end
 
   local is_wsl_process = false
