@@ -45,6 +45,7 @@ Documents/**
 {{ else }}
 
 .hammerspoon
+Library
 
 {{ end }}
 
