@@ -5,190 +5,195 @@ local config = wezterm.config_builder()
 local act = wezterm.action
 local nerdfonts = wezterm.nerdfonts
 
+-- 跨平台目标系统判定（使用 WezTerm 原生 API 提高性能与代码整洁度）
+local is_windows = string.find(wezterm.target_triple, "windows") ~= nil
+
 config.color_scheme = "{{ .theme }}"
 
 -- ==========================================
 -- 1. 核心启动与环境配置 (PowerShell 7 & WSL)
 -- ==========================================
-{{- if eq .chezmoi.os "windows" }}
--- 设置默认启动为 PowerShell 7 (pwsh)
-config.default_prog = { "pwsh.exe", "--noLogo" }
-config.default_domain = 'local'
-config.launch_menu = {
-  {
-    label = 'PWSH',
-    domain = { DomainName = 'local' },
-    cwd = '~',
-  },
-  {
-    label = 'NixOS',
-    domain = { DomainName = 'WSL:NixOS' },
-    cwd = '~',
-  },
-  {
-    label = 'Git',
-    args = { '{{ .chezmoi.homeDir }}/scoop/apps/git/current/bin/bash.exe', '--login', '-i' },
-    domain = { DomainName = 'local' },
+if is_windows then
+  -- 设置默认启动为 PowerShell 7 (pwsh)
+  config.default_prog = { "pwsh.exe", "--noLogo" }
+  config.default_domain = "local"
+  config.launch_menu = {
+    {
+      label = "PWSH",
+      domain = { DomainName = "local" },
+      cwd = "~",
+    },
+    {
+      label = "NixOS",
+      domain = { DomainName = "WSL:NixOS" },
+      cwd = "~",
+    },
+    {
+      label = "Git",
+      args = { "{{ .chezmoi.homeDir }}/scoop/apps/git/current/bin/bash.exe", "--login", "-i" },
+      domain = { DomainName = "local" },
+    },
   }
-}
-config.wsl_domains = {
-  {
-    -- 必填：该域在 WezTerm 中的显示名称
-    name = 'WSL:NixOS',
-    -- 必填：你 WSL 发行版的准确名称（可以通过在 cmd 运行 `wsl -l -v` 查看）
-    distribution = 'NixOS',
-    -- 选填：进入 WSL 后的初始默认工作目录
-    default_cwd = '~',
-  },
-}
-{{- else }}
-config.default_prog = { "zsh" }
-{{- end }}
+  config.wsl_domains = {
+    {
+      name = "WSL:NixOS",
+      distribution = "NixOS",
+      default_cwd = "~",
+    },
+  }
+else
+  config.default_prog = { "zsh" }
+end
+
 -- ==========================================
 -- 2. 界面与外观优化
 -- ==========================================
 config.font = wezterm.font_with_fallback({
-	"JetBrainsMono Nerd Font Mono",
-	"Maple Mono NF CN",
-	"Microsoft YaHei",
+  "JetBrainsMono Nerd Font Mono",
+  "Maple Mono NF CN",
+  "Microsoft YaHei",
 })
 
 config.window_padding = {
-	left = 30,
-	right = 30,
-	top = 10,
-	bottom = 10,
+  left = 30,
+  right = 30,
+  top = 10,
+  bottom = 10,
 }
 
 config.font_size = 14.0
 
--- Windows 11/10 磨砂玻璃效果
+-- Windows 11/10 磨砂玻璃效果与窗口修饰
 config.win32_system_backdrop = "Acrylic"
 config.window_background_opacity = 1.0
--- 隐藏标题栏（仅保留调整大小的边框）
--- config.window_decorations = "RESIZE"
 config.default_cursor_style = "BlinkingUnderline"
 config.window_decorations = "RESIZE"
--- 隐藏添加标签的 "+" 按钮
+
+-- 隐藏添加标签的 "+" 按钮与 Fancy Tab Bar
 config.show_new_tab_button_in_tab_bar = false
 config.use_fancy_tab_bar = false
 
-local colors = wezterm.color.get_builtin_schemes()[config.color_scheme]
+-- 获取主题颜色配置（支持自动安全 Fallback，防止无效主题引起的崩溃）
+local builtin_schemes = wezterm.color.get_builtin_schemes()
+local colors = builtin_schemes[config.color_scheme]
+  or builtin_schemes["Tokyo Night"]
+  or {
+    ansi = { "#15161e", "#f7768e", "#9ece6a", "#e0af68", "#7aa2f7", "#bb9af7", "#7dcfff", "#a9b1d6" },
+    brights = { "#414868", "#f7768e", "#9ece6a", "#e0af68", "#7aa2f7", "#bb9af7", "#7dcfff", "#c0caf5" },
+    background = "#1a1b26",
+    tab_bar = {
+      background = "#16161e",
+      active_tab = { fg_color = "#c0caf5", bg_color = "#1f2335" },
+      inactive_tab = { fg_color = "#565f89", bg_color = "#16161e" },
+    },
+  }
 
-{{- if eq .chezmoi.os "windows" }}
--- 定义图标常量（使用 Nerd Font 字符）
+-- 定义图标与颜色常量
 local ICON_WSL = nerdfonts.linux_nixos or "󱄅"
 local ICON_WIN = nerdfonts.custom_windows or ""
-local ICON_GIT = nerdfonts.dev_git
+local ICON_GIT = nerdfonts.dev_git or ""
 local windows_color = "#0078D6"
 local git_color = "#F1502F"
 local nixos_color = { "#5277C3", "#7EBAE4" }
-{{- end }}
 local SPLIT_ICONS = { "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹", "¹⁰" }
 
 -- 动态判断并格式化标签标题
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
-	local pane = tab.active_pane
-	local icon = ""
+  local pane = tab.active_pane
+  local icon = ""
   local icon_color = ""
-	local title_text = pane.title
-	local split_icon = ""
-	local tab_index = tab.tab_index
+  local title_text = pane.title
+  local split_icon = ""
+  local tab_index = tab.tab_index
 
-  -- 获取真实的 pane 数量
-  local mux_tab = wezterm.mux.get_tab(tab.tab_id)
-  local real_panes = mux_tab and mux_tab:panes() or tab.panes
-  local panes_size = #real_panes
+  -- 直接通过传入的 panes 计算分屏数量，省去 Mux API 查找开销
+  local panes_size = #panes
 
-	if panes_size > 1 then
-		split_icon = SPLIT_ICONS[panes_size - 1]
+  if panes_size > 1 then
+    split_icon = SPLIT_ICONS[panes_size - 1] or ""
     if pane.is_zoomed then
-      split_icon = ' ' .. split_icon
+      split_icon = " " .. split_icon
     end
-	end
-	-------------------------------------------------------------
-	-- 优先检测用户是否手动修改了 Tab 标题
-	-------------------------------------------------------------
-  {{- if eq .chezmoi.os "windows" }}
-	local is_wsl_process = pane.foreground_process_name and string.match(pane.foreground_process_name, "wsl")
-	local is_bash_process = pane.foreground_process_name and string.match(pane.foreground_process_name, "bash")
-  {{- end }}
+  end
 
-	if tab.is_active then
+  local is_wsl_process = false
+  local is_bash_process = false
+  if is_windows and pane.foreground_process_name then
+    is_wsl_process = string.match(pane.foreground_process_name, "wsl") ~= nil
+    is_bash_process = string.match(pane.foreground_process_name, "bash") ~= nil
+  end
+
+  -- 设置默认图标与状态颜色
+  if tab.is_active then
     icon = nerdfonts.md_checkbox_blank_circle
-    icon_color = colors.brights[3]
+    icon_color = (colors.brights and colors.brights[3]) or "#9ece6a"
   else
     icon = nerdfonts.md_checkbox_blank_circle_outline
-    icon_color = colors.brights[1]
+    icon_color = (colors.brights and colors.brights[1]) or "#414868"
   end
 
-  {{- if eq .chezmoi.os "windows" }}
-	if is_wsl_process then
-    if tab.is_active then
-      icon_color = nixos_color[1]
-    else
-      icon_color = nixos_color[2]
-    end
-  elseif is_bash_process then
-    icon_color = git_color
-  else
-    icon_color = windows_color
-  end
-  {{- end }}
-
-	if tab.tab_title and #tab.tab_title > 0 then
-  {{- if eq .chezmoi.os "windows" }}
-		if is_wsl_process then
-			icon = ICON_WSL
-    else
-      icon = ICON_WIN
-		end
-  {{- end }}
-		title_text = tab.tab_title
-  {{- if eq .chezmoi.os "windows" }}
-	else
-		-------------------------------------------------------------
-		-- 用户未手动修改标题
-		-------------------------------------------------------------
-		if is_wsl_process then
-			icon = ICON_WSL
-      title_text = "WSL"
+  if is_windows then
+    if is_wsl_process then
+      icon_color = tab.is_active and nixos_color[1] or nixos_color[2]
     elseif is_bash_process then
-			icon = ICON_GIT
-      title_text = "BASH"
+      icon_color = git_color
     else
-      icon = ICON_WIN
-      title_text = "PWSH"
-		end
-  {{- end }}
-	end
-  icon = " " .. icon
-	-------------------------------------------------------------
-	-- 拼接最终显示的标签文本格式
-	local final_title = string.format("%s %s-%s ", split_icon, tab_index + 1, title_text)
-	-- 根据是否是当前活跃标签，返回不同的样式
-	if tab.is_active then
-		return {
-			{ Attribute = { Intensity = "Bold" } },
-		  { Foreground = { Color = icon_color } },
-      { Text = icon },
-		  { Foreground = { Color = colors.tab_bar.active_tab.fg_color } },
-			{ Text = final_title },
-      { Background = { Color = colors.tab_bar.background } },
-		  { Text = " " },
-		}
-	end
+      icon_color = windows_color
+    end
+  end
 
-	return {
-		{ Foreground = { Color = icon_color } },
-    { Background = { Color = colors.ansi[1] } },
+  -- 处理标题与专属图标
+  if tab.tab_title and #tab.tab_title > 0 then
+    if is_windows then
+      icon = is_wsl_process and ICON_WSL or ICON_WIN
+    end
+    title_text = tab.tab_title
+  else
+    if is_windows then
+      if is_wsl_process then
+        icon = ICON_WSL
+        title_text = "WSL"
+      elseif is_bash_process then
+        icon = ICON_GIT
+        title_text = "BASH"
+      else
+        icon = ICON_WIN
+        title_text = "PWSH"
+      end
+    end
+  end
+  icon = " " .. icon
+
+  -- 拼接最终显示的标签文本格式 (保留最新的 %s-%s 样式与 tab 背景)
+  local final_title = string.format("%s %s-%s ", split_icon, tab_index + 1, title_text)
+
+  local active_fg = (colors.tab_bar and colors.tab_bar.active_tab and colors.tab_bar.active_tab.fg_color) or "#c0caf5"
+  local inactive_fg = (colors.tab_bar and colors.tab_bar.inactive_tab and colors.tab_bar.inactive_tab.fg_color) or "#565f89"
+  local tab_bg = (colors.tab_bar and colors.tab_bar.background) or "#16161e"
+  local ansi_1 = (colors.ansi and colors.ansi[1]) or "#15161e"
+
+  if tab.is_active then
+    return {
+      { Attribute = { Intensity = "Bold" } },
+      { Foreground = { Color = icon_color } },
+      { Text = icon },
+      { Foreground = { Color = active_fg } },
+      { Text = final_title },
+      { Background = { Color = tab_bg } },
+      { Text = " " },
+    }
+  end
+
+  return {
+    { Foreground = { Color = icon_color } },
+    { Background = { Color = ansi_1 } },
     { Text = icon },
-    { Foreground = { Color = colors.tab_bar.inactive_tab.fg_color } },
-		{ Text = final_title },
-    { Foreground = { Color = colors.tab_bar.inactive_tab.fg_color } },
-    { Background = { Color = colors.tab_bar.background } },
-		{ Text = " " },
-	}
+    { Foreground = { Color = inactive_fg } },
+    { Text = final_title },
+    { Foreground = { Color = inactive_fg } },
+    { Background = { Color = tab_bg } },
+    { Text = " " },
+  }
 end)
 
 local mode_mapping = {
@@ -198,38 +203,41 @@ local mode_mapping = {
 }
 
 wezterm.on("update-status", function(window, _)
-	local name = window:active_key_table()
-	local mode = ""
+  local name = window:active_key_table()
+  local mode = ""
   local bg_index = 5
-	if name then
-    mode = mode_mapping[name]
-		if name == "copy_mode" then
+  if name then
+    mode = mode_mapping[name] or name
+    if name == "copy_mode" then
       bg_index = 4
-		end
-	else
-    bg_index = 5
-		mode = "Normal"
-	end
-	mode = string.format(" %s %s ", nerdfonts.dev_vim, mode)
-	window:set_left_status(wezterm.format({
-		{ Background = { Color = colors.ansi[bg_index] } },
-		{ Foreground = { Color = colors.ansi[1] } },
-		{ Text = mode },
-		{ Background = { Color = colors.background } },
-		{ Text = " " },
-	}))
+    end
+  else
+    mode = "Normal"
+  end
+  mode = string.format(" %s %s ", nerdfonts.dev_vim or "", mode)
 
-	local mem = string.format("  %s", ram:update(ram.default_opts))
-	window:set_right_status(wezterm.format({
-		{ Background = { Color = colors.ansi[5] } },
-		{ Foreground = { Color = colors.ansi[1] } },
-		{
-			Text = mem,
-		},
-	}))
+  local ansi_bg = (colors.ansi and colors.ansi[bg_index]) or "#7aa2f7"
+  local ansi_fg = (colors.ansi and colors.ansi[1]) or "#15161e"
+  local bg_main = colors.background or "#1a1b26"
+
+  window:set_left_status(wezterm.format({
+    { Background = { Color = ansi_bg } },
+    { Foreground = { Color = ansi_fg } },
+    { Text = mode },
+    { Background = { Color = bg_main } },
+    { Text = " " },
+  }))
+
+  local mem = string.format("  %s", ram:update(ram.default_opts))
+  window:set_right_status(wezterm.format({
+    { Background = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
+    { Foreground = { Color = ansi_fg } },
+    { Text = mem },
+  }))
 end)
+
 -- ==========================================
--- 快捷键配置 (快速新建与分屏)
+-- 3. 快捷键配置 (快速新建与分屏)
 -- ==========================================
 local active_pane_info = function(tab)
   for _, item in ipairs(tab:panes_with_info()) do
@@ -241,11 +249,9 @@ end
 
 local activate_pane_direction_keep_zoom_state = function(window, pane, direction)
   local tab = pane:tab()
-  local is_zoomed = active_pane_info(tab).is_zoomed
-  window:perform_action(
-    act.ActivatePaneDirection(direction),
-    pane
-  )
+  local info = active_pane_info(tab)
+  local is_zoomed = info and info.is_zoomed or false
+  window:perform_action(act.ActivatePaneDirection(direction), pane)
   if is_zoomed then
     window:perform_action(act.TogglePaneZoomState, pane)
   end
@@ -254,198 +260,195 @@ end
 config.leader = { key = "b", mods = "CTRL", timeout_milliseconds = 1000 }
 
 config.keys = {
-	-- CTRL + SHIFT + t : 快速打开下拉菜单选择终端
-	{ key = "t", mods = "LEADER", action = act.ShowLauncher },
-	-- 分屏 (默认复制当前运行的 Shell)
-	{ key = "%", mods = "LEADER|SHIFT",
-  {{- if eq .chezmoi.os "windows" }}
-    action = wezterm.action_callback(function(window, pane)
+  -- LEADER + t : 快速打开下拉菜单选择终端
+  { key = "t", mods = "LEADER", action = act.ShowLauncher },
+  -- 分屏
+  {
+    key = "%",
+    mods = "LEADER|SHIFT",
+    action = is_windows and wezterm.action_callback(function(window, pane)
       local workspaces = {
-        { id = 'split-h-wsl',  label = 'WSL:NixOS' },
-        { id = 'split-h-pwsh',  label = 'local' },
+        { id = "split-h-wsl", label = "WSL:NixOS" },
+        { id = "split-h-pwsh", label = "local" },
       }
       window:perform_action(
-        act.InputSelector {
-          action = wezterm.action_callback(
-            function(inner_window, inner_pane, id, label)
-              if not id and not label then
-                wezterm.log_info 'cancelled'
-              elseif id == 'split-h-wsl' then
-                inner_window:perform_action(
-                  act.SplitHorizontal({
-                    label = "WSL",
-                    cwd = "~",
-                    domain = { DomainName = "WSL:NixOS" }
-                  }),
-                  inner_pane
-                )
-              elseif id == 'split-h-pwsh' then
-                inner_window:perform_action(
-                  act.SplitHorizontal({
-                    label = 'PWSH',
-                    cwd = "~",
-                    domain = { DomainName = "local" }
-                  }),
-                  inner_pane
-                )
-              end
+        act.InputSelector({
+          action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
+            if not id and not label then
+              wezterm.log_info("cancelled")
+            elseif id == "split-h-wsl" then
+              inner_window:perform_action(
+                act.SplitHorizontal({
+                  label = "WSL",
+                  cwd = "~",
+                  domain = { DomainName = "WSL:NixOS" },
+                }),
+                inner_pane
+              )
+            elseif id == "split-h-pwsh" then
+              inner_window:perform_action(
+                act.SplitHorizontal({
+                  label = "PWSH",
+                  cwd = "~",
+                  domain = { DomainName = "local" },
+                }),
+                inner_pane
+              )
             end
-          ),
-          title = 'Choose Domain',
-          choices = workspaces
-        },
+          end),
+          title = "Choose Domain",
+          choices = workspaces,
+        }),
         pane
       )
-    end),
-  {{- else }}
-  action = act.SplitHorizontal { domain = 'CurrentPaneDomain' }
-  {{- end }}
+    end) or act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
   },
-  { key = '"', mods = "LEADER|SHIFT",
-  {{- if eq .chezmoi.os "windows" }}
-    action = wezterm.action_callback(function(window, pane)
+  {
+    key = '"',
+    mods = "LEADER|SHIFT",
+    action = is_windows and wezterm.action_callback(function(window, pane)
       local splits = {
-        { id = 'split-v-wsl',  label = 'WSL:NixOS' },
-        { id = 'split-v-pwsh',  label = 'local' },
+        { id = "split-v-wsl", label = "WSL:NixOS" },
+        { id = "split-v-pwsh", label = "local" },
       }
       window:perform_action(
-        act.InputSelector {
-          action = wezterm.action_callback(
-            function(inner_window, inner_pane, id, label)
-              if not id and not label then
-                wezterm.log_info 'cancelled'
-              elseif id == 'split-v-wsl' then
-                inner_window:perform_action(
-                  act.SplitVertical({
-                    label = "WSL",
-                    cwd = "~",
-                    domain = { DomainName = "WSL:NixOS" }
-                  }),
-                  inner_pane
-                )
-              elseif id == 'split-v-pwsh' then
-                inner_window:perform_action(
-                  act.SplitVertical({
-                    label = "PWSH",
-                    cwd = "~",
-                    domain = { DomainName = "local" }
-                  }),
-                  inner_pane
-                )
-              end
+        act.InputSelector({
+          action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
+            if not id and not label then
+              wezterm.log_info("cancelled")
+            elseif id == "split-v-wsl" then
+              inner_window:perform_action(
+                act.SplitVertical({
+                  label = "WSL",
+                  cwd = "~",
+                  domain = { DomainName = "WSL:NixOS" },
+                }),
+                inner_pane
+              )
+            elseif id == "split-v-pwsh" then
+              inner_window:perform_action(
+                act.SplitVertical({
+                  label = "PWSH",
+                  cwd = "~",
+                  domain = { DomainName = "local" },
+                }),
+                inner_pane
+              )
             end
-          ),
-          title = 'Choose Domain',
+          end),
+          title = "Choose Domain",
           choices = splits,
-        },
+        }),
         pane
       )
-    end),
-  {{- else }}
-  action = act.SplitVertical { domain = 'CurrentPaneDomain' }
-  {{- end }}
+    end) or act.SplitVertical({ domain = "CurrentPaneDomain" }),
   },
 
-	-- 切换面板
-	-- { key = "h", mods = "LEADER", action = act.ActivatePaneDirection("Left") },
-	-- { key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
-	-- { key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
-	-- { key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
-
-	{ key = "h", mods = "LEADER", action = wezterm.action_callback(
-    function(window, pane)
+  -- 切换面板 (保持 Zoom 状态)
+  {
+    key = "h",
+    mods = "LEADER",
+    action = wezterm.action_callback(function(window, pane)
       activate_pane_direction_keep_zoom_state(window, pane, "Left")
-    end)
+    end),
   },
-	{ key = "j", mods = "LEADER", action = wezterm.action_callback(
-    function(window, pane)
+  {
+    key = "j",
+    mods = "LEADER",
+    action = wezterm.action_callback(function(window, pane)
       activate_pane_direction_keep_zoom_state(window, pane, "Down")
-    end)
+    end),
   },
-	{ key = "k", mods = "LEADER", action = wezterm.action_callback(
-    function(window, pane)
+  {
+    key = "k",
+    mods = "LEADER",
+    action = wezterm.action_callback(function(window, pane)
       activate_pane_direction_keep_zoom_state(window, pane, "Up")
-    end)
+    end),
   },
-	{ key = "l", mods = "LEADER", action = wezterm.action_callback(
-    function(window, pane)
+  {
+    key = "l",
+    mods = "LEADER",
+    action = wezterm.action_callback(function(window, pane)
       activate_pane_direction_keep_zoom_state(window, pane, "Right")
-    end)
+    end),
   },
 
-	-- 切换标签
-	{ key = "1", mods = "LEADER", action = act.ActivateTab(0) },
-	{ key = "2", mods = "LEADER", action = act.ActivateTab(1) },
-	{ key = "3", mods = "LEADER", action = act.ActivateTab(2) },
-	{ key = "4", mods = "LEADER", action = act.ActivateTab(3) },
-	{ key = "5", mods = "LEADER", action = act.ActivateTab(4) },
-	{ key = "6", mods = "LEADER", action = act.ActivateTab(5) },
-	{ key = "7", mods = "LEADER", action = act.ActivateTab(6) },
-	{ key = "8", mods = "LEADER", action = act.ActivateTab(7) },
-	{ key = "9", mods = "LEADER", action = act.ActivateTab(-1) },
+  -- 切换标签
+  { key = "1", mods = "LEADER", action = act.ActivateTab(0) },
+  { key = "2", mods = "LEADER", action = act.ActivateTab(1) },
+  { key = "3", mods = "LEADER", action = act.ActivateTab(2) },
+  { key = "4", mods = "LEADER", action = act.ActivateTab(3) },
+  { key = "5", mods = "LEADER", action = act.ActivateTab(4) },
+  { key = "6", mods = "LEADER", action = act.ActivateTab(5) },
+  { key = "7", mods = "LEADER", action = act.ActivateTab(6) },
+  { key = "8", mods = "LEADER", action = act.ActivateTab(7) },
+  { key = "9", mods = "LEADER", action = act.ActivateTab(-1) },
 
-	-- 进入复制模式
-	{ key = "Enter", mods = "LEADER", action = act.ActivateCopyMode },
-	{ key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
-	{ key = "r", mods = "CTRL|SHIFT", action = act.ReloadConfiguration },
-	{ key = "w", mods = "CTRL|SHIFT", action = act.CloseCurrentTab({ confirm = true }) },
-	{
-		key = "r",
-		mods = "LEADER",
-		action = act.ActivateKeyTable({
-			name = "resize_pane",
-			one_shot = false,
-		}),
-	},
-	{
-		key = ",",
-		mods = "LEADER",
-		action = act.PromptInputLine({
-			description = "Enter new tab title:",
-			action = wezterm.action_callback(function(window, _, line)
-				if line then
-					window:mux_window():active_tab():set_title(line)
-				end
-			end),
-		}),
-	},
-	-- 向左移动标签页
-	{ key = "<", mods = "LEADER|SHIFT", action = act.MoveTabRelative(-1) },
-	-- 向右移动标签页
-	{ key = ">", mods = "LEADER|SHIFT", action = act.MoveTabRelative(1) },
+  -- 进入复制模式与按键表
+  { key = "Enter", mods = "LEADER", action = act.ActivateCopyMode },
+  { key = "z", mods = "LEADER", action = act.TogglePaneZoomState },
+  { key = "r", mods = "CTRL|SHIFT", action = act.ReloadConfiguration },
+  { key = "w", mods = "CTRL|SHIFT", action = act.CloseCurrentTab({ confirm = true }) },
+  {
+    key = "r",
+    mods = "LEADER",
+    action = act.ActivateKeyTable({
+      name = "resize_pane",
+      one_shot = false,
+    }),
+  },
+  {
+    key = ",",
+    mods = "LEADER",
+    action = act.PromptInputLine({
+      description = "Enter new tab title:",
+      action = wezterm.action_callback(function(window, _, line)
+        if line then
+          window:mux_window():active_tab():set_title(line)
+        end
+      end),
+    }),
+  },
+  -- 移动标签页
+  { key = "<", mods = "LEADER|SHIFT", action = act.MoveTabRelative(-1) },
+  { key = ">", mods = "LEADER|SHIFT", action = act.MoveTabRelative(1) },
 }
 
--- 1. 获取 WezTerm 默认的 copy_mode 快捷键表
-local default_copy_mode = wezterm.gui.default_key_tables().copy_mode
--- 2. 将自定义的 '/' 键加入到默认的 copy_mode 中
+-- 安全获取默认 copy_mode (防止在无 GUI 环境/CLI 模式下崩盘)
+local default_copy_mode = (wezterm.gui and wezterm.gui.default_key_tables().copy_mode) or {}
 table.insert(default_copy_mode, {
-  key = '/',
-  mods = 'NONE',
-  action = act.Search { CaseInSensitiveString = '' }
+  key = "/",
+  mods = "NONE",
+  action = act.Search({ CaseInSensitiveString = "" }),
 })
 
 config.key_tables = {
   copy_mode = default_copy_mode,
-	resize_pane = {
-		{ key = "LeftArrow", action = act.AdjustPaneSize({ "Left", 1 }) },
-		{ key = "RightArrow", action = act.AdjustPaneSize({ "Right", 1 }) },
-		{ key = "UpArrow", action = act.AdjustPaneSize({ "Up", 1 }) },
-		{ key = "DownArrow", action = act.AdjustPaneSize({ "Down", 1 }) },
+  resize_pane = {
+    { key = "LeftArrow", action = act.AdjustPaneSize({ "Left", 1 }) },
+    { key = "RightArrow", action = act.AdjustPaneSize({ "Right", 1 }) },
+    { key = "UpArrow", action = act.AdjustPaneSize({ "Up", 1 }) },
+    { key = "DownArrow", action = act.AdjustPaneSize({ "Down", 1 }) },
 
-		{ key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
-		{ key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
-		{ key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
-		{ key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
-		{ key = "Escape", action = "PopKeyTable" },
-	},
+    { key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
+    { key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
+    { key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
+    { key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
+    { key = "Escape", action = "PopKeyTable" },
+  },
   search_mode = {
-    { key = 'n', mods = 'CTRL', action = act.CopyMode 'NextMatch' },
-    { key = 'p', mods = 'CTRL', action = act.CopyMode 'PriorMatch' },
-    { key = 'Enter', mods = 'NONE', action = act.Multiple {
-      act.CopyMode 'ClearPattern',
-      act.CopyMode 'AcceptPattern',
-    }},
-    { key = 'Escape', mods = 'NONE', action = act.CopyMode 'Close' },
+    { key = "n", mods = "CTRL", action = act.CopyMode("NextMatch") },
+    { key = "p", mods = "CTRL", action = act.CopyMode("PriorMatch") },
+    {
+      key = "Enter",
+      mods = "NONE",
+      action = act.Multiple({
+        act.CopyMode("ClearPattern"),
+        act.CopyMode("AcceptPattern"),
+      }),
+    },
+    { key = "Escape", mods = "NONE", action = act.CopyMode("Close") },
   },
 }
 
