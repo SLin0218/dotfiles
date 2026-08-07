@@ -164,8 +164,28 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
   end
   icon = " " .. icon
 
-  -- 拼接最终显示的标签文本格式 (保留最新的 %s-%s 样式与 tab 背景)
-  local final_title = string.format("%s %s-%s ", split_icon, tab_index + 1, title_text)
+  -- 构成前缀字符串 (如 "² 1-" 或 "1-")
+  local prefix = (split_icon ~= "" and (split_icon .. " ") or "") .. (tab_index + 1) .. "-"
+
+  -- 根据 max_width 计算 title_text 最大可用宽度，精确截取超长标题
+  -- 需扣除的列宽包括：
+  -- 1. icon 的列宽 (wezterm.column_width(icon))
+  -- 2. final_title 开头的 1 个空格列宽 (1 列)
+  -- 3. prefix 的列宽 (wezterm.column_width(prefix))
+  -- 4. final_title 末尾的 1 个空格与结尾 { Text = " " } 的 1 个空格 (共 2 列)
+  local non_title_width = wezterm.column_width(icon) + wezterm.column_width(prefix) + 3
+  local max_title_width = max_width - non_title_width
+
+  if max_title_width > 0 and wezterm.column_width(title_text) > max_title_width then
+    if max_title_width > 1 then
+      title_text = wezterm.truncate_right(title_text, max_title_width - 1) .. "…"
+    else
+      title_text = wezterm.truncate_right(title_text, max_title_width)
+    end
+  end
+
+  -- 拼接最终显示的标签文本格式 (图标与前缀之间有 1 个空格，末尾有 1 个空格)
+  local final_title = string.format(" %s%s ", prefix, title_text)
 
   local active_fg = (colors.tab_bar and colors.tab_bar.active_tab and colors.tab_bar.active_tab.fg_color) or "#c0caf5"
   local inactive_fg = (colors.tab_bar and colors.tab_bar.inactive_tab and colors.tab_bar.inactive_tab.fg_color) or "#565f89"
