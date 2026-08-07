@@ -147,5 +147,20 @@
 ;; 记住上次打开文件时的光标位置
 (save-place-mode 1)
 
+;; 网页内置浏览器与 HTML 渲染优化 (EWW / SHR)
+(with-eval-after-load 'shr
+  (setq shr-inhibit-images t)                   ; 默认不显示网页图片，大幅提升页面加载速度
+  (setq shr-use-colors nil)                     ; 强制使用 Emacs 当前主题配色
+  (setq shr-bullet "• "))                       ; 优化无序列表符号
+
+(with-eval-after-load 'eww
+  (define-key eww-mode-map (kbd "i") #'eww-toggle-images)
+  (when (fboundp 'evil-define-key)
+    (evil-define-key 'normal eww-mode-map (kbd "i") #'eww-toggle-images)))
+
+(add-hook 'eww-mode-hook
+          (lambda ()
+            (setq-local line-spacing 0.25)))   ; EWW 视图专属舒适行间距
+
 (provide 'init-base)
 ;;; init-base.el ends here

@@ -54,12 +54,18 @@ in
       mycli
       httpie
       pandoc
-      (texlive.combine {
-        inherit (texlive) scheme-medium collection-langchinese collection-latexextra;
-      })
+      (texlive.withPackages (
+        ps: with ps; [
+          scheme-medium
+          collection-langchinese
+          collection-latexextra
+        ]
+      ))
       nmap
       bind.dnsutils
       fastfetch
+      # 用于shell脚本加密工具
+      openssl
 
       # rime
       librime
