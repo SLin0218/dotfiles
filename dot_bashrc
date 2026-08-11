@@ -1,6 +1,7 @@
 # vim: set ft=bash :
 
 eval "$(starship init bash)"
+eval "$(zoxide init bash)"
 
 export GPG_TTY=$(tty)
 export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)

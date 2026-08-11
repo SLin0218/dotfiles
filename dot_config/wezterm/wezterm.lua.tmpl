@@ -113,9 +113,6 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 
 	if panes_size > 1 then
 		split_icon = SPLIT_ICONS[panes_size - 1] or ""
-		if pane.is_zoomed then
-			split_icon = "⁺" .. split_icon
-		end
 	end
 
 	local is_wsl_process = false
@@ -167,14 +164,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 
 	-- 构成前缀字符串 (如 "² 1-" 或 "1-")
 	local prefix = (split_icon ~= "" and split_icon or "") .. " " .. (tab_index + 1) .. "-"
-
-	-- 根据 max_width 计算 title_text 最大可用宽度，精确截取超长标题
-	-- 需扣除的列宽包括：
-	-- 1. icon 的列宽 (wezterm.column_width(icon))
-	-- 2. final_title 开头的 1 个空格列宽 (1 列)
-	-- 3. prefix 的列宽 (wezterm.column_width(prefix))
-	-- 4. final_title 末尾的 1 个空格与结尾 { Text = " " } 的 1 个空格 (共 2 列)
-	local non_title_width = wezterm.column_width(icon) + wezterm.column_width(prefix) + 3
+	local non_title_width = wezterm.column_width(icon) + wezterm.column_width(prefix) + 2
 	local max_title_width = config.tab_max_width - non_title_width
 
 	if max_title_width > 0 and wezterm.column_width(title_text) > max_title_width then
@@ -186,8 +176,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	end
 
 	-- 拼接最终显示的标签文本格式 (末尾有 1 个空格)
-	local final_title = string.format("%s%s", prefix, title_text)
-
+	local final_title = string.format("%s%s ", prefix, title_text)
 	local active_fg = (colors.tab_bar and colors.tab_bar.active_tab and colors.tab_bar.active_tab.fg_color) or "#c0caf5"
 	local active_bg = (colors.tab_bar and colors.tab_bar.active_tab and colors.tab_bar.active_tab.bg_color) or "#cba6f7"
 	local inactive_fg = (colors.tab_bar and colors.tab_bar.inactive_tab and colors.tab_bar.inactive_tab.fg_color)
@@ -244,6 +233,7 @@ local mode_mapping = {
 	["copy_mode"] = " Copy ",
 	["resize_pane"] = "Resize",
 	["search_mode"] = "Search",
+	["move_tab"] = " Move ",
 }
 
 wezterm.on("update-status", function(window, _)
@@ -283,7 +273,7 @@ wezterm.on("update-status", function(window, _)
 
 	local mem = string.format(" %s", ram:update(ram.default_opts))
 	window:set_right_status(wezterm.format({
-		{ Foreground = { Color = ansi_bg } },
+		{ Foreground = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
 		{ Background = { Color = bg_main } },
 		{ Text = "" },
 
@@ -291,7 +281,7 @@ wezterm.on("update-status", function(window, _)
 		{ Foreground = { Color = ansi_fg } },
 		{ Text = mem },
 
-		{ Foreground = { Color = ansi_bg } },
+		{ Foreground = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
 		{ Background = { Color = bg_main } },
 		{ Text = "" },
 	}))
@@ -472,8 +462,36 @@ config.keys = {
 		}),
 	},
 	-- 移动标签页
-	{ key = "<", mods = "LEADER|SHIFT", action = act.MoveTabRelative(-1) },
-	{ key = ">", mods = "LEADER|SHIFT", action = act.MoveTabRelative(1) },
+	{
+		key = "<",
+		mods = "LEADER|SHIFT",
+		action = wezterm.action_callback(function(window, pane)
+			window:perform_action(act.MoveTabRelative(-1), pane)
+			window:perform_action(
+				act.ActivateKeyTable({
+					name = "move_tab",
+					timeout_milliseconds = 1000,
+					one_shot = false,
+				}),
+				pane
+			)
+		end),
+	},
+	{
+		key = ">",
+		mods = "LEADER|SHIFT",
+		action = wezterm.action_callback(function(window, pane)
+			window:perform_action(act.MoveTabRelative(1), pane)
+			window:perform_action(
+				act.ActivateKeyTable({
+					name = "move_tab",
+					timeout_milliseconds = 1000,
+					one_shot = false,
+				}),
+				pane
+			)
+		end),
+	},
 }
 
 -- 安全获取默认 copy_mode (防止在无 GUI 环境/CLI 模式下崩盘)
@@ -486,6 +504,11 @@ table.insert(default_copy_mode, {
 
 config.key_tables = {
 	copy_mode = default_copy_mode,
+	move_tab = {
+		{ key = "<", mods = "SHIFT", action = act.MoveTabRelative(-1) },
+		{ key = ">", mods = "SHIFT", action = act.MoveTabRelative(1) },
+		{ key = "Escape", action = "PopKeyTable" },
+	},
 	resize_pane = {
 		{ key = "LeftArrow", action = act.AdjustPaneSize({ "Left", 1 }) },
 		{ key = "RightArrow", action = act.AdjustPaneSize({ "Right", 1 }) },

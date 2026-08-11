@@ -1,13 +1,1 @@
 # vim: set ft=toml.gotmpl:
-
-{{ if eq .chezmoi.os "windows" }}
-
-# 自动拉取并部署 Rime（小狼毫）配置
-["AppData/Roaming/Rime"]
-type = "git-repo"
-url = "https://github.com/SLin0218/rime-config.git"
-refreshPeriod = "168h"
-
-{{ else }}
-
-{{ end }}
