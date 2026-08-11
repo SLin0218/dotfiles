@@ -11,50 +11,6 @@
 ;; 禁用默认加载的第三方链接子模块，提升启动与首次加载速度
 (setq org-modules nil)
 
-;; ----------------- Org 智能链接与图标辅助函数 -----------------
-
-;; 切换当前行/光标处图片的内联预览
-(defun my/org-toggle-inline-image-at-point ()
-  "Toggle inline image display for the image link on the current line."
-  (let ((beg (line-beginning-position))
-        (end (line-end-position)))
-    (if (or (get-char-property (point) 'org-image-overlay)
-            (get-char-property beg 'org-image-overlay))
-        (org-remove-inline-images beg end)
-      (org-display-inline-images t t beg end))))
-
-;; 为不同类型的 Org 链接自动加带有颜色的图标前缀 (空格无下划线)
-(defun my/org-link-icon-matcher (limit)
-  "Font-lock matcher for Org links to append colored Nerd Icon prefix."
-  (while (re-search-forward org-link-any-re limit t)
-    (let* ((start (match-beginning 0))
-           (context (save-excursion (goto-char start) (org-element-context))))
-      (when (eq (org-element-type context) 'link)
-        (remove-overlays start (1+ start) 'my-org-link-icon t)
-        (let* ((link-type (org-element-property :type context))
-               (path (or (org-element-property :path context) ""))
-               (raw-link (or (org-element-property :raw-link context) ""))
-               (space (propertize " " 'face '(:underline nil :inherit nil)))
-               (icon (cond
-                      ;; 🌐 网页 URL -> 蓝色 Web 图标
-                      ((member link-type '("http" "https" "ftp" "mailto"))
-                       (nerd-icons-mdicon "nf-md-web" :face 'nerd-icons-blue))
-                      ;; 🖼️ 图片链接 -> 紫色 Image 图标
-                      ((or (and (stringp path) (not (string-empty-p path)) (image-type-from-file-name path))
-                           (string-match-p "\\.\\(png\\|jpg\\|jpeg\\|gif\\|svg\\|webp\\|bmp\\)$" (downcase raw-link)))
-                       (nerd-icons-mdicon "nf-md-image_outline" :face 'nerd-icons-purple))
-                      ;; 📄 Org 笔记 / 双链 -> 绿色 Org-mode 专属图标
-                      ((or (and (equal link-type "file") (string-match-p "\\.org$" (downcase path)))
-                           (member link-type '("id" "denote" "custom-id")))
-                       (nerd-icons-sucicon "nf-custom-orgmode" :face 'nerd-icons-green))
-                      ;; 🔗 其他文件/常规链接 -> 橙色 Link 图标
-                      (t
-                       (nerd-icons-mdicon "nf-md-link_variant" :face 'nerd-icons-orange)))))
-          (when icon
-            (let ((ov (make-overlay start start)))
-              (overlay-put ov 'before-string (concat icon space))
-              (overlay-put ov 'my-org-link-icon t))))))))
-
 ;; 智能回车 (RET)：按链接类型分别处理 (跳转 Org / 图片预览 / 浏览器打开 URL)
 (defun my/org-dwim-at-point ()
   "Smart RET in Org-mode:

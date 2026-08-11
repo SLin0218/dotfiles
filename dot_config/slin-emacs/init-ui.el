@@ -25,26 +25,18 @@
 
 (cond ((eq system-type 'darwin) (setq slin/font-size 16)))
 (when sys/wsl-p
-  (setq slin/font-size 14))
+  (setq slin/font-size 15))
 
 (defun load-font-setup (&optional frame)
   "根据当前 FRAME 设置默认英文字体与中文字体映射."
-  (when (display-graphic-p frame)
-    (with-selected-frame (or frame (selected-frame))
-      (cond
-       ((eq window-system 'pgtk)
-        (set-face-attribute 'default nil :height (* slin/font-size 10) :family slin/font-family)
-        (set-face-attribute 'fixed-pitch nil :height (* slin/font-size 10) :family slin/font-family))
-       (t
-        (let* ((font-size slin/font-size)
-               (chinese-font slin/font-family-cjk)
-               (english-font slin/font-family))
-          (set-frame-font (format "%s-%d" english-font font-size) nil t)
-          (set-face-attribute 'fixed-pitch nil :family english-font :height (* font-size 10))
-          (dolist (charset '(han kana bopomofo cjk-misc symbol))
-            (set-fontset-font (frame-parameter nil 'font)
-                              charset
-                              (font-spec :family chinese-font)))))))))
+  (let ((target-frame (or frame (selected-frame))))
+    (when (display-graphic-p target-frame)
+      (with-selected-frame target-frame
+        (set-face-attribute 'default target-frame :family slin/font-family :height (* slin/font-size 10))
+        (set-face-attribute 'fixed-pitch target-frame :family slin/font-family :height (* slin/font-size 10))
+        (dolist (charset '(han kana bopomofo cjk-misc symbol))
+          (set-fontset-font t charset (font-spec :family slin/font-family-cjk))
+          (set-fontset-font (frame-parameter target-frame 'font) charset (font-spec :family slin/font-family-cjk)))))))
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions #'load-font-setup)
@@ -53,6 +45,11 @@
 ;; org-table 单独指定中文字体族
 (with-eval-after-load 'org
   (set-face-attribute 'org-table nil :family slin/font-family-cjk :height (* slin/font-size 10)))
+
+;; WSL 环境专享：GUI Org 表格像素级自动对齐
+;; (use-package valign
+;;   :if sys/wsl-p
+;;   :hook (org-mode . valign-mode))
 
 ;; 基础图标集
 (use-package all-the-icons)
