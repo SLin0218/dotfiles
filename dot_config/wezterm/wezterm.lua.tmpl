@@ -15,31 +15,30 @@ config.tab_max_width = 32
 -- 1. 核心启动与环境配置 (PowerShell 7 & WSL)
 -- ==========================================
 if is_windows then
+	config.default_gui_startup_args = { "connect", "unix" }
 	-- 设置默认启动为 PowerShell 7 (pwsh)
 	config.default_prog = { "pwsh.exe", "--noLogo" }
 	config.default_domain = "local"
 	config.launch_menu = {
 		{
 			label = "PWSH",
-			domain = { DomainName = "local" },
+			domain = { DomainName = "unix" },
 			cwd = "~",
 		},
 		{
 			label = "NixOS",
-			domain = { DomainName = "WSL:NixOS" },
-			cwd = "~",
+			domain = { DomainName = "unix" },
+			args = { "wsl.exe", "~" },
 		},
 		{
 			label = "Git",
 			args = { "{{ .chezmoi.homeDir }}/scoop/apps/git/current/bin/bash.exe", "--login", "-i" },
-			domain = { DomainName = "local" },
+			domain = { DomainName = "unix" },
 		},
 	}
-	config.wsl_domains = {
+	config.unix_domains = {
 		{
-			name = "WSL:NixOS",
-			distribution = "NixOS",
-			default_cwd = "~",
+			name = "unix",
 		},
 	}
 else
@@ -118,8 +117,8 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	local is_wsl_process = false
 	local is_bash_process = false
 	if is_windows and pane.foreground_process_name then
-		is_wsl_process = string.match(pane.foreground_process_name, "wsl") ~= nil
-		is_bash_process = string.match(pane.foreground_process_name, "bash") ~= nil
+		is_wsl_process = string.match(pane.foreground_process_name .. pane.title, "wsl") ~= nil
+		is_bash_process = string.match(pane.foreground_process_name .. pane.title, "bash") ~= nil
 	end
 
 	-- 设置默认图标与状态颜色
@@ -492,6 +491,7 @@ config.keys = {
 			)
 		end),
 	},
+	{ key = "d", mods = "LEADER", action = wezterm.action.DetachDomain("CurrentPaneDomain") },
 }
 
 -- 安全获取默认 copy_mode (防止在无 GUI 环境/CLI 模式下崩盘)
