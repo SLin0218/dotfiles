@@ -6,23 +6,23 @@
 local M = {}
 
 M.base46 = {
-  theme = "catppuccin",
-  hl_override = {
-    CursorLine = { bg = "#181825" },
-    -- Visual = { bg = "#45475a" },
-    MatchWord = {
-      fg = "yellow",
-      bg = "#181825",
-    },
-    Normal = {
-      -- bg = "none",
-      -- guibg = nil,
-      -- ctermbg = nil,
-    },
-    ExtraWhitespace = {
-      guibg = "#6c7086",
-    },
-  },
+	theme = "catppuccin",
+	hl_override = {
+		CursorLine = { bg = "#181825" },
+		-- Visual = { bg = "#45475a" },
+		MatchWord = {
+			fg = "yellow",
+			bg = "#181825",
+		},
+		Normal = {
+			-- bg = "none",
+			-- guibg = nil,
+			-- ctermbg = nil,
+		},
+		ExtraWhitespace = {
+			guibg = "#6c7086",
+		},
+	},
 }
 
 -- M.mason = {
