@@ -351,7 +351,25 @@
               :around
               (lambda (orig-fn path &rest args)
                 (or (+eglot/jdtls-path-to-uri path)
-                    (apply orig-fn path args)))))
+                    (apply orig-fn path args))))
+
+  ;; 优化 EGLOT events buffer 体验：安全一次性挂载 special-mode 并开启 Evil normal 模式
+  (with-eval-after-load 'evil
+    (add-to-list 'evil-buffer-regexps '("^\\*EGLOT.*events\\*" . normal)))
+
+  (with-eval-after-load 'jsonrpc
+    (advice-add 'jsonrpc-events-buffer :filter-return
+                (lambda (buf)
+                  (when (and (buffer-live-p buf)
+                             (not (buffer-local-value '+eglot-events-init-p buf)))
+                    (with-current-buffer buf
+                      (setq-local +eglot-events-init-p t)
+                      (unless (derived-mode-p 'special-mode)
+                        (special-mode))
+                      (when (bound-and-true-p evil-mode)
+                        (evil-local-mode 1)
+                        (evil-normal-state))))
+                  buf))))
 
 
 ;; ---------------------------------------------------------------------------

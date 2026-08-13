@@ -85,12 +85,9 @@ TYPE 可选 class, interface, enum, record, @interface。"
       (save-excursion
         (insert "\n}\n")))))
 
-;; 在 Dired 中绑定快捷键 (支持 C-c j c 或 Evil Normal 模式按 + )
+;; 在 Dired 中绑定快捷键 (支持 C-c j c)
 (with-eval-after-load 'dired
   (define-key dired-mode-map (kbd "C-c j c") #'my/java-create-class))
-
-(with-eval-after-load 'evil
-  (evil-define-key 'normal dired-mode-map (kbd "+") #'my/java-create-class))
 
 (provide 'init-dired)
 ;;; init-dired.el ends here
