@@ -162,7 +162,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	end
 
 	-- 构成前缀字符串 (如 "² 1-" 或 "1-")
-	local prefix = (split_icon ~= "" and split_icon or "") .. " " .. (tab_index + 1) .. "-"
+	local prefix = (split_icon ~= "" and split_icon or "") .. " "
 	local non_title_width = wezterm.column_width(icon) + wezterm.column_width(prefix) + 2
 	local max_title_width = config.tab_max_width - non_title_width
 
@@ -330,8 +330,8 @@ config.keys = {
 							inner_window:perform_action(
 								act.SplitHorizontal({
 									label = "WSL",
-									cwd = "~",
-									domain = { DomainName = "WSL:NixOS" },
+									args = { "wsl.exe", "~" },
+									domain = { DomainName = "unix" },
 								}),
 								inner_pane
 							)
@@ -340,7 +340,7 @@ config.keys = {
 								act.SplitHorizontal({
 									label = "PWSH",
 									cwd = "~",
-									domain = { DomainName = "local" },
+									domain = { DomainName = "unix" },
 								}),
 								inner_pane
 							)
@@ -370,8 +370,8 @@ config.keys = {
 							inner_window:perform_action(
 								act.SplitVertical({
 									label = "WSL",
-									cwd = "~",
-									domain = { DomainName = "WSL:NixOS" },
+									args = { "wsl.exe", "~" },
+									domain = { DomainName = "unix" },
 								}),
 								inner_pane
 							)
@@ -380,7 +380,7 @@ config.keys = {
 								act.SplitVertical({
 									label = "PWSH",
 									cwd = "~",
-									domain = { DomainName = "local" },
+									domain = { DomainName = "unix" },
 								}),
 								inner_pane
 							)

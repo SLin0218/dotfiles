@@ -23,6 +23,8 @@ packages:
       - "main/flameshot"
       - "main/copyq"
       - "main/python"
+      # wsl 下剪切板工具
+      - "main/win32yank"
 
       # wm
       # - "extras/komorebi"
