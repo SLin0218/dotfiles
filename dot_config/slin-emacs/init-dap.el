@@ -159,7 +159,20 @@
                  :type "java"
                  :request "attach"
                  :hostName "localhost"
-                 :port 5005)))
+                 :port 5005))
+
+  ;; JDTLS 依赖库源码与反编译文件 (jdt://) 断点路径双向映射支持
+  (advice-add 'dape--file-name-remote :around
+              (lambda (orig-fn conn filename)
+                (or (and (fboundp '+eglot/jdtls-path-to-uri)
+                         (+eglot/jdtls-path-to-uri filename))
+                    (funcall orig-fn conn filename))))
+
+  (advice-add 'dape--file-name-local :around
+              (lambda (orig-fn conn filename)
+                (or (and (fboundp '+eglot/jdtls-uri-to-path)
+                         (+eglot/jdtls-uri-to-path filename))
+                    (funcall orig-fn conn filename)))))
 
 ;; 全局功能键调试绑定 (VS Code 风格)
 (global-set-key (kbd "<f5>") 'dape-continue)

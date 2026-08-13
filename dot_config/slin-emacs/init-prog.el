@@ -68,13 +68,52 @@
     (eglot-ensure)))
 
 (use-package eglot
+  :ensure nil
   :hook
   ((python-mode python-ts-mode
                 java-mode java-ts-mode
                 lua-mode yaml-mode nix-mode) . my-eglot-ensure-safe)
   :config
+  (require 'eglot)
   ;; 限制 Eglot 的文件监听，防止大项目下文件描述符被耗尽
   (setq eglot-ignored-server-capabilities '(:workspace/didChangeWatchedFiles))
+
+  ;; 优化 eglot-rename 体验：自动预填当前符号，且重命名 Java 类时同步重命名 .java 文件并自动重连 LSP 消除报错
+  (defun my/eglot-rename-with-initial-input (orig-fn newname)
+    "Call `eglot-rename' with current symbol pre-filled, and sync Java file name if class renamed."
+    (interactive
+     (let* ((symbol (or (thing-at-point 'symbol t) ""))
+            (newname (read-string (format "Rename `%s' to: " symbol) symbol)))
+       (list newname)))
+    (let ((old-symbol (thing-at-point 'symbol t)))
+      (funcall orig-fn newname)
+      (when (and old-symbol newname (not (string= old-symbol newname)))
+        (dolist (buf (buffer-list))
+          (let ((file (buffer-file-name buf)))
+            (when (and file
+                       (or (string-suffix-p ".java" file)
+                           (with-current-buffer buf (derived-mode-p 'java-mode 'java-ts-mode))))
+              (let ((base (file-name-base file)))
+                (when (string= base old-symbol)
+                  (let* ((dir (file-name-directory file))
+                         (new-file (concat dir newname ".java")))
+                    (with-current-buffer buf
+                      (when (file-exists-p file)
+                        (save-buffer)
+                        ;; 1. 通知 LSP 服务器旧文件已关闭
+                        (when (eglot-managed-p)
+                          (ignore-errors (eglot--signal-textDocument/didClose)))
+                        ;; 2. 磁盘文件重命名与缓冲区关联更新
+                        (rename-file file new-file t)
+                        (set-visited-file-name new-file t t)
+                        (save-buffer)
+                        ;; 3. 通知 LSP 服务器新文件已打开并自动刷新连接（消除废弃文件报错）
+                        (when (eglot-managed-p)
+                          (ignore-errors (eglot--signal-textDocument/didOpen))
+                          (when-let* ((server (eglot-current-server)))
+                            (ignore-errors (eglot-reconnect server))))
+                        (message "[Java Rename] Renamed file %s.java -> %s.java" old-symbol newname))))))))))))
+  (advice-add 'eglot-rename :around #'my/eglot-rename-with-initial-input)
 
   ;; 调高 GC 阈值至 64MB，优化大数据量 JSON 传输
   (add-hook 'eglot-managed-mode-hook (lambda () (setq gc-cons-threshold (* 64 1024 1024))))
