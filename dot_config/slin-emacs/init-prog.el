@@ -319,13 +319,36 @@
 ;; ---------------------------------------------------------------------------
 (use-package apheleia
   :config
+  ;; 配置 Python 格式化规则 (兼容 python-mode, python-ts-mode 与 python-base-mode)
+  (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
+  (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(isort black))
+  (setf (alist-get 'python-base-mode apheleia-mode-alist) '(isort black))
   (apheleia-global-mode +1))
+
+(defun my/format-buffer ()
+  "格式化当前 Buffer：若 Eglot 已启动且 LSP 服务器支持格式化则使用 Eglot，否则降级使用 Apheleia。"
+  (interactive)
+  (cond
+   ((and (bound-and-true-p eglot--managed-mode)
+         (fboundp 'eglot-server-capable)
+         (eglot-server-capable :formattingProvider))
+    (eglot-format))
+   ((fboundp 'apheleia-format-buffer)
+    (call-interactively #'apheleia-format-buffer))
+   (t
+    (indent-region (point-min) (point-max)))))
+
 
 ;; Emacs Lisp 实时语法错误检查
 (add-hook 'emacs-lisp-mode-hook #'flymake-mode)
 
 ;; 括号自动闭合
 (electric-pair-mode 1)
+
+;; 代码折叠 (与 Evil 模式 za/zc/zo 快捷键原生绑定)
+(use-package hideshow
+  :ensure nil
+  :hook (prog-mode . hs-minor-mode))
 
 
 ;; ---------------------------------------------------------------------------

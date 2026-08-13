@@ -54,7 +54,7 @@
   ;; 重构 修改名称
   (evil-define-key 'normal 'global (kbd "<leader>rn") 'eglot-rename)
   ;; 代码格式化
-  (evil-define-key 'normal 'global (kbd "<leader>fm") 'eglot-format)
+  (evil-define-key 'normal 'global (kbd "<leader>fm") 'my/format-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>da") 'eglot-code-actions)
 
   ;; 注释
@@ -127,17 +127,6 @@
   (evil-define-key '(normal visual) 'global (kbd "<leader>mc") 'mc/cycle-forward)
   (evil-define-key '(normal visual) 'global (kbd "<leader>mC") 'mc/cycle-backward)
   (evil-define-key '(normal visual) 'global (kbd "<leader>ml") 'mc/edit-lines))
-
-;; 交互式搜索 (phi-search) 替代 isearch
-(use-package phi-search
-  :after evil
-  :bind (("C-s" . phi-search)
-         ("C-r" . phi-search-backward))
-  :init
-  ;; 放在 :init 中，确保即使未触发 C-s，在 Evil 下直接按 / 和 ? 也能成功拦截并触发懒加载
-  (with-eval-after-load 'evil
-    (evil-define-key '(normal visual motion) 'global (kbd "/") 'phi-search)
-    (evil-define-key '(normal visual motion) 'global (kbd "?") 'phi-search-backward)))
 
 (provide 'init-keybinding)
 ;;; init-keybinding.el ends here

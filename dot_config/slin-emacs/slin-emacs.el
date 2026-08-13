@@ -19,8 +19,8 @@
                      "/run/current-system/sw/bin"
                      "/opt/homebrew/bin"
                      "/usr/local/bin"
-                     "~/.local/share/nvim/mason/bin/"
                      "~/.local/bin/"
+                     "~/.local/share/nvim/mason/bin/"
                      "/Library/TeX/texbin/"))
 (defconst my-paths-join (string-join (mapcar #'expand-file-name my-paths) ":"))
 
