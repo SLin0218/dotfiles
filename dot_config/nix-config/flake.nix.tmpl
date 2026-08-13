@@ -6,7 +6,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
 {{- if eq .chezmoi.os "linux" }}
-{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+{{- if (.chezmoi.kernel.osRelease | lower | contains "microsoft") }}
     nixos-wsl = {
       url = "github:nix-community/NixOS-WSL/main";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -62,15 +62,16 @@
       # 统一管理所有的 Overlay
       overlays = import ./overlays { inherit inputs; };
     in
-    {
-      # 命令行直接使用的包 (nix build .#xxx)
-      packages = { };
+      {
+        # 命令行直接使用的包 (nix build .#xxx)
+        packages = { };
 
-      nixosConfigurations = {
+        nixosConfiguration
+          s = {
 
 {{- if eq .chezmoi.os "linux" }}
-{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-    {{- range (list "DESKTOP-I8CKT04" "wsl-home-desktop") }}
+{{- if (.chezmoi.kernel.osRelease | lower | contains "microsoft") }}
+{{- range (list "DESKTOP-I8CKT04" "wsl-home-desktop") }}
         {{ . }} = nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs; };
           modules = [
@@ -94,7 +95,7 @@
             }
           ];
         };
-    {{- end }}
+{{- end }}
 {{- else }}
         inspiron-lin = nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs; };
@@ -126,60 +127,60 @@
       };
 
 {{- if eq .chezmoi.os "darwin" }}
-      darwinConfigurations = {
-        fcdeMac-mini = inputs.darwin.lib.darwinSystem {
-          specialArgs = { inherit inputs; };
-          modules = [
+  darwinConfigurations = {
+    fcdeMac-mini = inputs.darwin.lib.darwinSystem {
+      specialArgs = { inherit inputs; };
+      modules = [
 
-            ./platforms/darwin/configuration.nix
-            ./hosts/fcdeMac-mini
+        ./platforms/darwin/configuration.nix
+        ./hosts/fcdeMac-mini
 
-            # 直接引用上面定义的统一 Overlay
-            { nixpkgs.overlays = overlays; }
+        # 直接引用上面定义的统一 Overlay
+        { nixpkgs.overlays = overlays; }
 
-            inputs.home-manager.darwinModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.backupFileExtension = "before-nix";
-              home-manager.users.lin = {
-                imports = [
-                  ./home/darwin
-                  ./hosts/fcdeMac-mini/home.nix
-                  inputs.catppuccin.homeModules.catppuccin
-                ];
-              };
-              home-manager.extraSpecialArgs = { inherit inputs; };
-            }
-          ];
-        };
-        lindeMacBook-Pro = inputs.darwin.lib.darwinSystem {
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./platforms/darwin/configuration.nix
-            ./hosts/lindeMacBook-Pro
-
-            # 直接引用上面定义的统一 Overlay
-            { nixpkgs.overlays = overlays; }
-
-            inputs.home-manager.darwinModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.backupFileExtension = "before-nix";
-              home-manager.users.lin = {
-                imports = [
-                  ./home/darwin
-                  ./hosts/lindeMacBook-Pro/home.nix
-                  inputs.catppuccin.homeModules.catppuccin
-                ];
-              };
-              home-manager.extraSpecialArgs = { inherit inputs; };
-            }
-          ];
-        };
-      };
-{{- end }}
-
+        inputs.home-manager.darwinModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "before-nix";
+          home-manager.users.lin = {
+            imports = [
+              ./home/darwin
+              ./hosts/fcdeMac-mini/home.nix
+              inputs.catppuccin.homeModules.catppuccin
+            ];
+          };
+          home-manager.extraSpecialArgs = { inherit inputs; };
+        }
+      ];
     };
+    lindeMacBook-Pro = inputs.darwin.lib.darwinSystem {
+      specialArgs = { inherit inputs; };
+      modules = [
+        ./platforms/darwin/configuration.nix
+        ./hosts/lindeMacBook-Pro
+
+        # 直接引用上面定义的统一 Overlay
+        { nixpkgs.overlays = overlays; }
+
+        inputs.home-manager.darwinModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "before-nix";
+          home-manager.users.lin = {
+            imports = [
+              ./home/darwin
+              ./hosts/lindeMacBook-Pro/home.nix
+              inputs.catppuccin.homeModules.catppuccin
+            ];
+          };
+          home-manager.extraSpecialArgs = { inherit inputs; };
+        }
+      ];
+    };
+  };
+{{- end }}
+};
+
 }

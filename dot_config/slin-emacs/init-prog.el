@@ -502,6 +502,7 @@
 (dolist (pattern '("\\.lua\\.\\(tmp\\|tmpl\\)\\'"
                    "\\.el\\.\\(tmp\\|tmpl\\)\\'"
                    "\\.py\\.\\(tmp\\|tmpl\\)\\'"
+                   "\\.nix\\.\\(tmp\\|tmpl\\)\\'"
                    "\\.sh\\.\\(tmp\\|tmpl\\)\\'"))
   (add-to-list 'auto-mode-alist
                (cons pattern
@@ -526,4 +527,3 @@
 
 (provide 'init-prog)
 ;;; init-prog.el ends here
-
