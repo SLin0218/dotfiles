@@ -320,96 +320,72 @@ local activate_pane_direction_keep_zoom_state = function(window, pane, direction
    end
 end
 
+-- 统一分屏逻辑（Windows 平台弹出环境选择器，包含当前环境；非 Windows 平台沿用当前环境）
+local split_pane = function(direction)
+   local split_action = direction == "Horizontal" and act.SplitHorizontal or act.SplitVertical
+   if not is_windows then
+      return split_action({ domain = "CurrentPaneDomain" })
+   end
+
+   return wezterm.action_callback(function(window, pane)
+         local choices = {
+            { id = "split-current", label = "Current Directory / Domain" },
+            { id = "split-wsl", label = "WSL: NixOS (~)" },
+            { id = "split-pwsh", label = "PWSH: Local (~)" },
+         }
+         window:perform_action(
+            act.InputSelector({
+                  title = "Choose Domain (" .. direction .. " Split)",
+                  choices = choices,
+                  action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
+                        if not id and not label then
+                           wezterm.log_info("cancelled")
+                           return
+                        end
+                        if id == "split-current" then
+                           inner_window:perform_action(split_action({ domain = "CurrentPaneDomain" }), inner_pane)
+                        elseif id == "split-wsl" then
+                           inner_window:perform_action(
+                              split_action({
+                                    label = "WSL",
+                                    args = { "wsl.exe", "~" },
+                                    domain = { DomainName = "unix" },
+                              }),
+                              inner_pane
+                           )
+                        elseif id == "split-pwsh" then
+                           inner_window:perform_action(
+                              split_action({
+                                    label = "PWSH",
+                                    cwd = "~",
+                                    domain = { DomainName = "unix" },
+                              }),
+                              inner_pane
+                           )
+                        end
+                  end),
+            }),
+            pane
+         )
+   end)
+end
+
 config.leader = { key = "b", mods = "CTRL", timeout_milliseconds = 1000 }
 
 config.keys = {
    -- LEADER + t : 快速打开下拉菜单选择终端
    { key = "t", mods = "LEADER", action = act.ShowLauncher },
-   -- 分屏
-   {
-      key = "%",
-      mods = "LEADER|SHIFT",
-      action = is_windows and wezterm.action_callback(function(window, pane)
-			local workspaces = {
-               { id = "split-h-wsl", label = "WSL:NixOS" },
-               { id = "split-h-pwsh", label = "local" },
-			}
-			window:perform_action(
-               act.InputSelector({
-                     action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
-                           if not id and not label then
-                              wezterm.log_info("cancelled")
-                           elseif id == "split-h-wsl" then
-                              inner_window:perform_action(
-                                 act.SplitHorizontal({
-                                       label = "WSL",
-                                       args = { "wsl.exe", "~" },
-                                       domain = { DomainName = "unix" },
-                                 }),
-                                 inner_pane
-                              )
-                           elseif id == "split-h-pwsh" then
-                              inner_window:perform_action(
-                                 act.SplitHorizontal({
-                                       label = "PWSH",
-                                       cwd = "~",
-                                       domain = { DomainName = "unix" },
-                                 }),
-                                 inner_pane
-                              )
-                           end
-                     end),
-                     title = "Choose Domain",
-                     choices = workspaces,
-               }),
-               pane
-			)
-                                                     end) or act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
-   },
-   {
-      key = '"',
-      mods = "LEADER|SHIFT",
-      action = is_windows
-         and wezterm.action_callback(
-            function(window, pane)
-               local splits = {
-                  { id = "split-v-wsl", label = "WSL:NixOS" },
-                  { id = "split-v-pwsh", label = "local" },
-               }
-               window:perform_action(
-                  act.InputSelector(
-                     {
-                        action = wezterm.action_callback(function(inner_window, inner_pane, id, label)
-                              if not id and not label then
-                                 wezterm.log_info("cancelled")
-                              elseif id == "split-v-wsl" then
-                                 inner_window:perform_action(
-                                    act.SplitVertical({
-                                          label = "WSL",
-                                          args = { "wsl.exe", "~" },
-                                          domain = { DomainName = "unix" },
-                                    }),
-                                    inner_pane
-                                 )
-                              elseif id == "split-v-pwsh" then
-                                 inner_window:perform_action(
-                                    act.SplitVertical({
-                                          label = "PWSH",
-                                          cwd = "~",
-                                          domain = { DomainName = "unix" },
-                                    }),
-                                    inner_pane
-                                 )
-                              end
-                        end),
-                        title = "Choose Domain",
-                        choices = splits,
-                     }
-                  ),
-                  pane
-               )
-                                    end) or act.SplitVertical({ domain = "CurrentPaneDomain" }),
-   },
+   -- 分屏快捷键 (经典 % / " 以及直观的 | / - / v / s)
+   { key = "%", mods = "LEADER|SHIFT", action = split_pane("Horizontal") },
+   { key = '"', mods = "LEADER|SHIFT", action = split_pane("Vertical") },
+   { key = "|", mods = "LEADER|SHIFT", action = split_pane("Horizontal") },
+   { key = "-", mods = "LEADER", action = split_pane("Vertical") },
+   { key = "v", mods = "LEADER", action = split_pane("Horizontal") },
+   { key = "s", mods = "LEADER", action = split_pane("Vertical") },
+
+   -- 面板管理 (关闭面板 / 视觉化面板选择与交换)
+   { key = "x", mods = "LEADER", action = act.CloseCurrentPane({ confirm = true }) },
+   { key = "p", mods = "LEADER", action = act.PaneSelect },
 
    -- 切换面板 (保持 Zoom 状态)
    {
@@ -530,15 +506,15 @@ config.key_tables = {
       { key = "Escape", action = "PopKeyTable" },
    },
    resize_pane = {
-      { key = "LeftArrow", action = act.AdjustPaneSize({ "Left", 1 }) },
-      { key = "RightArrow", action = act.AdjustPaneSize({ "Right", 1 }) },
-      { key = "UpArrow", action = act.AdjustPaneSize({ "Up", 1 }) },
-      { key = "DownArrow", action = act.AdjustPaneSize({ "Down", 1 }) },
+      { key = "LeftArrow", action = act.AdjustPaneSize({ "Left", 5 }) },
+      { key = "RightArrow", action = act.AdjustPaneSize({ "Right", 5 }) },
+      { key = "UpArrow", action = act.AdjustPaneSize({ "Up", 5 }) },
+      { key = "DownArrow", action = act.AdjustPaneSize({ "Down", 5 }) },
 
-      { key = "h", action = act.AdjustPaneSize({ "Left", 1 }) },
-      { key = "l", action = act.AdjustPaneSize({ "Right", 1 }) },
-      { key = "k", action = act.AdjustPaneSize({ "Up", 1 }) },
-      { key = "j", action = act.AdjustPaneSize({ "Down", 1 }) },
+      { key = "h", action = act.AdjustPaneSize({ "Left", 5 }) },
+      { key = "l", action = act.AdjustPaneSize({ "Right", 5 }) },
+      { key = "k", action = act.AdjustPaneSize({ "Up", 5 }) },
+      { key = "j", action = act.AdjustPaneSize({ "Down", 5 }) },
       { key = "Escape", action = "PopKeyTable" },
    },
    search_mode = {
