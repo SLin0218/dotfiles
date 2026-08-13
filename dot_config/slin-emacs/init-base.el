@@ -162,5 +162,30 @@
           (lambda ()
             (setq-local line-spacing 0.25)))   ; EWW 视图专属舒适行间距
 
+;; WSL / WSLg 环境使用 win32yank.exe 解决剪切板共享及中文乱码问题
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+
+(when (executable-find "win32yank.exe")
+  ;; 绑定 win32yank.exe 进程传输编码为 utf-8-unix
+  (modify-coding-system-alist 'process "win32yank\\.exe" 'utf-8-unix)
+
+  ;; 复制 (Cut/Kill)：Emacs -> Windows 剪切板
+  (setq interprogram-cut-function
+        (lambda (text &optional _push)
+          (let ((process-connection-type nil))
+            (with-temp-buffer
+              (insert text)
+              (call-process-region (point-min) (point-max) "win32yank.exe" nil nil nil "-i" "--crlf")))))
+
+  ;; 粘贴 (Paste/Yank)：Windows 剪切板 -> Emacs
+  (setq interprogram-paste-function
+        (lambda ()
+          (let ((text (with-output-to-string
+                        (with-current-buffer standard-output
+                          (call-process "win32yank.exe" nil t nil "-o" "--lf")))))
+            (unless (string-empty-p text)
+              text)))))
+
 (provide 'init-base)
 ;;; init-base.el ends here

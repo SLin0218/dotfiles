@@ -63,17 +63,57 @@
   "仅在关联了真实物理文件，且非后台高亮等临时上下文 (non-essential) 时，才启动 Eglot LSP."
   (when (and buffer-file-name
              (not non-essential)
+             (not (string-match-p "\\.\\(tmp\\|tmpl\\)\\'" buffer-file-name))
              (not (string-match-p "eglot-jdtls-sources" buffer-file-name)))
     (eglot-ensure)))
 
 (use-package eglot
+  :ensure nil
   :hook
   ((python-mode python-ts-mode
                 java-mode java-ts-mode
                 lua-mode yaml-mode nix-mode) . my-eglot-ensure-safe)
   :config
+  (require 'eglot)
   ;; 限制 Eglot 的文件监听，防止大项目下文件描述符被耗尽
   (setq eglot-ignored-server-capabilities '(:workspace/didChangeWatchedFiles))
+
+  ;; 优化 eglot-rename 体验：自动预填当前符号，且重命名 Java 类时同步重命名 .java 文件并自动重连 LSP 消除报错
+  (defun my/eglot-rename-with-initial-input (orig-fn newname)
+    "Call `eglot-rename' with current symbol pre-filled, and sync Java file name if class renamed."
+    (interactive
+     (let* ((symbol (or (thing-at-point 'symbol t) ""))
+            (newname (read-string (format "Rename `%s' to: " symbol) symbol)))
+       (list newname)))
+    (let ((old-symbol (thing-at-point 'symbol t)))
+      (funcall orig-fn newname)
+      (when (and old-symbol newname (not (string= old-symbol newname)))
+        (dolist (buf (buffer-list))
+          (let ((file (buffer-file-name buf)))
+            (when (and file
+                       (or (string-suffix-p ".java" file)
+                           (with-current-buffer buf (derived-mode-p 'java-mode 'java-ts-mode))))
+              (let ((base (file-name-base file)))
+                (when (string= base old-symbol)
+                  (let* ((dir (file-name-directory file))
+                         (new-file (concat dir newname ".java")))
+                    (with-current-buffer buf
+                      (when (file-exists-p file)
+                        (save-buffer)
+                        ;; 1. 通知 LSP 服务器旧文件已关闭
+                        (when (eglot-managed-p)
+                          (ignore-errors (eglot--signal-textDocument/didClose)))
+                        ;; 2. 磁盘文件重命名与缓冲区关联更新
+                        (rename-file file new-file t)
+                        (set-visited-file-name new-file t t)
+                        (save-buffer)
+                        ;; 3. 通知 LSP 服务器新文件已打开并自动刷新连接（消除废弃文件报错）
+                        (when (eglot-managed-p)
+                          (ignore-errors (eglot--signal-textDocument/didOpen))
+                          (when-let* ((server (eglot-current-server)))
+                            (ignore-errors (eglot-reconnect server))))
+                        (message "[Java Rename] Renamed file %s.java -> %s.java" old-symbol newname))))))))))))
+  (advice-add 'eglot-rename :around #'my/eglot-rename-with-initial-input)
 
   ;; 调高 GC 阈值至 64MB，优化大数据量 JSON 传输
   (add-hook 'eglot-managed-mode-hook (lambda () (setq gc-cons-threshold (* 64 1024 1024))))
@@ -323,12 +363,63 @@
   (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
   (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(isort black))
   (setf (alist-get 'python-base-mode apheleia-mode-alist) '(isort black))
+  ;; 模板文件 (.tmpl / .tmp) 禁用外部 CLI 格式化工具 (如 stylua)，防止解析 {{ }} 报错
+  (add-to-list 'apheleia-inhibit-functions
+               (lambda ()
+                 (and buffer-file-name
+                      (string-match-p "\\.\\(tmp\\|tmpl\\)\\'" buffer-file-name))))
   (apheleia-global-mode +1))
 
+(defun my/indent-template-region (start end)
+  "对包含 Go 模板 {{ }} 的区域进行智能缩进：
+完全跳过包含 {{ }} 的行（保留原行及其缩进不变），并临时添加注释前缀，防止模板标签干扰 Major Mode 的缩进计算。"
+  (interactive "r")
+  (save-excursion
+    (save-restriction
+      (narrow-to-region start end)
+      (let ((c-str (string-trim (or comment-start "#")))
+            (tmpl-lines (make-hash-table :test 'eq)))
+        ;; 1. 记录包含 {{ 的行，并在行首插入临时注释前缀
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let ((line-str (buffer-substring-no-properties
+                           (line-beginning-position)
+                           (line-end-position))))
+            (when (string-match-p "{{" line-str)
+              (puthash (line-number-at-pos) t tmpl-lines)
+              (save-excursion
+                (goto-char (line-beginning-position))
+                (insert c-str " "))))
+          (forward-line 1))
+
+        ;; 2. 逐行对非模板行执行 Major Mode 缩进
+        (goto-char (point-min))
+        (while (not (eobp))
+          (unless (gethash (line-number-at-pos) tmpl-lines)
+            (indent-according-to-mode))
+          (forward-line 1))
+
+        ;; 3. 还原模板行（移除临时添加的注释前缀）
+        (let ((prefix (concat c-str " "))
+              (prefix-len (+ (length c-str) 1)))
+          (goto-char (point-min))
+          (while (not (eobp))
+            (when (gethash (line-number-at-pos) tmpl-lines)
+              (save-excursion
+                (goto-char (line-beginning-position))
+                (when (looking-at (regexp-quote prefix))
+                  (delete-char prefix-len))))
+            (forward-line 1)))))))
+
 (defun my/format-buffer ()
-  "格式化当前 Buffer：若 Eglot 已启动且 LSP 服务器支持格式化则使用 Eglot，否则降级使用 Apheleia。"
+  "格式化当前 Buffer：若为模板文件 (.tmpl/.tmp) 则调用智能模板缩进 (my/indent-template-region) 跳过 {{ }} 行；
+否则若 Eglot 已启动且 LSP 服务器支持格式化则使用 Eglot，否则降级使用 Apheleia。"
   (interactive)
   (cond
+   ((and buffer-file-name
+         (string-match-p "\\.\\(tmp\\|tmpl\\)\\'" buffer-file-name))
+    (my/indent-template-region (point-min) (point-max))
+    (message "模板文件：已跳过 {{ }} 行并完成智能缩进"))
    ((and (bound-and-true-p eglot--managed-mode)
          (fboundp 'eglot-server-capable)
          (eglot-server-capable :formattingProvider))
@@ -365,5 +456,56 @@
 (use-package lua-mode :defer t)
 (use-package yaml-mode :defer t)
 
+;; Go Template (.tmpl / .tmp) 语法高亮 (基础语言 Major Mode + Go 模板 Minor Mode)
+(defface my-go-template-delim-face
+  '((t :foreground "#FF79C6" :weight bold))
+  "Face for Go template delimiters {{ and }}.")
+
+(defface my-go-template-body-face
+  '((t :foreground "#F1FA8C"))
+  "Face for Go template inner content.")
+
+(defvar go-template-font-lock-keywords
+  '(("\\({{-?\\)\\s-*\\([^}]*?\\)\\s-*\\(-?}}\\)"
+     (1 'my-go-template-delim-face t)
+     (2 'my-go-template-body-face t)
+     (3 'my-go-template-delim-face t))
+    ("\\({{-?\\s-*\\)\\(if\\|else\\|range\\|end\\|with\\|template\\|define\\|block\\)\\b"
+     (2 'font-lock-keyword-face t))))
+
+(define-minor-mode go-template-font-lock-mode
+  "在任何模式下额外高亮 Go 模板语法 {{ ... }}"
+  :lighter " GoTmpl"
+  (if go-template-font-lock-mode
+      (font-lock-add-keywords nil go-template-font-lock-keywords t)
+    (font-lock-remove-keywords nil go-template-font-lock-keywords))
+  (font-lock-flush))
+
+(dolist (pattern '("\\.lua\\.\\(tmp\\|tmpl\\)\\'"
+                   "\\.el\\.\\(tmp\\|tmpl\\)\\'"
+                   "\\.py\\.\\(tmp\\|tmpl\\)\\'"
+                   "\\.sh\\.\\(tmp\\|tmpl\\)\\'"))
+  (add-to-list 'auto-mode-alist
+               (cons pattern
+                     (lambda ()
+                       (let* ((fname (buffer-file-name))
+                              (clean-name (replace-regexp-in-string "\\.\\(tmp\\|tmpl\\)\\'" "" fname))
+                              (mode (cdr (seq-find (lambda (elt)
+                                                     (and (stringp (car elt))
+                                                          (string-match-p (car elt) clean-name)))
+                                                   auto-mode-alist))))
+                         (if (functionp mode)
+                             (funcall mode)
+                           (normal-mode)))
+                       ;; 禁用 Flymake 实时语法检查（避免将 Go 模板语法 {{ }} 诊断为语法错误而报红）
+                       (when (fboundp 'flymake-mode)
+                         (flymake-mode -1))
+                       ;; 禁用自动格式化
+                       (when (fboundp 'apheleia-mode)
+                         (apheleia-mode -1))
+                       ;; 开启 Go 模板高亮
+                       (go-template-font-lock-mode 1)))))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here
+
