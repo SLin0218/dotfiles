@@ -54,7 +54,7 @@
   ;; 重构 修改名称
   (evil-define-key 'normal 'global (kbd "<leader>rn") 'eglot-rename)
   ;; 代码格式化
-  (evil-define-key 'normal 'global (kbd "<leader>fm") 'my/format-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>fm") 'eglot-format)
   (evil-define-key 'normal 'global (kbd "<leader>da") 'eglot-code-actions)
 
   ;; 注释
@@ -84,6 +84,17 @@
   (evil-define-key 'normal 'global (kbd "<leader>mg") 'magit)
   ;; 快速查看 blame 类似 idea Git Annotate
   (evil-define-key 'normal 'global (kbd "<leader>mb") 'magit-blame-addition)
+
+  ;; V2EX 客户端与主页 Dashboard (API 2.0 Beta)
+  (evil-define-key 'normal 'global (kbd "<leader>xv") 'v2ex)
+  (evil-define-key 'normal 'global (kbd "<leader>vv") 'v2ex)
+  (evil-define-key 'normal 'global (kbd "<leader>xn") 'v2ex-notifications)
+  (evil-define-key 'normal 'global (kbd "<leader>xt") 'v2ex-latest-topics)
+  (evil-define-key 'normal 'global (kbd "<leader>xh") 'v2ex-hot-topics)
+  (evil-define-key 'normal 'global (kbd "<leader>xd") 'v2ex-node-topics)
+  (evil-define-key 'normal 'global (kbd "<leader>xm") 'v2ex-member)
+  (evil-define-key 'normal 'global (kbd "<leader>xk") 'v2ex-token-info)
+  (evil-define-key 'normal 'global (kbd "<leader>xs") 'v2ex-set-token)
 
   (evil-mode 1))
 
@@ -127,6 +138,17 @@
   (evil-define-key '(normal visual) 'global (kbd "<leader>mc") 'mc/cycle-forward)
   (evil-define-key '(normal visual) 'global (kbd "<leader>mC") 'mc/cycle-backward)
   (evil-define-key '(normal visual) 'global (kbd "<leader>ml") 'mc/edit-lines))
+
+;; 交互式搜索 (phi-search) 替代 isearch
+(use-package phi-search
+  :after evil
+  :bind (("C-s" . phi-search)
+         ("C-r" . phi-search-backward))
+  :init
+  ;; 放在 :init 中，确保即使未触发 C-s，在 Evil 下直接按 / 和 ? 也能成功拦截并触发懒加载
+  (with-eval-after-load 'evil
+    (evil-define-key '(normal visual motion) 'global (kbd "/") 'phi-search)
+    (evil-define-key '(normal visual motion) 'global (kbd "?") 'phi-search-backward)))
 
 (provide 'init-keybinding)
 ;;; init-keybinding.el ends here

@@ -19,8 +19,8 @@
                      "/run/current-system/sw/bin"
                      "/opt/homebrew/bin"
                      "/usr/local/bin"
-                     "~/.local/bin/"
                      "~/.local/share/nvim/mason/bin/"
+                     "~/.local/bin/"
                      "/Library/TeX/texbin/"))
 (defconst my-paths-join (string-join (mapcar #'expand-file-name my-paths) ":"))
 
@@ -51,6 +51,7 @@
 (require 'init-database)     ; 数据库支持 (SQL, Clutch, myclirc 自动解析)
 (require 'init-dired)        ; 文件管理器 (Dired)
 (require 'init-org)          ; Org-mode 知识库 & GTD & Roam
+(require 'init-v2ex)         ; V2EX 社区客户端 (API 2.0 Beta)
 
 ;; 5. 加载本地自定义变量文件
 (when (and custom-file (file-exists-p custom-file))
