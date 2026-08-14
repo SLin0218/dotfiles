@@ -155,7 +155,7 @@
 
 (with-eval-after-load 'eww
   (define-key eww-mode-map (kbd "i") #'eww-toggle-images)
-  (when (fboundp 'evil-define-key)
+  (with-eval-after-load 'evil
     (evil-define-key 'normal eww-mode-map (kbd "i") #'eww-toggle-images)))
 
 (add-hook 'eww-mode-hook

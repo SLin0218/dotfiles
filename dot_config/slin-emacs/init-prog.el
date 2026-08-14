@@ -18,7 +18,7 @@
   :bind (:map project-prefix-map
               ("m" . project-compile))
   :config
-  ;; 自定义项目根目录的识别标志
+  ;; 自定义项目根目录的识别标志 (.dir-locals.el 已由原生 project-vc-extra-root-markers 完美支持)
   (setq project-vc-extra-root-markers
         '("Makefile" "package.json" "go.mod" "Cargo.toml" "pyproject.toml" ".project" ".dir-locals.el"))
 
@@ -33,16 +33,7 @@
         '((project-find-file "Find file" ?f)
           (project-find-regexp "Find regexp" ?g)
           (project-dired "Dired" ?d)
-          (project-eshell "Eshell" ?e)))
-
-  ;; 支持识别 .dir-locals.el 所在目录为项目根
-  (defun my/project-try-dir-locals (dir)
-    "Identify project roots containing .dir-locals.el."
-    (let ((root (locate-dominating-file dir ".dir-locals.el")))
-      (when root
-        (cons 'transient (expand-file-name root)))))
-
-  (add-to-list 'project-find-functions #'my/project-try-dir-locals))
+          (project-eshell "Eshell" ?e))))
 
 
 ;; ---------------------------------------------------------------------------
@@ -52,8 +43,7 @@
   :custom
   (treesit-auto-install 'prompt)
   :config
-  ;; 启动时一次性构建 major-mode-remap-alist，实现 0 延迟打开文件
-  (setq major-mode-remap-alist (treesit-auto--build-major-mode-remap-alist)))
+  (global-treesit-auto-mode 1))
 
 
 ;; ---------------------------------------------------------------------------
@@ -74,7 +64,6 @@
                 java-mode java-ts-mode
                 lua-mode yaml-mode nix-mode) . my-eglot-ensure-safe)
   :config
-  (require 'eglot)
   ;; 限制 Eglot 的文件监听，防止大项目下文件描述符被耗尽
   (setq eglot-ignored-server-capabilities '(:workspace/didChangeWatchedFiles))
 
@@ -116,7 +105,9 @@
   (advice-add 'eglot-rename :around #'my/eglot-rename-with-initial-input)
 
   ;; 调高 GC 阈值至 64MB，优化大数据量 JSON 传输
-  (add-hook 'eglot-managed-mode-hook (lambda () (setq gc-cons-threshold (* 64 1024 1024))))
+  (defun my/eglot-tune-gc ()
+    (setq gc-cons-threshold (* 64 1024 1024)))
+  (add-hook 'eglot-managed-mode-hook #'my/eglot-tune-gc)
 
   ;; 显式配置 Nix 与 Python 的 LSP 扩展
   (add-to-list 'eglot-server-programs '(nix-mode . ("nixd")))
@@ -135,7 +126,8 @@
                                        :implementationsCodeLens (:enabled :json-false)
                                        :completion (:favoriteStaticMembers ["org.junit.Assert.*" "org.mockito.Mockito.*"] :importOrder ["java" "javax" "org" "com"])
                                        :eclipse (:downloadSources t)
-                                       :contentProvider (:preferred "fernflower")))))
+                                       :contentProvider (:preferred "fernflower")
+                                       :decompiler (:fernflower (:bLineNumberTable "1"))))))
 
   ;; 自动为 JDTLS 下载调试适配器 plugin jar
   (defun my/download-java-debug-adapter-if-missing ()
@@ -203,20 +195,9 @@
                           :initializationOptions
                           (:extendedClientCapabilities (:classFileContentsSupport t)
                                                        ,@(when debug-jar `(:bundles [,debug-jar]))
-                                                       :settings (:java ,(or (cdr (assoc :java eglot-workspace-configuration))
-                                                                             '(:autobuild (:enabled t)
-                                                                                          :maxConcurrentBuilds 1
-                                                                                          :import (:resourceFilters ["node_modules" "\\.git" "build" "bin" "target" "dist" ".gradle" ".metadata" ".settings" ".project" ".classpath"]
-                                                                                                                    :maven (:offline (:enabled :json-false) :downloadSources t)
-                                                                                                                    :gradle (:offline (:enabled :json-false) :downloadSources t))
-                                                                                          :configuration (:updateBuildConfiguration "automatic")
-                                                                                          :referencesCodeLens (:enabled :json-false)
-                                                                                          :implementationsCodeLens (:enabled :json-false)
-                                                                                          :eclipse (:downloadSources t)
-                                                                                          :contentProvider (:preferred "fernflower"))))))))))))
+                                                       :settings (:java ,(cdr (assoc :java eglot-workspace-configuration))))))))))
 
-;; 纯 Emacs Lisp 拦截并解析 JDTLS 的 jdt:/ 和 jdt:// 协议，支持第三方依赖 Jar 查看
-(with-eval-after-load 'eglot
+  ;; 纯 Emacs Lisp 拦截并解析 JDTLS 的 jdt:/ 和 jdt:// 协议，支持第三方依赖 Jar 查看
   (defvar +eglot/jdtls-file-to-uri-map (make-hash-table :test 'equal)
     "Map of decompiled source file path to (uri . server).")
 
@@ -272,9 +253,10 @@
       (when (and uri-str (string-prefix-p "jdt:" uri-str))
         (let ((server (+eglot/jdtls-find-active-server)))
           (when server
-            (let* ((md5-hash (md5 uri-str))
-                   (class-name (if (string-match "/\\([^/?]+\\)\\(?:\\.class\\|\\.java\\)" uri-str)
-                                   (match-string 1 uri-str)
+            (let* ((clean-uri (replace-regexp-in-string "\\?.*$" "" uri-str))
+                   (md5-hash (md5 clean-uri))
+                   (class-name (if (string-match "/\\([^/?]+\\)\\(?:\\.class\\|\\.java\\)" clean-uri)
+                                   (match-string 1 clean-uri)
                                  "UnknownClass"))
                    (filename (format "%s_%s.java" class-name md5-hash))
                    (source-dir (expand-file-name "eglot-jdtls-sources" (temporary-file-directory)))
@@ -294,7 +276,7 @@
 
   (defun +eglot/jdtls-path-to-uri (path)
     "Convert decompiled source file path back to its `jdt://' URI."
-    (when path
+    (when (and path (stringp path))
       (let* ((true-file (file-truename path))
              (entry (gethash true-file +eglot/jdtls-file-to-uri-map)))
         (or (car-safe entry)
@@ -340,36 +322,29 @@
 
   (add-hook 'find-file-hook #'+eglot/jdtls-setup-revert-buffer)
 
-  (advice-add (if (fboundp 'eglot-uri-to-path) 'eglot-uri-to-path 'eglot--uri-to-path)
-              :around
+  (advice-add 'eglot-uri-to-path :around
               (lambda (orig-fn uri &rest args)
                 (let ((uri-clean (if (symbolp uri) (replace-regexp-in-string "^:" "" (symbol-name uri)) uri)))
                   (or (+eglot/jdtls-uri-to-path uri-clean)
                       (apply orig-fn uri-clean args)))))
 
-  (advice-add (if (fboundp 'eglot-path-to-uri) 'eglot-path-to-uri 'eglot--path-to-uri)
-              :around
+  (advice-add 'eglot-path-to-uri :around
               (lambda (orig-fn path &rest args)
                 (or (+eglot/jdtls-path-to-uri path)
                     (apply orig-fn path args))))
 
-  ;; 优化 EGLOT events buffer 体验：安全一次性挂载 special-mode 并开启 Evil normal 模式
-  (with-eval-after-load 'evil
-    (add-to-list 'evil-buffer-regexps '("^\\*EGLOT.*events\\*" . normal)))
-
-  (with-eval-after-load 'jsonrpc
-    (advice-add 'jsonrpc-events-buffer :filter-return
-                (lambda (buf)
-                  (when (and (buffer-live-p buf)
-                             (not (buffer-local-value '+eglot-events-init-p buf)))
-                    (with-current-buffer buf
+  (advice-add 'jsonrpc-events-buffer :filter-return
+              (lambda (buf)
+                (when (buffer-live-p buf)
+                  (with-current-buffer buf
+                    (unless (bound-and-true-p +eglot-events-init-p)
                       (setq-local +eglot-events-init-p t)
                       (unless (derived-mode-p 'special-mode)
                         (special-mode))
                       (when (bound-and-true-p evil-mode)
                         (evil-local-mode 1)
-                        (evil-normal-state))))
-                  buf))))
+                        (evil-normal-state)))))
+                buf)))
 
 
 ;; ---------------------------------------------------------------------------
@@ -377,10 +352,10 @@
 ;; ---------------------------------------------------------------------------
 (use-package apheleia
   :config
-  ;; 配置 Python 格式化规则 (兼容 python-mode, python-ts-mode 与 python-base-mode)
+  ;; 配置 Python 格式化规则
+  (setf (alist-get 'python-base-mode apheleia-mode-alist) '(isort black))
   (setf (alist-get 'python-mode apheleia-mode-alist) '(isort black))
   (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(isort black))
-  (setf (alist-get 'python-base-mode apheleia-mode-alist) '(isort black))
   ;; 模板文件 (.tmpl / .tmp) 禁用外部 CLI 格式化工具 (如 stylua)，防止解析 {{ }} 报错
   (add-to-list 'apheleia-inhibit-functions
                (lambda ()

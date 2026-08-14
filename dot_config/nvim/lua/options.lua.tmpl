@@ -26,7 +26,7 @@ g.neovide_padding_left = 0
 
 o.clipboard = "unnamedplus"
 {{- if eq .chezmoi.os "linux" }}
-{{- if (.chezmoi.kernel.osRelease | lower | contains "microsoft") }}
+{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 g.clipboard = {
    name = "win32yank-wsl",
    copy = {

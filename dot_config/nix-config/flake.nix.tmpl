@@ -6,7 +6,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
 {{- if eq .chezmoi.os "linux" }}
-{{- if (.chezmoi.kernel.osRelease | lower | contains "microsoft") }}
+{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
     nixos-wsl = {
       url = "github:nix-community/NixOS-WSL/main";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -66,11 +66,10 @@
         # 命令行直接使用的包 (nix build .#xxx)
         packages = { };
 
-        nixosConfiguration
-          s = {
+        nixosConfigurations = {
 
 {{- if eq .chezmoi.os "linux" }}
-{{- if (.chezmoi.kernel.osRelease | lower | contains "microsoft") }}
+{{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
 {{- range (list "DESKTOP-I8CKT04" "wsl-home-desktop") }}
         {{ . }} = nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs; };

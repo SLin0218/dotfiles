@@ -117,6 +117,7 @@
     packages = with pkgs; [
       nerd-fonts.jetbrains-mono
       maple-mono.NF-CN-unhinted
+      noto-fonts-color-emoji
     ];
     fontDir.enable = true;
   };
