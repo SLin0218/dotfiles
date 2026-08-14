@@ -110,13 +110,17 @@ CapsLock & g::
 {
     ToggleApp("Brave ahk_exe brave.exe", "brave.exe")
 }
+CapsLock & n::
+{
+    ToggleApp("ahk_exe idea64.exe", "idea64.exe")
+}
 CapsLock & u::
 {
     ToggleApp("WeLink ahk_exe WeLink.exe", "WeLink.exe")
 }
 CapsLock & o::
 {
-    ToggleApp("ahk_class WeWorkWindow", "WXWork.exe")
+    ToggleApp("ahk_class WeWorkWindow", "C:\Program Files (x86)\WXWork\WXWork.exe")
 }
 CapsLock & m::
 {
