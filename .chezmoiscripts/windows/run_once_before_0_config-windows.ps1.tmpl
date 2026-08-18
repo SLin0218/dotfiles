@@ -40,6 +40,21 @@ Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR"
 # GameConfigStore 注册表
 Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Value 0 -Type DWord
 
+
+# 设置剪切板最大上限
+$maxCount = 100
+# 注册表路径
+$registryPath = "HKCU:\Software\Microsoft\Clipboard"
+# 如果路径不存在则创建
+if (-not (Test-Path $registryPath)) {
+    New-Item -Path $registryPath -Force | Out-Null
+}
+# 写入或更新限制条数
+Set-ItemProperty -Path $registryPath -Name "MaxClipboardSize" -Value $maxCount -Type DWord
+Write-Host "成功！Windows 剪贴板最大历史记录已修改为 $maxCount 条。" -ForegroundColor Green
+Write-Host "注意：请重启电脑以使修改完全生效。" -ForegroundColor Yellow
+
+
 {{ range $feature := .config.windows.features.enable }}
 Write-Host 'Enable {{ $feature }}...'
 Enable-WindowsOptionalFeature -Online -FeatureName '{{ $feature }}'

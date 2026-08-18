@@ -75,6 +75,27 @@ CapsLock & f::
 ; WinTab => AltTab
 <#Tab::AltTab
 
+#HotIf WinActive("ahk_exe idea64.exe")
+    CapsLock & [::Send("!{Left}")
+    CapsLock & ]::Send("!{Right}")
+    #1::Send("!{1}")
+    #2::Send("!{2}")
+    #3::Send("!{3}")
+    #4::Send("!{4}")
+    #5::Send("!{5}")
+    #6::Send("!{6}")
+    #7::Send("!{7}")
+    #8::Send("!{8}")
+    #9::Send("!{9}")
+    #0::Send("!{0}")
+    #e::Send("^e")
+    #+f::Send("^+f")
+    #+r::Send("^+r")
+    #f::Send("^f")
+    #r::Send("^r")
+    #w::Send("^{f4}")
+#HotIf
+
 #HotIf WinActive("ahk_exe wezterm-gui.exe")
     #c::Send("^+{c}")
     #v::Send("^+{v}")
@@ -97,7 +118,21 @@ ToggleApp(winTitle, exeName)
     else
     {
         Run(exeName)
-        WinWait(winTitle)
+    }
+}
+
+ToggleAppMax(winTitle, exeName)
+{
+    ; 检查窗口是否存在（此时可以搜寻到隐藏在其他工作区的窗口）
+    if WinExist(winTitle)
+    {
+        WinActivate(winTitle)
+        WinMaximize
+    }
+    else
+    {
+        Run(exeName)
+        WinWait(exeName)
         WinMaximize
     }
 }
@@ -112,7 +147,7 @@ CapsLock & g::
 }
 CapsLock & n::
 {
-    ToggleApp("ahk_exe idea64.exe", "idea64.exe")
+    ToggleApp("ahk_exe idea64.exe", "C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.1\bin\idea64.exe")
 }
 CapsLock & u::
 {
@@ -120,7 +155,7 @@ CapsLock & u::
 }
 CapsLock & o::
 {
-    ToggleApp("ahk_class WeWorkWindow", "C:\Program Files (x86)\WXWork\WXWork.exe")
+    ToggleAppMax("ahk_class WeWorkWindow", "C:\Program Files (x86)\WXWork\WXWork.exe")
 }
 CapsLock & m::
 {
