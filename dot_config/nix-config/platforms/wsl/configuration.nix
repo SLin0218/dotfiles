@@ -10,6 +10,11 @@
   wsl = {
     enable = true;
     defaultUser = "lin";
+    wslConf = {
+      network = {
+        generateResolvConf = false;
+      };
+    };
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -59,7 +64,16 @@
       docker-compose
       jar-launcher
       openvpn
+
+      xorg.xclock
+      xorg.xeyes
     ];
+
+    sessionVariables = {
+      # 自动解析宿主机网卡 IP
+      DISPLAY = "$(ip route list default | awk '{print $3}'):0";
+      LIBGL_ALWAYS_INDIRECT = "1";
+    };
 
     variables = {
       EDITOR = "nvim";
@@ -121,6 +135,11 @@
     ];
     fontDir.enable = true;
   };
+
+  networking.nameservers = [
+    "223.5.5.5"
+    "223.6.6.6"
+  ];
 
   system.stateVersion = "24.11";
 }
