@@ -62,13 +62,13 @@
 
 ;; Git 版本控制 (Magit & Diff-hl)
 ;; 定义按 Commit Hash 循环着色的 Face 调色板 (Catppuccin Mocha 背景色风格)
-(defface my/magit-blame-c1 '((t (:background "#89b4fa" :foreground "#11111b" :extend t))) "Catppuccin Mocha Blue BG")
-(defface my/magit-blame-c2 '((t (:background "#a6e3a1" :foreground "#11111b" :extend t))) "Catppuccin Mocha Green BG")
-(defface my/magit-blame-c3 '((t (:background "#f9e2af" :foreground "#11111b" :extend t))) "Catppuccin Mocha Yellow BG")
-(defface my/magit-blame-c4 '((t (:background "#cba6f7" :foreground "#11111b" :extend t))) "Catppuccin Mocha Mauve BG")
-(defface my/magit-blame-c5 '((t (:background "#fab387" :foreground "#11111b" :extend t))) "Catppuccin Mocha Peach BG")
-(defface my/magit-blame-c6 '((t (:background "#f38ba8" :foreground "#11111b" :extend t))) "Catppuccin Mocha Pink BG")
-(defface my/magit-blame-c7 '((t (:background "#94e2d5" :foreground "#11111b" :extend t))) "Catppuccin Mocha Teal BG")
+(defface my/magit-blame-c1 '((t (:background "#89b4fa" :foreground "#11111b" :extend t))) "Catppuccin Mocha Blue BG.")
+(defface my/magit-blame-c2 '((t (:background "#a6e3a1" :foreground "#11111b" :extend t))) "Catppuccin Mocha Green BG.")
+(defface my/magit-blame-c3 '((t (:background "#f9e2af" :foreground "#11111b" :extend t))) "Catppuccin Mocha Yellow BG.")
+(defface my/magit-blame-c4 '((t (:background "#cba6f7" :foreground "#11111b" :extend t))) "Catppuccin Mocha Mauve BG.")
+(defface my/magit-blame-c5 '((t (:background "#fab387" :foreground "#11111b" :extend t))) "Catppuccin Mocha Peach BG.")
+(defface my/magit-blame-c6 '((t (:background "#f38ba8" :foreground "#11111b" :extend t))) "Catppuccin Mocha Pink BG.")
+(defface my/magit-blame-c7 '((t (:background "#94e2d5" :foreground "#11111b" :extend t))) "Catppuccin Mocha Teal BG.")
 
 (defvar my/magit-blame-faces
   '(my/magit-blame-c1
@@ -87,7 +87,7 @@
     'magit-blame-margin))
 
 (defun my/magit-blame-format-string-1 (orig-fn rev revinfo format face)
-  "在 Magit 格式化边栏字段后，将 Commit 专属 Face 插入至 face 列表的最前端（顶级优先级）."
+  "在 Magit 格式化边栏字段后，将 Commit 专属 FACE 插入至 face 列表的最前端（顶级优先级）."
   (let* ((cface (my/magit-blame-commit-face rev))
          (str (funcall orig-fn rev revinfo format face))
          (len (length str)))
@@ -162,30 +162,22 @@
           (lambda ()
             (setq-local line-spacing 0.25)))   ; EWW 视图专属舒适行间距
 
-;; WSL / WSLg 环境使用 win32yank.exe 解决剪切板共享及中文乱码问题
-(set-selection-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
+(when (and (eq system-type 'gnu/linux)
+           (getenv "WSL_DISTRO_NAME"))
+  ;; WSL / WSLg 环境解决剪切板共享及中文乱码问题
+  (set-clipboard-coding-system 'gbk-dos))
 
-(when (executable-find "win32yank.exe")
-  ;; 绑定 win32yank.exe 进程传输编码为 utf-8-unix
-  (modify-coding-system-alist 'process "win32yank\\.exe" 'utf-8-unix)
+(defun copy-current-buffer-file-path ()
+  "当前 Buffer 的全路径复制到剪贴板."
+  (interactive)
+  (if-let ((file-path (buffer-file-name)))
+      (progn
+        (kill-new file-path)
+        (message "已复制路径: %s" file-path))
+    (message "当前 Buffer 未关联任何文件！")))
 
-  ;; 复制 (Cut/Kill)：Emacs -> Windows 剪切板
-  (setq interprogram-cut-function
-        (lambda (text &optional _push)
-          (let ((process-connection-type nil))
-            (with-temp-buffer
-              (insert text)
-              (call-process-region (point-min) (point-max) "win32yank.exe" nil nil nil "-i" "--crlf")))))
-
-  ;; 粘贴 (Paste/Yank)：Windows 剪切板 -> Emacs
-  (setq interprogram-paste-function
-        (lambda ()
-          (let ((text (with-output-to-string
-                        (with-current-buffer standard-output
-                          (call-process "win32yank.exe" nil t nil "-o" "--lf")))))
-            (unless (string-empty-p text)
-              text)))))
+;; 绑定快捷键 C-c f
+(global-set-key (kbd "C-c f") #'copy-current-buffer-file-path)
 
 (provide 'init-base)
 ;;; init-base.el ends here

@@ -121,18 +121,5 @@
   :config
   (evil-multiedit-default-keybinds))
 
-;; 多光标基础支持 (用于与 phi-search 联动或常规多光标操作)
-(use-package multiple-cursors
-  :after evil
-  :config
-  ;; 绑定 Evil Leader (SPC m) 多光标快捷键，规避部分终端下修饰键失效问题
-  (evil-define-key '(normal visual) 'global (kbd "<leader>mn") 'mc/mark-next-like-this)
-  (evil-define-key '(normal visual) 'global (kbd "<leader>mp") 'mc/mark-previous-like-this)
-  (evil-define-key '(normal visual) 'global (kbd "<leader>ma") 'mc/mark-all-like-this)
-  (evil-define-key '(normal visual) 'global (kbd "<leader>mc") 'mc/cycle-forward)
-  (evil-define-key '(normal visual) 'global (kbd "<leader>mC") 'mc/cycle-backward)
-  (evil-define-key '(normal visual) 'global (kbd "<leader>ml") 'mc/edit-lines))
-
-
 (provide 'init-keybinding)
 ;;; init-keybinding.el ends here

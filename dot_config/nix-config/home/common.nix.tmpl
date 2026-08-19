@@ -3,16 +3,6 @@
   lib,
   ...
 }:
-let
-  isWSL =
-    builtins.pathExists /proc/sys/kernel/osrelease
-    && (
-      let
-        release = builtins.readFile /proc/sys/kernel/osrelease;
-      in
-      builtins.match ".*[mM][iI][cC][rR][oO][sS][oO][fF][tT].*" release != null
-    );
-in
 {
   imports = [
     ./modules/zsh.nix
@@ -95,24 +85,26 @@ in
       gnumake
       gcc
 
+{{- if eq .chezmoi.os "linux" }}
+      pinentry-gnome3
+    {{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+      pkgs.emacs-gtk
+    {{- else}}
+      wezterm
+      pkgs.emacs-pgtk
+    {{- end}}
+{{- else}}
+      wezterm
+{{- end}}
+
       # gui
       jetbrains.idea
     ]
-    # gui
-    ++ lib.optionals (!isWSL) [
-      wezterm
-    ]
-    ++ lib.optionals (!pkgs.stdenv.isDarwin) [
-      emacs-pgtk
-    ]
-    ++ lib.optionals pkgs.stdenv.isLinux [
-      pinentry-gnome3
-    ];
 
-  home.sessionVariables = {
-    JAVA_HOME = "${pkgs.jbrsdk-17.home or pkgs.jbrsdk-17}";
-    JAVA21_HOME = "${pkgs.openjdk21}";
-  };
+      home.sessionVariables = {
+      JAVA_HOME = "${pkgs.jbrsdk-17.home or pkgs.jbrsdk-17}";
+      JAVA21_HOME = "${pkgs.openjdk21}";
+    };
 
   programs = {
     home-manager.enable = true;
