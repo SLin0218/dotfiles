@@ -91,6 +91,12 @@ if (Test-Path $CompletionDir) {
     Get-ChildItem (Join-Path $CompletionDir "*.ps1") | ForEach-Object { . $_.FullName }
 }
 
+function .. { cd .. }
+function ... { cd ../.. }
+
+# vi 模式开启
+Set-PSReadLineOption -EditMode Vi
+
 # =============================================================================
 #
 # Utility functions for zoxide.
