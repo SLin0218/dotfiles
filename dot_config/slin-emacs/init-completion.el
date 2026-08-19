@@ -200,8 +200,13 @@
   :after corfu
   :custom
   (kind-icon-default-face 'corfu-default)
+  (corfu-min-width 30)
+  (corfu-right-margin-width 0.8)
+  (corfu-bar-width 0.2)
   :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+  (plist-put kind-icon-default-style :height 0.8)
+  (plist-put kind-icon-default-style :scale 0.8))
 
 (provide 'init-completion)
 ;;; init-completion.el ends here
