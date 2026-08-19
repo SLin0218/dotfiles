@@ -361,7 +361,7 @@
 }
 .systray .button {
     border-radius: 4px;
-    padding: 2px;
+    padding: 8px;
 }
 
 .systray .button:hover {

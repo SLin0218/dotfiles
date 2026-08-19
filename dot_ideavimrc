@@ -5,7 +5,7 @@ set number
 set scrolloff=15                                                     " 在上下移动光标时，光标的上方或下方至少会保留显示的行数
 set relativenumber
 " 高亮搜索结果
-highlight searches
+" highlight searches
 " 系统剪切板
 set clipboard=unnamedplus
 " 自动切换输入法

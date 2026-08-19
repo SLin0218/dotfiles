@@ -26,6 +26,8 @@ packages:
       # wsl 下剪切板工具
       - "main/win32yank"
 
+      # - "extras/vcxsrv"
+
       # wm
       # - "extras/komorebi"
       # status bar

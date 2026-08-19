@@ -1,4 +1,3 @@
-
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 ; #WinActivateForce
@@ -55,7 +54,6 @@ CapsLock & f::
 #r::Send("^{r}")
 #a::Send("^{a}")
 #f::Send("^{f}")
-
 #1::Send("^{1}")
 #2::Send("^{2}")
 #3::Send("^{3}")
@@ -136,6 +134,17 @@ ToggleAppMax(winTitle, exeName)
         WinMaximize
     }
 }
+ToggleWslApp(winTitle, exeName)
+{
+    if WinExist(winTitle . " ahk_exe msrdc.exe")
+    {
+        WinActivate()
+    }
+    else
+    {
+        Run("wsl.exe -- " . exeName, , "Hide")
+    }
+}
 
 CapsLock & i::
 {
@@ -147,7 +156,7 @@ CapsLock & g::
 }
 CapsLock & n::
 {
-    ToggleApp("ahk_exe idea64.exe", "C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.1\bin\idea64.exe")
+    ToggleApp("\s-\s ahk_exe idea64.exe", "C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.1\bin\idea64.exe")
 }
 CapsLock & u::
 {
@@ -159,16 +168,11 @@ CapsLock & o::
 }
 CapsLock & m::
 {
-    if WinExist("Emacs ahk_exe msrdc.exe")
-    {
-        WinActivate("Emacs ahk_exe msrdc.exe")
-    }
-    else
-    {
-        Run("wsl.exe -- exec emacs", , "Hide")
-        WinWait("Emacs ahk_exe msrdc.exe")
-        WinMaximize
-    }
+    ToggleWslApp("Emacs", "emacs")
+}
+CapsLock & y::
+{
+    ToggleWslApp("qqmusic", "qqmusic")
 }
 
 #HotIf WinActive("Emacs ahk_exe msrdc.exe")
@@ -259,3 +263,4 @@ DmGetWindowCloaked(hwnd) {
     res := DllCall("dwmapi\DwmGetWindowAttribute", "Ptr", hwnd, "UInt", 14, "Ptr*", &cloaked, "UInt", 4)
     return (res == 0) ? cloaked : 0
 }
+

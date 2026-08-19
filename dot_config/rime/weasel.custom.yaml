@@ -2,6 +2,28 @@ patch:
   us_keyboard_layout: true                         # 键盘选项：应用美式键盘布局
   show_notifications_when: growl_is_running        # 状态通知，默认装有Growl时显示，全开(always)/全关(never)
 
+  # 针对特定应用设置默认状态
+  app_options:
+    code.exe:
+      ascii_mode: true          # VS Code 默认进入 ASCII 英文模式
+    cmd.exe:
+      ascii_mode: true          # 命令提示符 默认英文
+    powershell.exe:
+      ascii_mode: true          # PowerShell 默认英文
+    WindowsTerminal.exe:
+      ascii_mode: true          # Windows Terminal 默认英文
+    idea64.exe:
+      ascii_mode: true          # IntelliJ IDEA 默认英文
+    wezterm-gui.exe:
+      ascii_mode: true          # Wezterm 默认英文
+    msrdc.exe:
+      ascii_mode: true          # Wslg 默认英文
+
+    WXWork.exe:
+      ascii_mode: false
+    WeLink.exe:
+      ascii_mode: false
+
   style:
     color_scheme: catppuccin_latte
     color_scheme_dark: catppuccin_mocha

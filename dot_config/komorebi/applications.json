@@ -3038,6 +3038,20 @@
       }
     ]
   },
+  "WXWork": {
+    "manage": [
+      {
+        "kind": "Class",
+        "id": "WeWorkWindow",
+        "matching_strategy": "Equals"
+      },
+      {
+        "kind": "Exe",
+        "id": "WXWork.exe",
+        "matching_strategy": "Equals"
+      }
+    ]
+  },
   "WeChat": {
     "ignore": [
       {
@@ -3298,15 +3312,15 @@
     ]
   },
   "Emacs": {
-      "manage_rules": [
-        {
-          "kind": "ExeName",
-          "id": "msrdc.exe"
-        },
-        {
-          "kind": "ClassName",
-          "id": "RAIL_WINDOW"
-        }
-      ]
-    }
+    "manage_rules": [
+      {
+        "kind": "ExeName",
+        "id": "msrdc.exe"
+      },
+      {
+        "kind": "ClassName",
+        "id": "RAIL_WINDOW"
+      }
+    ]
+  }
 }
