@@ -1,4 +1,9 @@
-{ inputs, config, pkgs, ... }:
+{
+  inputs,
+  config,
+  pkgs,
+  ...
+}:
 {
   imports = [
     ../common.nix
@@ -16,6 +21,7 @@
     wl-clipboard
     tproxy
     google-antigravity-cli
+    qqmusic
   ];
 
   systemd.user.startServices = "sd-switch";

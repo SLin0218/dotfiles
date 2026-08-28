@@ -1,9 +1,9 @@
 ;;; slin-emacs.el --- Main Emacs configuration entry  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
-;;
-;; 个人 Emacs 配置主入口：设置系统 PATH 环境变量，按逻辑清晰加载各大分步模块。
-;;
+;;;
+;;; 个人 Emacs 配置主入口：设置系统 PATH 环境变量，按逻辑清晰加载各大分步模块。
+;;;
 
 ;;; Code:
 

@@ -1,10 +1,8 @@
-;;; early-init ---  -*- lexical-binding: t; -*-
+;;; early-init.el --- 初始化配置  -*- lexical-binding: t; -*-
 ;;; Commentary:
-;;; 早期初始化配置
 
-;;; code:
-
-;; 1. 垃圾回收 (GC) 优化：启动时设为最大值，加速加载
+;;; Code:
+;;; 1. 垃圾回收 (GC) 优化：启动时设为最大值，加速加载
 (setq gc-cons-threshold most-positive-fixnum)
 
 ;; 2. 临时禁用文件名处理器，加速文件加载

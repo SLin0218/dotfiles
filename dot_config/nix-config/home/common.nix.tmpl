@@ -27,84 +27,82 @@
   home = {
     username = "lin";
     stateVersion = "25.11";
-  };
+    packages =
+      with pkgs;
+      [
+        # common cli
+        fd
+        jq
+        nixd
+        nixfmt
+        ripgrep
+        nodejs
+        pnpm
+        fzf
+        mycli
+        httpie
+        pandoc
+        (texlive.withPackages (
+          ps: with ps; [
+            scheme-medium
+            collection-langchinese
+            collection-latexextra
+          ]
+        ))
+        nmap
+        bind.dnsutils
+        fastfetch
+        # 用于shell脚本加密工具
+        openssl
 
-  home.packages =
-    with pkgs;
-    [
-      # common cli
-      fd
-      jq
-      nixd
-      nixfmt
-      ripgrep
-      nodejs
-      pnpm
-      fzf
-      mycli
-      httpie
-      pandoc
-      (texlive.withPackages (
-        ps: with ps; [
-          scheme-medium
-          collection-langchinese
-          collection-latexextra
-        ]
-      ))
-      nmap
-      bind.dnsutils
-      fastfetch
-      # 用于shell脚本加密工具
-      openssl
+        # rime
+        librime
 
-      # rime
-      librime
+        # java & build tools
+        (lib.hiPrio jbrsdk-17)
+        (lib.lowPrio openjdk21)
+        maven
+        mvn-springboot-debug
 
-      # java & build tools
-      (lib.hiPrio jbrsdk-17)
-      (lib.lowPrio openjdk21)
-      maven
-      mvn-springboot-debug
+        # translate
+        t
+        mpc
+        mpv
+        android-tools
 
-      # translate
-      t
-      mpc
-      mpv
-      android-tools
+        gnupg
 
-      gnupg
+        git-crypt
 
-      git-crypt
+        chezmoi
 
-      chezmoi
-
-      # build tools
-      gdb
-      python3
-      cmake
-      gnumake
-      gcc
+        # build tools
+        gdb
+        python3
+        cmake
+        gnumake
+        gcc
 
 {{- if eq .chezmoi.os "linux" }}
-      pinentry-gnome3
+        pinentry-gnome3
+        pkgs.emacs-pgtk
     {{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-      pkgs.emacs-gtk
     {{- else}}
-      wezterm
-      pkgs.emacs-pgtk
+        wezterm
     {{- end}}
 {{- else}}
-      wezterm
+        wezterm
 {{- end}}
 
-      # gui
-      jetbrains.idea
-    ]
+        # gui
+        jetbrains.idea
+      ];
 
-      home.sessionVariables = {
+    sessionVariables = {
       JAVA_HOME = "${pkgs.jbrsdk-17.home or pkgs.jbrsdk-17}";
       JAVA21_HOME = "${pkgs.openjdk21}";
     };
+  };
 
   programs = {
     home-manager.enable = true;
