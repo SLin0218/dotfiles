@@ -106,7 +106,7 @@ CapsLock & f::
 ; ==========================================
 ; 触发 app
 ; ==========================================
-ToggleApp(winTitle, exeName)
+ToggleApp(winTitle, exeName, workingDir?, Options?)
 {
     ; 检查窗口是否存在（此时可以搜寻到隐藏在其他工作区的窗口）
     if WinExist(winTitle)
@@ -115,25 +115,16 @@ ToggleApp(winTitle, exeName)
     }
     else
     {
-        Run(exeName)
+        if IsSet(Options) {
+            Run(exeName, workingDir, Options)
+        } else if IsSet(workingdir) {
+            Run(exeName, workingDir)
+        } else {
+            Run(exeName)
+        }
     }
 }
 
-ToggleAppMax(winTitle, exeName)
-{
-    ; 检查窗口是否存在（此时可以搜寻到隐藏在其他工作区的窗口）
-    if WinExist(winTitle)
-    {
-        WinActivate(winTitle)
-        WinMaximize
-    }
-    else
-    {
-        Run(exeName)
-        WinWait(exeName)
-        WinMaximize
-    }
-}
 ToggleWslApp(winTitle, exeName)
 {
     if WinExist(winTitle . " ahk_exe msrdc.exe")
@@ -164,11 +155,12 @@ CapsLock & u::
 }
 CapsLock & o::
 {
-    ToggleAppMax("ahk_class WeWorkWindow", "C:\Program Files (x86)\WXWork\WXWork.exe")
+    ToggleApp("ahk_class WeWorkWindow", "C:\Program Files (x86)\WXWork\WXWork.exe", ,"Max")
 }
 CapsLock & m::
 {
-    ToggleWslApp("Emacs", "emacs")
+   ;; ToggleWslApp("Emacs", "emacs")
+   ToggleApp("ahk_exe emacs.exe", "runemacs.exe", EnvGet("HOME"))
 }
 CapsLock & y::
 {
@@ -180,7 +172,7 @@ CapsLock & y::
 #HotIf
 
 #HotIf !WinActive("Emacs ahk_exe msrdc.exe")
-    CapsLock & Space::Send("^{Space}")
+    CapsLock & Space::Send("{LAlt down}{LShift down}{LShift up}{LAlt up}")
 #HotIf
 
 ~F5:: {
@@ -264,3 +256,69 @@ DmGetWindowCloaked(hwnd) {
     return (res == 0) ? cloaked : 0
 }
 
+
+; ==============================================================================
+; ==============================================================================
+; 0x04090409 = 美式布局
+; 0x08040804 = 中文布局
+SwitchToEnglish() {
+    hwnd := WinActive("A")
+    if (hwnd)
+        PostMessage(0x0050, 0, 0x04090409, , "ahk_id " hwnd)
+}
+
+SwitchToChinese() {
+    hwnd := WinActive("A")
+    if (hwnd)
+        PostMessage(0x0050, 0, 0x08040804, , "ahk_id " hwnd)
+}
+
+global EngApps := [
+    "emacs.exe",
+    "Code.exe",
+    "WindowsTerminal.exe",
+    "cmd.exe",
+    "powershell.exe",
+    "wezterm-gui.exe",
+    "brave.exe",
+    "idea64.exe"
+]
+
+global ChnApps := [
+    "WeChat.exe",
+    "WXWork.exe",
+    "WINWORD.EXE",
+    "DingTalk.exe",
+    "Feishu.exe",
+    "WeLink.exe"
+]
+
+global lastHwnd := 0
+
+SetTimer(AutoSwitchIME, 200)
+
+AutoSwitchIME() {
+    global lastHwnd
+    hwnd := WinActive("A")
+    if (!hwnd || hwnd == lastHwnd)
+        return
+    lastHwnd := hwnd
+
+    try {
+        procName := WinGetProcessName("ahk_id " hwnd)
+
+        for app in EngApps {
+            if (procName = app) {
+                SwitchToEnglish()
+                return
+            }
+        }
+
+        for app in ChnApps {
+            if (procName = app) {
+                SwitchToChinese()
+                return
+            }
+        }
+    }
+}

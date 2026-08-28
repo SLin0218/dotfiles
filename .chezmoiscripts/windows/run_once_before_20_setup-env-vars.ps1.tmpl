@@ -15,5 +15,14 @@ $SetupEnv = @{
 
 # Set environment variables
 $SetupEnv.GetEnumerator() | ForEach-Object {
-  [System.Environment]::SetEnvironmentVariable($_.Key, $_.Value, [System.EnvironmentVariableTarget]::User)
+  #[System.Environment]::SetEnvironmentVariable($_.Key, $_.Value, [System.EnvironmentVariableTarget]::User)
+  if ($_.Value) {
+      # 替换 %USERPROFILE% 为 chezmoi 模板变量
+      $val = $_.Value -replace '%USERPROFILE%', '{{ .chezmoi.homeDir }}'
+
+      # 写入用户环境变量
+      [System.Environment]::SetEnvironmentVariable($_.Key, $val, [System.EnvironmentVariableTarget]::User)
+
+      Write-Host "已更新 $($_.Key) -> $val" -ForegroundColor Cyan
+  }
 }

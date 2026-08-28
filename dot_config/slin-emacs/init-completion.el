@@ -203,5 +203,11 @@
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
+(use-package ahk-mode
+  :ensure t
+  :mode "\\.ahk\\'"
+  :config
+  (setq ahk-indent-offset 4))
+
 (provide 'init-completion)
 ;;; init-completion.el ends here

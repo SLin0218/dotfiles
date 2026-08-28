@@ -1,4 +1,9 @@
-;; -*- lexical-binding: t; -*-
+;;; early-init ---  -*- lexical-binding: t; -*-
+;;; Commentary:
+;;; 早期初始化配置
+
+;;; code:
+
 ;; 1. 垃圾回收 (GC) 优化：启动时设为最大值，加速加载
 (setq gc-cons-threshold most-positive-fixnum)
 
@@ -49,3 +54,6 @@
 
 ;; 8. 将 custom-file 指向可写的本地文件，避免污染 init.el 且避免新版 Emacs 因 /dev/null 报错
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+(provide 'early-init.el)
+;;; early-init.el ends here

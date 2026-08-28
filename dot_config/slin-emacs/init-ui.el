@@ -14,8 +14,11 @@
 ;; 字体设置
 (defvar slin/font-size 12
   "默认英文字体大小.")
-(defvar slin/font-family "JetBrainsMono Nerd Font Mono"
-  "默认英文字体族.")
+(defvar slin/font-family
+  (cond
+   ((eq system-type 'windows-nt) "JetBrainsMono NFM")
+   (t "JetBrainsMono Nerd Font Mono")))
+
 (defvar slin/font-family-cjk "Maple Mono NF CN"
   "默认中文字体族.")
 
@@ -26,6 +29,17 @@
 (cond ((eq system-type 'darwin) (setq slin/font-size 16)))
 (when sys/wsl-p
   (setq slin/font-size 15))
+(when (eq system-type 'windows-nt) (setq slin/font-size 15))
+
+(when (eq system-type 'windows-nt)
+  ;; 1. 禁用“使用默认字体显示符号”，允许 Emacs 使用字体集回退
+  (setq use-default-font-for-symbols nil)
+  ;; 2. 为 emoji 和 symbol 脚本指定 Windows 自带的 Segoe UI Emoji 字体
+  (when (member "Segoe UI Emoji" (font-family-list))
+    ;; 为 emoji 分类指定字体 (Emacs 28+)
+    (set-fontset-font t 'emoji (font-spec :family "Segoe UI Emoji") nil 'prepend)
+    ;; 为 symbol 分类指定字体
+    (set-fontset-font t 'symbol (font-spec :family "Segoe UI Emoji") nil 'prepend)))
 
 (defun load-font-setup (&optional frame)
   "根据当前 FRAME 设置默认英文字体与中文字体映射."

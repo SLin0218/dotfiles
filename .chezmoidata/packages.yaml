@@ -23,6 +23,7 @@ packages:
       - "main/flameshot"
       - "main/copyq"
       - "main/python"
+      - "main/antigravity-cli"
       # wsl 下剪切板工具
       - "main/win32yank"
 
@@ -37,6 +38,8 @@ packages:
       - "extras/autohotkey"
       - "extras/ultravnc"
       - "extras/wezterm"
+      - "extras/lazygit"
+      - "extras/emacs"
 
       - "nerd-fonts/Maple-Mono-NF-CN"
       - "nerd-fonts/JetBrainsMono-NF-Mono"

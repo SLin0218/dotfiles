@@ -6,6 +6,7 @@ config:
         - '%USERPROFILE%\scoop\apps\git\current\usr\bin'
         - '%USERPROFILE%\.local\bin'
       others:
+        HOME: '%USERPROFILE%'
         FZF_DEFAULT_OPTS: >-
           --layout=reverse
           --height=100%

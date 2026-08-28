@@ -5,8 +5,8 @@
 ###############################
 {{ if eq .chezmoi.os "windows" }}
 
-.config/emacs
-.config/slin-emacs
+# .config/emacs
+# .config/slin-emacs
 .config/zsh
 .local/kitty
 .local/nix-config
