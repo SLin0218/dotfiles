@@ -13,15 +13,23 @@ if (-not (Test-Path -Path $targetScript)) {
 
 Write-Host "Creating startup shortcut for AutoHotkey..."
 
-# 3. 使用 WScript.Shell 动态创建快捷方式
 $WshShell = New-Object -ComObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut($shortcutPath)
 $Shortcut.TargetPath = $targetScript
-
-# 4. 最关键的避坑设置：7 代表“最小化运行”，完美消除开机瞬间的 CMD 黑框弹窗
 $Shortcut.WindowStyle = 7
+$Shortcut.Save()
+Write-Host "✅ autohotkey 开机自启快捷方式已成功创建！" -ForegroundColor Green
 
-# 5. 保存快捷方式
+
+$targetPath = "$env:USERPROFILE\scoop\apps\wsl-ssh-pageant\current\wsl-ssh-pageant-gui.exe"
+$arguments  = "--systray --winssh openssh-ssh-agent"
+$shortcutPath = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\wsl-ssh-pageant.lnk"
+
+$WshShell = New-Object -ComObject WScript.Shell
+$Shortcut = $WshShell.CreateShortcut($shortcutPath)
+$Shortcut.TargetPath = $targetPath
+$Shortcut.Arguments = $arguments
+$Shortcut.WorkingDirectory = "$env:USERPROFILE"
 $Shortcut.Save()
 
-Write-Host "Startup shortcut created successfully at: $shortcutPath"
+Write-Host "✅ wsl-ssh-pageant 开机自启快捷方式已成功创建！" -ForegroundColor Green

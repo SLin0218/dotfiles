@@ -208,11 +208,6 @@
   (plist-put kind-icon-default-style :height 0.8)
   (plist-put kind-icon-default-style :scale 0.8))
 
-(use-package ahk-mode
-  :ensure t
-  :mode "\\.ahk\\'"
-  :config
-  (setq ahk-indent-offset 4))
 
 (provide 'init-completion)
 ;;; init-completion.el ends here

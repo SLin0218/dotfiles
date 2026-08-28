@@ -1,0 +1,40 @@
+; -*- gitconfig -*-
+; vim: ft=gitconfig
+[user]
+  email = dengsl.dev@gmail.com
+  name = DengShilin
+  signingkey = 61AD951AF6587826
+[credential]
+  helper = store
+[core]
+  pager = delta
+  quotepath = false
+  editor = "nvim"
+{{- if eq .chezmoi.os "windows" }}
+  sshCommand = "C:/Windows/System32/OpenSSH/ssh.exe"
+{{- end }}
+[interactive]
+  diffFilter = delta --color-only
+[delta]
+  side-by-side = true
+  line-numbers = true
+  navigate = true
+[add.interactive]
+  useBuiltin = false
+[merge]
+  conflictstyle = diff3
+[difftool]
+  prompt = false
+  trustExitCode = true
+[commit]
+  gpgsign = true
+[log]
+  date = format-local:%Y-%m-%d %H:%M:%S
+[http]
+  postBuffer = 524288000
+[pull]
+  rebase = false
+{{- if eq .chezmoi.os "windows" }}
+[gpg]
+  program = "{{ .chezmoi.homeDir }}/scoop/apps/gpg/current/bin/gpg.exe"
+{{- end }}

@@ -448,6 +448,13 @@
 (use-package nix-mode :defer t)
 (use-package lua-mode :defer t)
 (use-package yaml-mode :defer t)
+(use-package powershell :defer t)
+(use-package ini-mode :defer t)
+(use-package ahk-mode
+  :ensure t
+  :mode "\\.ahk\\'"
+  :config
+  (setq ahk-indent-offset 4))
 
 ;; Go Template (.tmpl / .tmp) 语法高亮 (基础语言 Major Mode + Go 模板 Minor Mode)
 (defface my-go-template-delim-face

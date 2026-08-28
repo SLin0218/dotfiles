@@ -15,7 +15,7 @@
 
 (setq clutch-connection-alist
       '(("pg-dev-rx-plm" . (:backend pg :profile-entry "pg/dev/rx-plm"))
-        ("redis-dev" .     (:backend redis :host "127.0.0.1" :port 6379 :database "5" :profile-entry "redis/dev"))))
+        ("redis-dev" .     (:backend redis :profile-entry "redis/dev"))))
 
 ;; SQL 编辑模式
 (use-package sql

@@ -10,8 +10,8 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 # =====================================================================
 if (Get-Module -ListAvailable PSReadLine) {
     Import-Module PSReadLine
-    Set-PSReadLineOption -EditMode Emacs
-
+    # vi 模式开启
+    Set-PSReadLineOption -EditMode Vi
     # 开启类似 zsh-autosuggestions 的历史命令灰色预测
     Set-PSReadLineOption -PredictionSource History
     Set-PSReadLineOption -PredictionViewStyle InlineView
@@ -39,9 +39,13 @@ if (Get-Module -ListAvailable PSReadLine) {
     if (Get-Module -ListAvailable PSFzf) {
         Import-Module PSFzf
 
-        if (Get-Command Set-PsFzfOption -ErrorAction SilentlyContinue) {
-            Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
-        }
+        # 显式绑定 Vi 模式下的 Ctrl+r
+        Set-PSReadLineKeyHandler -Chord 'Ctrl+r' -ViMode Insert -ScriptBlock { Invoke-FzfPsReadlineHandlerHistory }
+        Set-PSReadLineKeyHandler -Chord 'Ctrl+r' -ViMode Command -ScriptBlock { Invoke-FzfPsReadlineHandlerHistory }
+
+        # 绑定 Ctrl+t 文件搜索
+        Set-PSReadLineKeyHandler -Chord 'Ctrl+t' -ViMode Insert -ScriptBlock { Invoke-FzfPsReadlineHandlerProvider }
+        Set-PSReadLineKeyHandler -Chord 'Ctrl+t' -ViMode Command -ScriptBlock { Invoke-FzfPsReadlineHandlerProvider }
 
         # 替换 Tab 键：触发自动提示时，直接调用 fzf 进行交互式筛选 (极度丝滑)
         Set-PSReadLineKeyHandler -Key Tab -ScriptBlock {
@@ -93,9 +97,6 @@ if (Test-Path $CompletionDir) {
 
 function .. { cd .. }
 function ... { cd ../.. }
-
-# vi 模式开启
-Set-PSReadLineOption -EditMode Vi
 
 # =============================================================================
 #
