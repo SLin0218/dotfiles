@@ -44,7 +44,7 @@
 
 ;; Clutch 现代化交互式数据库客户端
 (use-package mysql :ensure t)
-(use-package pg :ensure t)
+(use-package pgsql :ensure t)
 (use-package redis :vc (:url "https://github.com/LuciusChen/redis.el"))
 (use-package clutch
   :ensure t
