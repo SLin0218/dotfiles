@@ -88,10 +88,8 @@ function gsw { git switch @args }
 function gst { git status @args }
 function gcl { git clone @args }
 function gcmsg { git commit -m @args }
-function gp { git puth @args }
-function gl {
-    git pull @args
-}
+function gp { git push @args }
+function gl { git pull @args }
 
 Set-Alias -Name vim -Value nvim
 Set-Alias -Name ls -Value exa
