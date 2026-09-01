@@ -3,12 +3,7 @@
 # =====================================================================
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
-# =====================================================================
-# PSReadLine 智能补全与历史记录 (体验类似 Zsh)
-# =====================================================================
-if (Get-Module -ListAvailable PSReadLine) {
+[Console]::Outple -ListAvailable PSReadLine) {
     Import-Module PSReadLine
     # vi 模式开启
     Set-PSReadLineOption -EditMode Vi
