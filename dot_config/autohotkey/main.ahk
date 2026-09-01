@@ -13,6 +13,9 @@ SetCapsLockState("AlwaysOff")
     Send "{Blind}{Esc}"
 }
 
+ProgramFiles := "C:\Program Files\"
+ProgramFilesX86 := "C:\Program Files (x86)\"
+
 ; 示例：使用 Hyper Key 组合键快捷操作
 ; Hyper + H/J/K/L 方向键映射
 
@@ -108,34 +111,20 @@ CapsLock & f::
 ; ==========================================
 ToggleApp(winTitle, exeName, workingDir?, Options?)
 {
-    ; 检查窗口是否存在（此时可以搜寻到隐藏在其他工作区的窗口）
-    if WinExist(winTitle)
+    if WinActive(winTitle)
+    {
+        WinMinimize(winTitle)
+    }
+    else if WinExist(winTitle)
     {
         WinActivate(winTitle)
     }
     else
     {
-        if IsSet(Options) {
-            Run(exeName, workingDir, Options)
-        } else if IsSet(workingdir) {
-            Run(exeName, workingDir)
-        } else {
-            Run(exeName)
-        }
+        Run(exeName, workingDir?, Options?)
     }
 }
 
-ToggleWslApp(winTitle, exeName)
-{
-    if WinExist(winTitle . " ahk_exe msrdc.exe")
-    {
-        WinActivate()
-    }
-    else
-    {
-        Run("wsl.exe -- " . exeName, , "Hide")
-    }
-}
 
 CapsLock & i::
 {
@@ -147,25 +136,29 @@ CapsLock & g::
 }
 CapsLock & n::
 {
-    ToggleApp("\s-\s ahk_exe idea64.exe", "C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.1\bin\idea64.exe")
+    ToggleApp("\s-\s ahk_exe idea64.exe", ProgramFiles . "JetBrains\IntelliJ IDEA 2026.2.1\bin\idea64.exe")
 }
 CapsLock & u::
 {
-    ToggleApp("WeLink ahk_exe WeLink.exe", "WeLink.exe")
+    ToggleApp("WeLink ahk_exe WeLink.exe", ProgramFilesX86 . "WeLink\WeLink.exe")
+}
+CapsLock & e::
+{
+    ToggleApp("ahk_exe explorer.exe ahk_class CabinetWClass", "explorer.exe")
 }
 CapsLock & o::
 {
-    ToggleApp("ahk_class WeWorkWindow", "C:\Program Files (x86)\WXWork\WXWork.exe", ,"Max")
+    ToggleApp("ahk_class WeWorkWindow", ProgramFilesX86 . "WXWork\WXWork.exe", ,"Max")
 }
 CapsLock & m::
 {
-   ;; ToggleWslApp("Emacs", "emacs")
+   ;; ToggleApp("Emacs ahk_exe msrdc.exe", "wsl.exe -- emacs", , "Hide")
    ToggleApp("ahk_exe emacs.exe", "runemacs.exe", EnvGet("HOME"))
 }
-CapsLock & y::
-{
-    ToggleWslApp("qqmusic", "qqmusic")
-}
+; CapsLock & y::
+; {
+;    ToggleApp("qqmusic ahk_exe msrdc.exe", "wsl.exe -- qqmusic", , "Hide")
+; }
 
 #HotIf WinActive("Emacs ahk_exe msrdc.exe")
     CapsLock & Space::Send("^{\}")

@@ -485,6 +485,7 @@
                    "\\.el\\.\\(tmp\\|tmpl\\)\\'"
                    "\\.py\\.\\(tmp\\|tmpl\\)\\'"
                    "\\.nix\\.\\(tmp\\|tmpl\\)\\'"
+                   "\\.ps1\\.\\(tmp\\|tmpl\\)\\'"
                    "\\.sh\\.\\(tmp\\|tmpl\\)\\'"))
   (add-to-list 'auto-mode-alist
                (cons pattern

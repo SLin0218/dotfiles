@@ -79,10 +79,19 @@ function l {
   exa -l @args
 }
 
+Remove-Item Alias:gp -Force -ErrorAction SilentlyContinue
+Remove-Item Alias:gl -Force -ErrorAction SilentlyContinue
+Remove-Item Alias:gm -Force -ErrorAction SilentlyContinue
+
+function gm { git merge @args }
+function gsw { git switch @args }
 function gst { git status @args }
 function gcl { git clone @args }
-function gcms { git commit -m @args }
+function gcmsg { git commit -m @args }
 function gp { git puth @args }
+function gl {
+    git pull @args
+}
 
 Set-Alias -Name vim -Value nvim
 Set-Alias -Name ls -Value exa
