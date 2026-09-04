@@ -44,28 +44,29 @@ CapsLock & h::Send("{Left}")
 CapsLock & l::Send("{Right}")
 
 CapsLock & t::Send("^{t}")
-CapsLock & f::
-{
-  WinMaximize("A")
-}
+; CapsLock & f::
+; {
+;   WinMaximize("A")
+; }
 
-#q::
+!q::
 {
   WinClose("A")
 }
-#w::Send("^{w}")
-#r::Send("^{r}")
-#a::Send("^{a}")
-#f::Send("^{f}")
-#1::Send("^{1}")
-#2::Send("^{2}")
-#3::Send("^{3}")
-#4::Send("^{4}")
-#5::Send("^{5}")
-#6::Send("^{6}")
-#7::Send("^{7}")
-#8::Send("^{8}")
-#9::Send("^{9}")
+CapsLock & w::Send("^{w}")
+CapsLock & r::Send("^{r}")
+CapsLock & a::Send("^{a}")
+CapsLock & f::Send("^{f}")
+
+; #1::Send("^{1}")
+; #2::Send("^{2}")
+; #3::Send("^{3}")
+; #4::Send("^{4}")
+; #5::Send("^{5}")
+; #6::Send("^{6}")
+; #7::Send("^{7}")
+; #8::Send("^{8}")
+; #9::Send("^{9}")
 
 ; 在 Brave 浏览器中 Win+][ => Alt+][ 前进/后退
 #HotIf WinActive("Brave ahk_exe brave.exe")
@@ -77,33 +78,41 @@ CapsLock & f::
 <#Tab::AltTab
 
 #HotIf WinActive("ahk_exe idea64.exe")
-    CapsLock & [::Send("!{Left}")
-    CapsLock & ]::Send("!{Right}")
-    #1::Send("!{1}")
-    #2::Send("!{2}")
-    #3::Send("!{3}")
-    #4::Send("!{4}")
-    #5::Send("!{5}")
-    #6::Send("!{6}")
-    #7::Send("!{7}")
-    #8::Send("!{8}")
-    #9::Send("!{9}")
-    #0::Send("!{0}")
+    CapsLock & [::Send("^!+{[}")
+    CapsLock & ]::Send("^!+{]}")
+    CapsLock & 1::Send("^!{1}")
+    CapsLock & 2::Send("^!{2}")
+    CapsLock & 3::Send("^!{3}")
+    CapsLock & 4::Send("^!{4}")
+    CapsLock & 5::Send("^!{5}")
+    CapsLock & 6::Send("^!{6}")
+    CapsLock & 7::Send("^!{7}")
+    CapsLock & 8::Send("^!{8}")
+    CapsLock & 9::Send("^!{9}")
+    CapsLock & 0::Send("^!{0}")
+
     #e::Send("^e")
     #+f::Send("^+f")
     #+r::Send("^+r")
     #f::Send("^f")
     #r::Send("^r")
+    CapsLock & w::Send("^{f4}")
     #w::Send("^{f4}")
+    !w::Send("^{f4}")
 #HotIf
 
+#HotIf !WinActive("ahk_exe idea64.exe")
+    !w::Send("^{w}")
+#HotIf
+
+
 #HotIf WinActive("ahk_exe wezterm-gui.exe")
-    #c::Send("^+{c}")
-    #v::Send("^+{v}")
+    !c::Send("^+{c}")
+    !v::Send("^+{v}")
 #HotIf
 #HotIf !WinActive("ahk_exe wezterm-gui.exe")
-    #c::Send("^{c}")
-    #v::Send("^{v}")
+    !c::Send("^{c}")
+    !v::Send("^{v}")
 #HotIf
 
 ; ==========================================
@@ -113,7 +122,7 @@ ToggleApp(winTitle, exeName, workingDir?, Options?)
 {
     if WinActive(winTitle)
     {
-        WinMinimize(winTitle)
+        WinActivate(winTitle)
     }
     else if WinExist(winTitle)
     {
@@ -155,18 +164,18 @@ CapsLock & m::
    ;; ToggleApp("Emacs ahk_exe msrdc.exe", "wsl.exe -- emacs", , "Hide")
    ToggleApp("ahk_exe emacs.exe", "runemacs.exe", EnvGet("HOME"))
 }
-; CapsLock & y::
-; {
-;    ToggleApp("qqmusic ahk_exe msrdc.exe", "wsl.exe -- qqmusic", , "Hide")
-; }
+CapsLock & y::
+{
+   ToggleApp("ahk_exe Spotify.exe", "Spotify.exe")
+}
 
-#HotIf WinActive("Emacs ahk_exe msrdc.exe")
-    CapsLock & Space::Send("^{\}")
-#HotIf
+; #HotIf WinActive("Emacs ahk_exe msrdc.exe")
+;     CapsLock & Space::Send("^{\}")
+; #HotIf
 
-#HotIf !WinActive("Emacs ahk_exe msrdc.exe")
-    CapsLock & Space::Send("{LAlt down}{LShift down}{LShift up}{LAlt up}")
-#HotIf
+; #HotIf !WinActive("Emacs ahk_exe msrdc.exe")
+;     CapsLock & Space::Send("{LAlt down}{LShift down}{LShift up}{LAlt up}")
+; #HotIf
 
 ~F5:: {
     TrayTip "AHK 脚本正在重新加载...", "系统提示", 4
@@ -252,66 +261,68 @@ DmGetWindowCloaked(hwnd) {
 
 ; ==============================================================================
 ; ==============================================================================
-; 0x04090409 = 美式布局
-; 0x08040804 = 中文布局
+; 美式布局
+global EN_USA := 0x04090409
+; 中文布局
+global ZH_CN := 0x08040804
+
 SwitchToEnglish() {
+    global EN_USA
     hwnd := WinActive("A")
     if (hwnd)
-        PostMessage(0x0050, 0, 0x04090409, , "ahk_id " hwnd)
+        PostMessage(0x0050, 0, EN_USA, , "ahk_id " hwnd)
 }
 
 SwitchToChinese() {
+    global ZH_CN
     hwnd := WinActive("A")
     if (hwnd)
-        PostMessage(0x0050, 0, 0x08040804, , "ahk_id " hwnd)
+        PostMessage(0x0050, 0, ZH_CN, , "ahk_id " hwnd)
 }
 
-global EngApps := [
-    "emacs.exe",
-    "Code.exe",
-    "WindowsTerminal.exe",
-    "cmd.exe",
-    "powershell.exe",
-    "wezterm-gui.exe",
-    "brave.exe",
-    "idea64.exe"
-]
-
-global ChnApps := [
-    "WeChat.exe",
-    "WXWork.exe",
-    "WINWORD.EXE",
-    "DingTalk.exe",
-    "Feishu.exe",
-    "WeLink.exe"
-]
-
-global lastHwnd := 0
-
-SetTimer(AutoSwitchIME, 200)
-
-AutoSwitchIME() {
-    global lastHwnd
+GetLayout() {
     hwnd := WinActive("A")
-    if (!hwnd || hwnd == lastHwnd)
-        return
-    lastHwnd := hwnd
-
-    try {
-        procName := WinGetProcessName("ahk_id " hwnd)
-
-        for app in EngApps {
-            if (procName = app) {
-                SwitchToEnglish()
-                return
-            }
-        }
-
-        for app in ChnApps {
-            if (procName = app) {
-                SwitchToChinese()
-                return
-            }
-        }
-    }
+    if (!hwnd)
+        return 0
+    ; 获取目标窗口活动线程的 ID
+    threadID := DllCall("user32.dll\GetWindowThreadProcessId", "Ptr", hwnd, "Ptr", 0, "UInt")
+    ; 获取该线程的键盘布局句柄 (HKL)，返回值为数字
+    return DllCall("user32.dll\GetKeyboardLayout", "UInt", threadID, "Ptr")
 }
+
+global current_layout := GetLayout()
+
+ToggleLayout() {
+    global EN_USA
+    global ZH_CN
+    global current_layout
+
+    lang_code := ""
+
+    if (current_layout = EN_USA)
+    {
+        SwitchToChinese()
+        current_layout := ZH_CN
+        lang_code := "zh"
+    }
+    else
+    {
+        SwitchToEnglish()
+        current_layout := EN_USA
+        lang_code := "en"
+    }
+
+    WinGetPos(&X, &Y, &W, &H, "A")
+
+    ; 创建并显示小组件
+    myGui := Gui("+AlwaysOnTop -Caption +ToolWindow")
+    myGui.BackColor := "EEAA99"
+    myGui.SetFont("s20 Q5", "Segoe UI Symbol")
+    myGui.MarginX := 10
+    myGui.MarginY := 3
+    myGui.AddText("", "⌨️ " . lang_code)
+    myGui.Show("NoActivate AutoSize X" (X + 10) " Y" (Y + 10))
+    SetTimer(() => myGui.Destroy(), -1000)
+}
+
+CapsLock & Space::ToggleLayout()

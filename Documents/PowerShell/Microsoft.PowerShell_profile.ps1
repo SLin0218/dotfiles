@@ -1,9 +1,17 @@
 # =====================================================================
 # 编码与环境初始化 (解决中文乱码)
 # =====================================================================
+$env:https_proxy="http://127.0.0.1:7890"
+$env:http_proxy="http://127.0.0.1:7890"
+
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
-[Console]::Outple -ListAvailable PSReadLine) {
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+# =====================================================================
+# PSReadLine 智能补全与历史记录 (体验类似 Zsh)
+# =====================================================================
+if (Get-Module -ListAvailable PSReadLine) {
     Import-Module PSReadLine
     # vi 模式开启
     Set-PSReadLineOption -EditMode Vi

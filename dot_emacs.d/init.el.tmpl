@@ -29,6 +29,19 @@
 (when (eq system-type 'windows-nt)
   (setq default-process-coding-system '(gbk-dos . gbk-dos)))
 
+(with-eval-after-load 'apheleia
+  ;; 覆盖默认的 apheleia-npx，直接使用全局 prettier
+  (setf (alist-get 'prettier apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath))
+  (setf (alist-get 'prettier-yaml apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath "--parser" "yaml"))
+  (setf (alist-get 'prettier-json apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath "--parser" "json"))
+  (setf (alist-get 'prettier-css apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath "--parser" "css"))
+  (setf (alist-get 'prettier-typescript apheleia-formatters)
+        '("prettier" "--stdin-filepath" filepath "--parser" "typescript")))
+
 (add-to-list 'load-path "{{ .chezmoi.homeDir }}/.config/slin-emacs")
 (require 'slin-emacs)
 

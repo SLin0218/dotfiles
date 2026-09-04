@@ -32,9 +32,12 @@
   date = format-local:%Y-%m-%d %H:%M:%S
 [http]
   postBuffer = 524288000
+  proxy = http://127.0.0.1:7890
 [pull]
   rebase = false
 {{- if eq .chezmoi.os "windows" }}
 [gpg]
   program = "{{ .chezmoi.homeDir }}/scoop/apps/gpg/current/bin/gpg.exe"
 {{- end }}
+[https]
+  proxy = http://127.0.0.1:7890

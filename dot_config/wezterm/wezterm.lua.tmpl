@@ -259,9 +259,9 @@ wezterm.on("update-status", function(window, _)
 	local bg_main = colors.background or "#1a1b26"
 
 	window:set_left_status(wezterm.format({
-		{ Foreground = { Color = ansi_bg } },
-		{ Background = { Color = bg_main } },
-		{ Text = "" },
+		{ Foreground = { Color = bg_main } },
+		{ Background = { Color = ansi_bg } },
+		{ Text = " " },
 
 		{ Background = { Color = ansi_bg } },
 		{ Foreground = { Color = ansi_fg } },
@@ -275,7 +275,7 @@ wezterm.on("update-status", function(window, _)
 		{ Text = " " },
 	}))
 	local active_workspace = window:active_workspace()
-	local mem = string.format(" %s", ram:update(ram.default_opts))
+
 
 	window:set_right_status(wezterm.format({
 		{ Foreground = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
@@ -284,25 +284,11 @@ wezterm.on("update-status", function(window, _)
 
 		{ Background = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
 		{ Foreground = { Color = ansi_fg } },
-		{ Text = mem },
-
-		{ Foreground = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
-		{ Background = { Color = bg_main } },
-		{ Text = "" },
-
-		{ Text = " " },
-
-		{ Foreground = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
-		{ Background = { Color = bg_main } },
-		{ Text = "" },
-
-		{ Background = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
-		{ Foreground = { Color = ansi_fg } },
 		{ Text = active_workspace },
 
-		{ Foreground = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
-		{ Background = { Color = bg_main } },
-		{ Text = "" },
+		{ Foreground = { Color = bg_main } },
+		{ Background = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
+		{ Text = " " },
 	}))
 end)
 
