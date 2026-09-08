@@ -70,7 +70,7 @@ config.font_size = 14.0
 -- Windows 11/10 磨砂玻璃效果与窗口修饰
 config.win32_system_backdrop = "Acrylic"
 
-config.window_background_opacity = 1.0
+config.window_background_opacity = 0.9
 config.default_cursor_style = "BlinkingUnderline"
 config.window_decorations = "RESIZE"
 
@@ -190,46 +190,35 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 
 	if tab.is_active then
 		return {
-			{ Foreground = { Color = active_bg } },
-			{ Background = { Color = tab_bg } },
-			{ Text = "" },
-
 			{ Background = { Color = active_bg } },
 			{ Attribute = { Intensity = "Bold" } },
 			{ Foreground = { Color = icon_color } },
+			{ Text = " " },
 			{ Text = icon },
 
 			{ Foreground = { Color = active_fg } },
 			{ Text = final_title },
-
-			{ Foreground = { Color = active_bg } },
-			{ Background = { Color = tab_bg } },
-			{ Text = "" },
-
-			{ Background = { Color = tab_bg } },
 			{ Text = " " },
+
+			{ Background = { Color = tab_bg } },
+            { Foreground = { Color = active_bg } },
+            { Text = "▊" },
 		}
 	end
 
 	return {
-		{ Foreground = { Color = ansi_1 } },
-		{ Background = { Color = tab_bg } },
-		{ Text = "" },
-
 		{ Foreground = { Color = icon_color } },
 		{ Background = { Color = ansi_1 } },
+        { Text = " " },
 		{ Text = icon },
 
 		{ Foreground = { Color = inactive_fg } },
 		{ Text = final_title },
+        { Text = " " },
 
+        { Background = { Color = tab_bg } },
 		{ Foreground = { Color = ansi_1 } },
-		{ Background = { Color = tab_bg } },
-		{ Text = "" },
-
-		{ Foreground = { Color = inactive_fg } },
-		{ Background = { Color = tab_bg } },
-		{ Text = " " },
+        { Text = "▊" },
 	}
 end)
 
@@ -246,9 +235,7 @@ wezterm.on("update-status", function(window, _)
 	local bg_index = 5
 	if name then
 		mode = mode_mapping[name] or name
-		if name == "copy_mode" then
-			bg_index = 4
-		end
+        bg_index = 4
 	else
 		mode = "Normal"
 	end
@@ -257,38 +244,34 @@ wezterm.on("update-status", function(window, _)
 	local ansi_bg = (colors.ansi and colors.ansi[bg_index]) or "#7aa2f7"
 	local ansi_fg = (colors.ansi and colors.ansi[1]) or "#15161e"
 	local bg_main = colors.background or "#1a1b26"
+	local active_bg = (colors.tab_bar and colors.tab_bar.active_tab and colors.tab_bar.active_tab.bg_color) or "#cba6f7"
 
 	window:set_left_status(wezterm.format({
-		{ Foreground = { Color = bg_main } },
+	}))
+	local active_workspace = window:active_workspace()
+
+	window:set_right_status(wezterm.format({
+		{ Foreground = { Color = active_bg } },
+		{ Background = { Color = bg_main } },
+		{ Text = "" },
+
+		{ Background = { Color = active_bg } },
+		{ Foreground = { Color = ansi_fg } },
+		{ Text = "  " },
+		{ Text = active_workspace },
+		{ Text = " " },
+
+		{ Background = { Color = active_bg } },
+		{ Foreground = { Color = ansi_bg } },
+		{ Text = "" },
+
+        { Foreground = { Color = bg_main } },
 		{ Background = { Color = ansi_bg } },
 		{ Text = " " },
 
 		{ Background = { Color = ansi_bg } },
 		{ Foreground = { Color = ansi_fg } },
 		{ Text = mode },
-
-		{ Foreground = { Color = ansi_bg } },
-		{ Background = { Color = bg_main } },
-		{ Text = "" },
-
-		{ Background = { Color = bg_main } },
-		{ Text = " " },
-	}))
-	local active_workspace = window:active_workspace()
-
-
-	window:set_right_status(wezterm.format({
-		{ Foreground = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
-		{ Background = { Color = bg_main } },
-		{ Text = "" },
-
-		{ Background = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
-		{ Foreground = { Color = ansi_fg } },
-		{ Text = active_workspace },
-
-		{ Foreground = { Color = bg_main } },
-		{ Background = { Color = (colors.ansi and colors.ansi[5]) or "#bb9af7" } },
-		{ Text = " " },
 	}))
 end)
 

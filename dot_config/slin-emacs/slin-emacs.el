@@ -14,18 +14,35 @@
 (setq backup-directory-alist `((".*" . ,(expand-file-name "backups" user-emacs-directory))))
 
 ;; 3. 全局 PATH 与 exec-path 设置
-(defconst my-paths '("~/.nix-profile/bin"
-                     "/etc/profiles/per-user/lin/bin"
-                     "/run/current-system/sw/bin"
-                     "/opt/homebrew/bin"
-                     "/usr/local/bin"
-                     "~/.local/share/nvim/mason/bin/"
-                     "~/.local/bin/"
-                     "/Library/TeX/texbin/"))
-(defconst my-paths-join (string-join (mapcar #'expand-file-name my-paths) ":"))
+(defconst my-paths
+  (cond
+   ((eq system-type 'darwin)
+    '("~/.nix-profile/bin"
+      "/etc/profiles/per-user/lin/bin"
+      "/run/current-system/sw/bin"
+      "/opt/homebrew/bin"
+      "/usr/local/bin"
+      "~/.local/share/nvim/mason/bin/"
+      "~/.local/bin/"
+      "/Library/TeX/texbin/"))
+   ((eq system-type 'gnu/linux)
+    '("~/.nix-profile/bin"
+      "/etc/profiles/per-user/lin/bin"
+      "/run/current-system/sw/bin"
+      "/usr/local/bin"
+      "~/.local/share/nvim/mason/bin/"
+      "~/.local/bin/"))
+   ((eq system-type 'windows-nt)
+    '("~/AppData/Local/nvim-data/mason/bin"
+      "~/.local/bin/"))
+   (t nil)))
 
-(setenv "PATH" (concat my-paths-join ":" (getenv "PATH")))
-(setq exec-path (append (mapcar #'expand-file-name my-paths) exec-path))
+(when my-paths
+  (let ((expanded-paths (mapcar #'expand-file-name my-paths)))
+    (setenv "PATH" (concat (string-join expanded-paths path-separator)
+                           path-separator
+                           (getenv "PATH")))
+    (setq exec-path (append expanded-paths exec-path))))
 
 ;; 注入 Nix 安装的 librime 路径供编译使用
 (when (bound-and-true-p nix-librime-path)

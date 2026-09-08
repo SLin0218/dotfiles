@@ -70,8 +70,8 @@ CapsLock & f::Send("^{f}")
 
 ; 在 Brave 浏览器中 Win+][ => Alt+][ 前进/后退
 #HotIf WinActive("Brave ahk_exe brave.exe")
-    #[::Send("!{Left}")
-    #]::Send("!{Right}")
+    ![::Send("!{Left}")
+    !]::Send("!{Right}")
 #HotIf
 
 ; WinTab => AltTab
@@ -260,69 +260,12 @@ DmGetWindowCloaked(hwnd) {
 
 
 ; ==============================================================================
+; 输入法切换
 ; ==============================================================================
-; 美式布局
-global EN_USA := 0x04090409
-; 中文布局
-global ZH_CN := 0x08040804
+#HotIf WinActive("ahk_exe emacs.exe")
+    CapsLock & Space::send("^{\}")
+#HotIf
 
-SwitchToEnglish() {
-    global EN_USA
-    hwnd := WinActive("A")
-    if (hwnd)
-        PostMessage(0x0050, 0, EN_USA, , "ahk_id " hwnd)
-}
-
-SwitchToChinese() {
-    global ZH_CN
-    hwnd := WinActive("A")
-    if (hwnd)
-        PostMessage(0x0050, 0, ZH_CN, , "ahk_id " hwnd)
-}
-
-GetLayout() {
-    hwnd := WinActive("A")
-    if (!hwnd)
-        return 0
-    ; 获取目标窗口活动线程的 ID
-    threadID := DllCall("user32.dll\GetWindowThreadProcessId", "Ptr", hwnd, "Ptr", 0, "UInt")
-    ; 获取该线程的键盘布局句柄 (HKL)，返回值为数字
-    return DllCall("user32.dll\GetKeyboardLayout", "UInt", threadID, "Ptr")
-}
-
-global current_layout := GetLayout()
-
-ToggleLayout() {
-    global EN_USA
-    global ZH_CN
-    global current_layout
-
-    lang_code := ""
-
-    if (current_layout = EN_USA)
-    {
-        SwitchToChinese()
-        current_layout := ZH_CN
-        lang_code := "zh"
-    }
-    else
-    {
-        SwitchToEnglish()
-        current_layout := EN_USA
-        lang_code := "en"
-    }
-
-    WinGetPos(&X, &Y, &W, &H, "A")
-
-    ; 创建并显示小组件
-    myGui := Gui("+AlwaysOnTop -Caption +ToolWindow")
-    myGui.BackColor := "EEAA99"
-    myGui.SetFont("s20 Q5", "Segoe UI Symbol")
-    myGui.MarginX := 10
-    myGui.MarginY := 3
-    myGui.AddText("", "⌨️ " . lang_code)
-    myGui.Show("NoActivate AutoSize X" (X + 10) " Y" (Y + 10))
-    SetTimer(() => myGui.Destroy(), -1000)
-}
-
-CapsLock & Space::ToggleLayout()
+#HotIf !WinActive("ahk_exe emacs.exe")
+    CapsLock & Space::send("^{space}")
+#HotIf

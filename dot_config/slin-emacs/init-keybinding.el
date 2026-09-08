@@ -10,6 +10,11 @@
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
 
+;; macOS 修饰键定义 (Command -> Meta, Option -> Super)
+(when (eq system-type 'darwin)
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'super))
+
 ;; Vim 模式与 Leader 键设置
 (use-package evil
   :custom

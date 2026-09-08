@@ -1,6 +1,12 @@
 patch:
-  us_keyboard_layout: true                         # 键盘选项：应用美式键盘布局
-  show_notifications_when: growl_is_running        # 状态通知，默认装有Growl时显示，全开(always)/全关(never)
+  us_keyboard_layout: true # 键盘选项：应用美式键盘布局
+  show_notifications: true # 气泡通知
+
+  app_options:
+    emacs.exe:
+      ascii_mode: true
+    wezterm-gui.exe:
+      ascii_mode: true
 
   style:
     color_scheme: catppuccin_latte

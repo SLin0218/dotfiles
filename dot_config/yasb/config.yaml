@@ -1,5 +1,5 @@
-watch_stylesheet: true
-watch_config: true
+watch_stylesheet: false
+watch_config: false
 debug: false
 
 bars:
@@ -29,20 +29,19 @@ bars:
       left: [
           "quick_launch",
           "glazewm_workspaces",
-          "ime",
           "pdm_state",
       ]
       center: [ "media" ]
       right: [
-          "systray",
+          # "systray",
           "cpu",
           "memory",
           "weather",
-          "battery",
+          # "battery",
           "brightness",
-          "volume",
-          "wifi",
-          "clock",
+          # "volume",
+          # "wifi",
+          # "clock",
      ]
 widgets:
   media:
@@ -578,20 +577,7 @@ widgets:
       label_alt: "{data}"
       class_name: "pdm-state"
       exec_options:
-        run_cmd: "powershell -f ./pdm_state.ps1"
-        run_interval: 1000
+        run_cmd: "powershell.exe -NoProfile -NonInteractive -File $env:HOME/.config/yasb/pdm_state.ps1"
+        run_interval: 2000
         return_format: "string"
         hide_empty: false
-        use_shell: true
-  ime:
-    type: "yasb.custom.CustomWidget"
-    options:
-      label: "<span>\uf11c</span>{data}"
-      label_alt: "{data}"
-      class_name: "ime-widget"
-      exec_options:
-        run_cmd: "ime_status.exe"
-        run_interval: 1000
-        return_format: "string"
-        hide_empty: false
-        use_shell: true

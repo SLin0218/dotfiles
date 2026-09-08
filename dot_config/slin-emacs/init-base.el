@@ -170,7 +170,7 @@
 (defun copy-current-buffer-file-path ()
   "当前 Buffer 的全路径复制到剪贴板."
   (interactive)
-  (if-let ((file-path (buffer-file-name)))
+  (if-let* ((file-path (buffer-file-name)))
       (progn
         (kill-new file-path)
         (message "已复制路径: %s" file-path))

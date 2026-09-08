@@ -37,11 +37,18 @@
       tool-bar-mode nil
       scroll-bar-mode nil)
 
+(when (eq system-type 'windows-nt)
+  ;; Emacs 窗口以像素为单位进行缩放，完美适配平铺窗口管理器
+  (setq frame-inhibit-implied-resize t))
+
 (setq default-frame-alist
       '((menu-bar-lines . 0)
         (tool-bar-lines . 0)
         (vertical-scroll-bars . nil)
-        (fullscreen . maximized)))
+        ;; 非windows时，启动最大化窗口
+        (when (not (eq system-type 'windows-nt))
+          (fullscreen . maximized))))
+
 
 ;; 解决终端（TTY）客户端连接时由于初始化机制自动重新开启菜单栏/工具栏的问题
 (add-hook 'after-make-frame-functions
