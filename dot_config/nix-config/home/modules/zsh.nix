@@ -10,7 +10,7 @@
       "--border"
       "--no-separator"
       "--bind 'alt-y:execute(echo -n {} | ${
-        if pkgs.stdenv.isDarwin then "pbcopy" else "xclip -selection clipboard"
+        if pkgs.stdenv.hostPlatform.isDarwin then "pbcopy" else "xclip -selection clipboard"
       })'"
     ];
   };
@@ -53,7 +53,7 @@
     # 别名设置
     shellAliases = {
       update =
-        if pkgs.stdenv.isDarwin then
+        if pkgs.stdenv.hostPlatform.isDarwin then
           "sudo -H darwin-rebuild switch --flake ."
         else
           "sudo nixos-rebuild switch --flake .";

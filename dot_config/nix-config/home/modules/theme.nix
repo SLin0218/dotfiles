@@ -11,7 +11,7 @@
     autoEnable = true;
     flavor = "mocha"; # latte, frappe, macchiato, mocha
     accent = "lavender"; # blue, flamingo, green, pink, etc.
-    hyprlock = lib.mkIf pkgs.stdenv.isLinux {
+    hyprlock = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       enable = true;
       useDefaultConfig = false;
     };
@@ -19,12 +19,12 @@
     bat.enable = true;
     fzf.enable = true;
     lazygit.enable = true;
-    fcitx5 = lib.mkIf pkgs.stdenv.isLinux {
+    fcitx5 = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
       enable = true;
       enableRounded = true;
     };
   };
-  gtk = lib.mkIf pkgs.stdenv.isLinux {
+  gtk = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
     enable = true;
     theme = {
       name = "catppuccin-mocha-lavender-standard";

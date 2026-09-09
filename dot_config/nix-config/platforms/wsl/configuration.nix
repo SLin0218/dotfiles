@@ -64,9 +64,8 @@
       docker-compose
       jar-launcher
       openvpn
-
-      xorg.xclock
-      xorg.xeyes
+      xclock
+      xeyes
     ];
 
     sessionVariables = {

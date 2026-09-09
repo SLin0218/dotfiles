@@ -14,9 +14,10 @@
   (rime-user-data-dir "~/.config/rime")
   (rime-posframe-style 'horizontal)
   (rime-show-candidate 'posframe)
-  (when (eq system-type 'gnu/linux)
-    (rime-emacs-module-header-root nix-emacs-dir))
   :config
+  (when (eq system-type 'gnu/linux)
+    (setq rime-emacs-module-header-root (file-name-concat nix-emacs-dir "include"))
+    (setq rime-share-data-dir nix-rime-share-data-dir))
   (setq rime-disable-predicates
         '(rime-predicate-evil-mode-p)))
 

@@ -5,6 +5,7 @@
   xdg.configFile."emacs/init.el".text = ''
     ;; -*- lexical-binding: t; -*-
     (setq nix-librime-path "${pkgs.librime}")
+    (setq nix-rime-data-dir "${pkgs.rime-data}")
     (setq nix-emacs-dir "${pkgs.emacs-pgtk}")
     (setq nix-jbrsdk-path "${pkgs.jbrsdk-17}")
     (setq nix-openjdk21-path "${pkgs.openjdk21}")
@@ -68,7 +69,7 @@
 
   # emacs-plus 使用 brew安装
   programs.emacs = {
-    enable = !pkgs.stdenv.isDarwin;
+    enable = !pkgs.stdenv.hostPlatform.isDarwin;
     package = pkgs.emacs-pgtk;
   };
 }

@@ -42,32 +42,32 @@ let
   };
 
 in
-if stdenv.isDarwin then
+if stdenv.hostPlatform.isDarwin then
   jbrRaw
 else
   # 在 Linux 下使用 FHS 环境包装，解决 autoPatchelfHook 破坏 libjimage.so 导致的 SIGSEGV 崩溃
   pkgs.buildFHSEnv {
     name = "java";
-    targetPkgs = pkgs: (with pkgs; [
-      alsa-lib
-      fontconfig
-      freetype
-      libx11
-      libxext
-      libxi
-      libxrender
-      libxtst
-      libxrandr
-      libxcursor
-      libxcb
-      wayland
-      zlib
-      stdenv.cc.cc.lib
-    ]);
+    targetPkgs =
+      pkgs:
+      (with pkgs; [
+        alsa-lib
+        fontconfig
+        freetype
+        libx11
+        libxext
+        libxi
+        libxrender
+        libxtst
+        libxrandr
+        libxcursor
+        libxcb
+        wayland
+        zlib
+        stdenv.cc.cc.lib
+      ]);
     runScript = "${jbrRaw}/bin/java";
     passthru = {
       home = jbrRaw;
     };
   }
-
-
