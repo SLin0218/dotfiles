@@ -1,0 +1,6 @@
+patch:
+  schema:
+    icon: icons/xhup_icon.ico
+    ascii_icon: icons/xhup_ascii_icon.ico
+    full_icon: icons/xhup_icon.ico
+    half_icon: icons/xhup_icon.ico

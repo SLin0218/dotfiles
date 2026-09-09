@@ -26,7 +26,7 @@ patch:
     font_point: 16                                 # 候选字大小
     label_font_point: 13                           # 候选编号大小
 
-# 皮肤主题，颜色参数均使用(#aabbggrr)
+  # 皮肤主题，颜色参数均使用(#aabbggrr)
   preset_color_schemes:
     catppuccin_latte:
       name: Catppuccin Latte
