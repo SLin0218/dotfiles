@@ -1,7 +1,7 @@
 patch:
   schema_list:
     - schema: flypy # 添加小鹤音形
-  ascii_composer
+  ascii_composer:
     good_old_caps_lock: true
     switch_key:
       Caps_Lock: noop
@@ -9,7 +9,7 @@ patch:
       Shift_R: noop
       Control_L: noop
       Control_R: noop
-key_binder:
-  bindings:
-    - { accept: "Shift+space", toggle: noop, when: always } #切换全半角
-    - { accept: "Control+j", toggle: noop, when: always } #切换简繁
+  key_binder:
+    bindings:
+      - { accept: "Shift+space", toggle: noop, when: always } #切换全半角
+      - { accept: "Control+j", toggle: noop, when: always } #切换简繁
