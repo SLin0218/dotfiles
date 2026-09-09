@@ -14,6 +14,8 @@
   (rime-user-data-dir "~/.config/rime")
   (rime-posframe-style 'horizontal)
   (rime-show-candidate 'posframe)
+  (when (eq system-type 'gnu/linux)
+    (rime-emacs-module-header-root nix-emacs-dir))
   :config
   (setq rime-disable-predicates
         '(rime-predicate-evil-mode-p)))

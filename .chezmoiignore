@@ -5,11 +5,11 @@
 ###############################
 {{ if eq .chezmoi.os "windows" }}
 
-# .config/emacs
-# .config/slin-emacs
 .config/zsh
-.local/kitty
-.local/nix-config
+.config/kitty
+.config/nix-config
+.config/ags
+.config/keyd
 .zshenv
 
 {{ else }}
@@ -24,7 +24,6 @@
 
 .wslconfig
 .inputrc
-.bashrc
 
 .chezmoiscripts/windows/**
 
