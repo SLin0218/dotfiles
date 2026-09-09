@@ -1,6 +1,4 @@
 patch:
-  schema_list:
-    - schema: flypy # 添加小鹤音形
   ascii_composer:
     good_old_caps_lock: true
     switch_key:

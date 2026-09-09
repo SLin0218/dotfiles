@@ -22,11 +22,21 @@ local labels = {
     ["ojs"] = {"[计算器]"},
     ["owd"] = {"[Word]"},
   },
+  ["Linux"] = {
+    ["ocm"] = {"[终端]"},
+    ["odn"] = {"[文件管理器]"},
+    ["oec"] = {"[Excel]"},
+    ["ogj"] = {"[Rime 用户目录]"},
+    ["ojf"] = {"[简繁切换]"},
+    ["ojs"] = {"[计算器]"},
+    ["owd"] = {"[Word]"},
+  },
   ["iOS"] = {},
 }
 
 local function translator(input, seg)
   local sys = common.detect_os()
+  if labels[sys] == nil then return end
   local lbls = labels[sys][input]
   if lbls == nil then return end
   for i, lbl in pairs(lbls) do

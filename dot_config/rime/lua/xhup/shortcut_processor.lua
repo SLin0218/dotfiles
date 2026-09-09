@@ -34,6 +34,14 @@ local command = {
     ["ojs"] = {'open -a Calculator.app'},
     ["owd"] = {'open -a "Microsoft Word.app"'},
   },
+  ["Linux"] = {
+    ["ocm"] = {'x-terminal-emulator &', 'gnome-terminal &', 'kitty &'},
+    ["odn"] = {'xdg-open . &'},
+    ["oec"] = {'libreoffice --calc &'},
+    ["ogj"] = {'xdg-open "' .. user_path .. '" &'},
+    ["ojs"] = {'gnome-calculator &', 'kcalc &'},
+    ["owd"] = {'libreoffice --writer &'},
+  },
   ["iOS"] = {},
 }
 local option = {
@@ -62,7 +70,7 @@ local function processor(key, env)
   local sys = common.detect_os()
   local index = common.select_index(env, key)
   if index < 0 then return common.kNoop end
-  if command[sys][context.input] ~= nil then
+  if command[sys] ~= nil and command[sys][context.input] ~= nil then
     local cmd = command[sys][context.input][index+1]
     if cmd ~= nil then
       os.execute(cmd)
