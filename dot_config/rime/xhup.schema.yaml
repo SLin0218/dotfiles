@@ -30,7 +30,7 @@ switches:
     states: [。，, ．，]
     reset: 0
   - name: short_hints #滤镜
-    reset: 1
+    reset: 0
     states: [🙈, 🐵]
 
 engine:
@@ -134,9 +134,7 @@ key_binder:
     - { accept: Release+comma, send: comma, when: composing } # 逗号顶屏
     - { accept: "Tab", send: Escape, when: composing } # 注销 Tab 键（default 可以通过 Tab 来切换光标至下一个拼音）
     - { accept: "Shift_R", send: Escape, when: composing } # 注销右侧 Shift 键，用来进行输入法切换中英（配合 Karabiner）
-    - { accept: "Shift+space", toggle: full_shape, when: always } # 切换全半角
     - { accept: "Control+period", toggle: ascii_punct, when: always } # 切换中英标点
-    - { accept: "Control+j", toggle: simplification, when: always } # 切换简繁
 
 # 识别器
 recognizer:

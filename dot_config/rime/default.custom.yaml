@@ -7,7 +7,3 @@ patch:
       Shift_R: noop
       Control_L: noop
       Control_R: noop
-  key_binder:
-    bindings:
-      - { accept: "Shift+space", toggle: noop, when: always } #切换全半角
-      - { accept: "Control+j", toggle: noop, when: always } #切换简繁

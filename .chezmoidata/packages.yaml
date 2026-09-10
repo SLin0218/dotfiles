@@ -32,10 +32,10 @@ packages:
       # wm
       # - "extras/komorebi"
       # status bar
-      # - "extras/yasb"
+      - "extras/yasb"
       - "extras/powertoys"
       - "extras/scoop-completion"
-      - "extras/autohotkey"
+      # - "extras/autohotkey"
       - "extras/ultravnc"
       - "extras/wezterm"
       - "extras/lazygit"

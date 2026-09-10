@@ -14,8 +14,9 @@
 (setq native-comp-enable-subr-trampolines nil)
 
 (setq clutch-connection-alist
-      '(("pg-dev-rx-plm" . (:backend pg :profile-entry "pg/dev/rx-plm"))
-        ("redis-dev" .     (:backend redis :profile-entry "redis/dev"))))
+      '(("pg-dev-rx-plm" . (:backend pg    :profile-entry "pg/dev/rx-plm"))
+        ("tw-dev-yg"     . (:backend mysql :profile-entry "mysql/dev/tw-yg"))
+        ("redis-dev"     . (:backend redis :profile-entry "redis/dev"))))
 
 ;; SQL 编辑模式
 (use-package sql

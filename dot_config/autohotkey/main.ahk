@@ -44,10 +44,10 @@ CapsLock & h::Send("{Left}")
 CapsLock & l::Send("{Right}")
 
 CapsLock & t::Send("^{t}")
-; CapsLock & f::
-; {
-;   WinMaximize("A")
-; }
+CapsLock & f::
+{
+  WinMaximize("A")
+}
 
 !q::
 {
@@ -56,7 +56,6 @@ CapsLock & t::Send("^{t}")
 CapsLock & w::Send("^{w}")
 CapsLock & r::Send("^{r}")
 CapsLock & a::Send("^{a}")
-CapsLock & f::Send("^{f}")
 
 ; #1::Send("^{1}")
 ; #2::Send("^{2}")
@@ -67,11 +66,21 @@ CapsLock & f::Send("^{f}")
 ; #7::Send("^{7}")
 ; #8::Send("^{8}")
 ; #9::Send("^{9}")
+!f::Send("^{f}")
 
 ; 在 Brave 浏览器中 Win+][ => Alt+][ 前进/后退
 #HotIf WinActive("Brave ahk_exe brave.exe")
     ![::Send("!{Left}")
     !]::Send("!{Right}")
+    !1::Send("^{1}")
+    !2::Send("^{2}")
+    !3::Send("^{3}")
+    !4::Send("^{4}")
+    !5::Send("^{5}")
+    !6::Send("^{6}")
+    !7::Send("^{7}")
+    !8::Send("^{8}")
+    !9::Send("^{9}")
 #HotIf
 
 ; WinTab => AltTab
@@ -190,7 +199,7 @@ global currentIndex := 0         ; 当前窗口索引
 global lastPressTime := 0        ; 上次按键时间
 global timeoutThreshold := 1500  ; 1.5秒超时
 
-#`:: {
+!`:: {
     global activeWindows, currentIndex, lastPressTime, timeoutThreshold
     currentTime := A_TickCount
     timeElapsed := currentTime - lastPressTime
