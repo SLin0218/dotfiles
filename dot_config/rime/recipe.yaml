@@ -1,0 +1,42 @@
+# encoding: utf-8
+---
+recipe:
+  description: >-
+    凇鹤拼音（小鹤音形 + 小鹤双拼 + 雾凇词库）默认完整安装与更新
+install_files: >-
+  cn_dicts/*.*
+  en_dicts/*.*
+  opencc/*.*
+  build/.gitkeep
+  lua/*.*
+  lua/auto_space/*.*
+  lua/cold_word_drop/*.*
+  lua/xhup/*.*
+  xhup_dicts/*.*
+  xhup.schema.yaml
+  xhup.dict.yaml
+  xhup_reverse.schema.yaml
+  xhup_reverse.dict.yaml
+  xhup_aux.schema.yaml
+  xhup_aux.dict.yaml
+  default.yaml
+  squirrel.yaml
+  weasel.yaml
+  rime_ice.schema.yaml
+  rime_ice.dict.yaml
+  t9.schema.yaml
+  double_pinyin_flypy.schema.yaml
+  symbols_v.yaml
+  symbols_caps_v.yaml
+  radical_pinyin.schema.yaml
+  radical_pinyin.dict.yaml
+  melt_eng.schema.yaml
+  melt_eng.dict.yaml
+  custom_phrase.txt
+patch_files:
+  default.custom.yaml:
+    - patch/+:
+        schema_list:
+          - schema: xhup
+          - schema: double_pinyin_flypy
+          - schema: rime_ice

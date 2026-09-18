@@ -9,21 +9,25 @@ install_files: >-
   cn_dicts/*.*
   en_dicts/*.*
   opencc/*.*
-  rime.lua
+  build/.gitkeep
   lua/*.*
+  lua/auto_space/*.*
   lua/cold_word_drop/*.*
+  lua/xhup/*.*
+  xhup_dicts/*.*
+  xhup.schema.yaml
+  xhup.dict.yaml
+  xhup_reverse.schema.yaml
+  xhup_reverse.dict.yaml
+  xhup_aux.schema.yaml
+  xhup_aux.dict.yaml
   default.yaml
   squirrel.yaml
   weasel.yaml
   rime_ice.schema.yaml
   rime_ice.dict.yaml
   t9.schema.yaml
-  double_pinyin.schema.yaml
-  double_pinyin_abc.schema.yaml
-  double_pinyin_mspy.schema.yaml
-  double_pinyin_sogou.schema.yaml
   double_pinyin_flypy.schema.yaml
-  double_pinyin_ziguang.schema.yaml
   symbols_v.yaml
   symbols_caps_v.yaml
   radical_pinyin.schema.yaml
@@ -31,3 +35,10 @@ install_files: >-
   melt_eng.schema.yaml
   melt_eng.dict.yaml
   custom_phrase.txt
+patch_files:
+  default.custom.yaml:
+    - patch/+:
+        schema_list:
+          - schema: xhup
+          - schema: double_pinyin_flypy
+          - schema: rime_ice

@@ -1,3 +1,4 @@
+# vim: set noexpandtab :
 # Rime dictionary
 # encoding: utf-8
 #---config@码表分类=主码-用户置顶码表
@@ -9,8 +10,6 @@ version: "v10.9s"
 sort: by_weight
 use_preset_vocabulary: false
 ...
-
-
 # 下面是全码词中的固顶词汇 #固
 按时	anui
 按到	andc
@@ -44,3 +43,8 @@ use_preset_vocabulary: false
 一直	yivi
 一片	yipm
 在线	zdxm
+异常	yiih
+# Local Variables:
+# indent-tabs-mode: t
+# tab-width: 4
+# End:

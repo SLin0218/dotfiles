@@ -1,22 +1,41 @@
 # Rime dictionary
 # encoding: utf-8
 #
+# 凇鹤拼音 - 小鹤音形词库总索引
+# 来源：官方小鹤音形_清风便携版 v1.26.9c
+#
+# 词库模式说明（对齐官方说明）：
+# ① 熟手词库模式（默认推荐）：首选 + 分类词库（次选/随心/表外）+ 一简次选 + 快符
+# ② 常规词库模式：① + 全码词
+# ③ 初学词库模式：② + 全码字 + 生僻字
 
 ---
 name: xhup
-version: "v10.9s"
+version: "v1.26.9c"
 
 import_tables:
+  # --- 用户优先层 ---
   - "xhup_dicts/xhup.user.top"          # 用户置顶码表
-  - "xhup_dicts/xhup.primary"           # -0- 首选字词
-  - "xhup_dicts/xhup.secondary"         # 1.1 次选字词
-  - "xhup_dicts/xhup.whimsicality"      # 1.1 随心码
-  - "xhup_dicts/xhup.fast.symbols"      # 1.2 快符
-  # - "xhup_dicts/xhup.secondary.simple"   # 二重简码
-  - "xhup_dicts/xhup.single.code"       # 2.1 一简词
-  - "xhup_dicts/xhup.off-table"         # 2.2 表外字
-  - "xhup_dicts/xhup.full.code.words"   # 2.3 全码词
-  # - "xhup_dicts/xhup.symbols"           # 符号
-  # - "xhup_dicts/xhup.full.code.chars"   # 全码字
-  - "xhup_dicts/xhup.user"              # 用户码表
+  - "xhup_dicts/xhup.user"              # 用户自用词库
+
+  # --- ① 熟手模式基础库（默认启用）---
+  - "xhup_dicts/xhup.primary"           # -0- 首选字词（68,572条，官方原生自然序）
+  - "xhup_dicts/xhup.secondary"         # 1.1 次选字词（分类词库：次选）
+  - "xhup_dicts/xhup.whimsicality"      # 1.1 随心码（分类词库：随心）
+  - "xhup_dicts/xhup.off-table"         # 2.2 表外字（分类词库：表外）
+  - "xhup_dicts/xhup.single.code"       # 2.1 一简词（一简次选，26个单字/词）
+  - "xhup_dicts/xhup.fast.symbols"      # 1.2 快符（分号引导符号）
+
+  # --- ② 常规模式扩展（已有简码的全码词，可按需开启）---
+  - "xhup_dicts/xhup.full.code.words"   # 2.3 全码词（约500条）
+
+  # --- ③ 初学模式扩展（全码字与生僻字，默认关闭，初学可开启）---
+  # - "xhup_dicts/xhup.full.code.chars"   # 全码字（已有简码，全码有其他字词，约1650条）
+  # - "xhup_dicts/xhup.rare.chars"        # 生僻字（约500条）
+
+  # --- 可选附加库 ---
+  # - "xhup_dicts/xhup.secondary.simple"  # 二简次选（66个单字，备选）
+  # - "xhup_dicts/xhup.symbols"           # 符号与部首字根
+  # - "xhup_dicts/xhup.emoji"             # 斜杠引导表情
+  # - "xhup_dicts/xhup.ok"                # ok引导两分/三分拆字拼字库（8.8万条）
 ...

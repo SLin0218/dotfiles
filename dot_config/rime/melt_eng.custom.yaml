@@ -1,0 +1,4 @@
+patch:
+  # 让英文特殊派生使用小鹤双拼规则
+  speller/algebra:
+    __include: melt_eng.schema.yaml:/algebra_double_pinyin_flypy

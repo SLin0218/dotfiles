@@ -1,25 +1,24 @@
-﻿# Rime dictionary
+# Rime dictionary
 # encoding: utf-8
-#---config@码表分类=主码-3
-#---config@码表别名=1.2 快符
+#
+# 小鹤音形分号快符
+# 来源：官方小鹤音形_清风便携版 v1.26.9c
 
 ---
 name: xhup.fast.symbols
-version: "v10.9s"
-sort: by_weight
-use_preset_vocabulary: false
+version: "v1.26.9c"
+sort: original
 ...
-：	;	90
+：	;
 ；	;
 ：“	;q
 ？	;w
 （	;e
 ）	;r
-@	;t
 《	;y
 》	;u
 「」	;o
-『』	;p
+〈〉	;p
 ！	;a
 ……	;s
 、	;d
@@ -32,7 +31,5 @@ use_preset_vocabulary: false
 →	;x
 ”	;c
 ——	;v
-
-https://flypy.com	xhgw
-http://flypy.ysepan.com	xhwp
-https://xgr313l2jy.k.topthink.com/@xhrm/home.html	xhrm
+　	;b
+@	;m

@@ -1,0 +1,4 @@
+patch:
+  # 让反查及辅码使用小鹤双拼的拼写派生规则
+  speller/algebra:
+    __include: radical_pinyin.schema.yaml:/algebra_double_pinyin_flypy

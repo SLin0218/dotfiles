@@ -37,7 +37,7 @@
   rebase = false
 {{- if eq .chezmoi.os "windows" }}
 [gpg]
-  program = "{{ .chezmoi.homeDir }}/scoop/apps/gpg/current/bin/gpg.exe"
+  program = "{{ .chezmoi.homeDir }}/scoop/apps/gnupg/current/bin/gpg.exe"
 {{- end }}
 [https]
   proxy = http://127.0.0.1:7890

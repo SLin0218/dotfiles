@@ -60,5 +60,7 @@
 ;; 8. 将 custom-file 指向可写的本地文件，避免污染 init.el 且避免新版 Emacs 因 /dev/null 报错
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 
+(setenv "PYTHONUTF8" "1")
+
 (provide 'early-init.el)
 ;;; early-init.el ends here

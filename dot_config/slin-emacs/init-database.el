@@ -16,6 +16,7 @@
 (setq clutch-connection-alist
       '(("pg-dev-rx-plm" . (:backend pg    :profile-entry "pg/dev/rx-plm"))
         ("tw-dev-yg"     . (:backend mysql :profile-entry "mysql/dev/tw-yg"))
+        ("fawa-dev-ssh"  . (:backend mysql :profile-entry "mysql/dev/fwh"))
         ("redis-dev"     . (:backend redis :profile-entry "redis/dev"))))
 
 ;; SQL 编辑模式
@@ -35,13 +36,26 @@
 (use-package sql-indent
   :hook (sql-mode . sql-indent-enable))
 
-(use-package sqlformat
+(use-package apheleia
+  :ensure t
   :defer t
+  :hook (sql-mode . apheleia-mode)  ;; 进入 sql-mode 时激活
   :init
-  (setq sqlformat-command 'pgformatter)
+  ;; 如果你想全局所有编程语言保存时都自动格式化，可直接开启：
+  ;; (apheleia-global-mode +1)
   :config
-  (evil-define-key 'normal sql-mode-map
-    (kbd "<leader>fm") #'sqlformat-buffer))
+  ;; 1. 确保 apheleia 针对 sql-mode 默认使用 sqlfluff
+  (setf (alist-get 'sql-mode apheleia-mode-alist) 'sqlfluff)
+
+  ;; 2. 如果项目里没有 .sqlfluff 配置文件，默认回退方言（比如 mysql 或 ansi）
+  ;; 格式化命令相当于: sqlfluff format --dialect mysql -
+  (setf (alist-get 'sqlfluff apheleia-formatters)
+        '("sqlfluff" "format" "--dialect" "mysql" "-"))
+
+  ;; 3. 绑定 Evil normal 模式下的快捷键
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal sql-mode-map
+      (kbd "<leader>fm") #'apheleia-format-buffer)))
 
 ;; Clutch 现代化交互式数据库客户端
 (use-package mysql :ensure t)
