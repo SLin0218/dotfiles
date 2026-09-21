@@ -164,7 +164,7 @@ CapsLock & n::
 }
 CapsLock & u::
 {
-    ToggleApp("WeLink ahk_exe WeLink.exe", ProgramFilesX86 . "WeLink\WeLink.exe")
+    ToggleApp("飞书 ahk_exe Feishu.exe", ProgramFilesX86 . A_AppData . "\..\Local\Feishu\Feishu.exe")
 }
 CapsLock & e::
 {
