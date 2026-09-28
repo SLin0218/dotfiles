@@ -106,19 +106,24 @@
   :config
   (evil-collection-init))
 
-;; 快捷键提示
+;; 快捷键提示 (Emacs 30 内置)
 (use-package which-key
-  :init (which-key-mode))
+  :ensure nil
+  :hook (after-init . which-key-mode))
 
 ;; Avy 快速跳转
-(use-package avy)
+(use-package avy
+  :commands (evil-avy-goto-line-above evil-avy-goto-line-below evil-avy-goto-char-2 avy-goto-char avy-goto-char-2))
 
 ;; Ace-window 快速切换窗口
 (use-package ace-window
   :bind (("C-x o" . ace-window)))
 
-;; Evil 快捷注释
-(use-package evil-nerd-commenter)
+;; Evil 快捷注释 (延迟加载，避免启动时强拉 sgml-mode 产生 0.18s 耗时)
+(use-package evil-nerd-commenter
+  :commands (evilnc-comment-or-uncomment-lines
+             evilnc-comment-or-uncomment-paragraphs
+             evilnc-quick-comment-or-uncomment-to-the-line))
 
 ;; 多光标同步编辑 (Evil)
 (use-package evil-multiedit

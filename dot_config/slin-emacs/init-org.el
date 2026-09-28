@@ -11,6 +11,16 @@
 ;; 禁用默认加载的第三方链接子模块，提升启动与首次加载速度
 (setq org-modules nil)
 
+;; 切换当前行/光标处图片的内联预览
+(defun my/org-toggle-inline-image-at-point ()
+  "Toggle inline image display for the image link on the current line."
+  (let ((beg (line-beginning-position))
+        (end (line-end-position)))
+    (if (or (get-char-property (point) 'org-image-overlay)
+            (get-char-property beg 'org-image-overlay))
+        (org-remove-inline-images beg end)
+      (org-display-inline-images t t beg end))))
+
 ;; 智能回车 (RET)：按链接类型分别处理 (跳转 Org / 图片预览 / 浏览器打开 URL)
 (defun my/org-dwim-at-point ()
   "Smart RET in Org-mode:
@@ -65,7 +75,6 @@
 ;; 在顶层挂载 org-mode-hook 钩子 (确保在打开 Org 文件前已被注册)
 (add-hook 'org-mode-hook
           (lambda ()
-            (font-lock-add-keywords nil '((my/org-link-icon-matcher)) 'append)
             (local-set-key (kbd "RET") #'my/org-dwim-at-point)
             (local-set-key (kbd "<return>") #'my/org-dwim-at-point)
             (when (bound-and-true-p evil-mode)
@@ -328,8 +337,8 @@
   :hook (org-mode . org-modern-mode)
   :config
   (setq org-modern-star 'replace)
-  ;; (setq org-modern-star '("●" "○" "◆" "◇" "▶" "▷"))
-  (setq org-modern-replace-stars '("" "" "" "" ""))
+  (setq org-modern-star '("●" "○" "◆" "◇" "▶" "▷"))
+  ;; (setq org-modern-replace-stars '("" "" "" "" ""))
   (setq org-modern-hide-stars t)
   (setq org-hide-emphasis-markers t)
   (setq org-pretty-entities t)

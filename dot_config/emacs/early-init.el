@@ -3,7 +3,8 @@
 
 ;;; Code:
 ;;; 1. 垃圾回收 (GC) 优化：启动时设为最大值，加速加载
-(setq gc-cons-threshold most-positive-fixnum)
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.6)
 
 ;; 2. 临时禁用文件名处理器，加速文件加载
 (defvar default-file-name-handler-alist file-name-handler-alist)
@@ -13,8 +14,11 @@
 ;; 当 Emacs 完全启动后，将它们还原为日常使用的合理值，并再次强制禁用无用 UI 栏
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq gc-cons-threshold (* 16 1024 1024) ; 恢复到日常 16MB
+            (setq gc-cons-threshold (* 64 1024 1024) ; 恢复到日常 64MB，减少打字与补全卡顿
+                  gc-cons-percentage 0.1
                   file-name-handler-alist default-file-name-handler-alist)
+            ;; 空闲 5 秒时自动执行垃圾回收，保证交互过程中零微小掉帧
+            (run-with-idle-timer 5 t #'garbage-collect)
             (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
             (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
             (when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))))
@@ -32,22 +36,28 @@
       inhibit-startup-echo-area-message "lin"
       initial-scratch-message nil)
 
-;; 7. 早期 UI 优化（避免 GUI 创建后闪烁，并彻底全局禁用工具栏/菜单栏/滚动条）
+;; 7. 早期 UI 与渲染性能优化
 (setq menu-bar-mode nil
       tool-bar-mode nil
       scroll-bar-mode nil)
 
-(when (eq system-type 'windows-nt)
-  ;; Emacs 窗口以像素为单位进行缩放，完美适配平铺窗口管理器
-  (setq frame-inhibit-implied-resize t))
+;; 禁用字体缓存压缩（防止多字重/中英文混排/Nerd-icons 在 GC 时发生闪烁与光标微卡顿）
+(setq inhibit-compacting-font-caches t)
+
+;; 渲染与平滑滚动加速
+(setq fast-but-imprecise-scrolling t
+      redisplay-skip-fontification-on-input t
+      auto-window-vscroll nil)
+
+;; 全局防止窗口大小被字体变动重新计算（避免启动时抖动并适配平铺窗口管理器）
+(setq frame-inhibit-implied-resize t)
 
 (setq default-frame-alist
-      '((menu-bar-lines . 0)
+      `((menu-bar-lines . 0)
         (tool-bar-lines . 0)
         (vertical-scroll-bars . nil)
-        ;; 非windows时，启动最大化窗口
-        (when (not (eq system-type 'windows-nt))
-          (fullscreen . maximized))))
+        ,@(unless (eq system-type 'windows-nt)
+            '((fullscreen . maximized)))))
 
 
 ;; 解决终端（TTY）客户端连接时由于初始化机制自动重新开启菜单栏/工具栏的问题
@@ -62,5 +72,5 @@
 
 (setenv "PYTHONUTF8" "1")
 
-(provide 'early-init.el)
+(provide 'early-init)
 ;;; early-init.el ends here

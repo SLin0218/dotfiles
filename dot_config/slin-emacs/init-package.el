@@ -11,12 +11,14 @@
 (setq package-archives
       '(("gnu"   . "https://elpa.gnu.org/packages/")
         ("melpa" . "https://melpa.org/packages/")))
-(package-initialize)
 
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; 开启 package-quickstart，支持预编译 autoloads 极速激活
+(setq package-quickstart t)
 
+(unless package--initialized
+  (package-initialize))
+
+;; Emacs 29+ 已经原生内置 use-package，无需再通过 ELPA 动态检测与网络安装
 (eval-when-compile
   (require 'use-package))
 

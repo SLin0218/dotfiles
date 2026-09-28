@@ -58,11 +58,12 @@
       (kbd "<leader>fm") #'apheleia-format-buffer)))
 
 ;; Clutch 现代化交互式数据库客户端
-(use-package mysql :ensure t)
-(use-package pgsql :ensure t)
-(use-package redis :vc (:url "https://github.com/LuciusChen/redis.el"))
+(use-package mysql :ensure t :defer t)
+(use-package pgsql :ensure t :defer t)
+(use-package redis :vc (:url "https://github.com/LuciusChen/redis.el") :defer t)
 (use-package clutch
   :ensure t
+  :commands (clutch clutch-open clutch-describe-table)
   :config
   (evil-define-key 'normal clutch-result-mode-map
     (kbd "f")         #'clutch-result-fullscreen-toggle

@@ -123,6 +123,12 @@
                       :require-match t
                       :sort nil)))
 
+  (defun my/switch-to-star-buffers ()
+    "Switch to system/temporary star buffers using `consult-buffer`."
+    (interactive)
+    (let ((consult-buffer-sources '(consult-source-temp-buffer)))
+      (consult-buffer)))
+
   (consult-customize
    consult-ripgrep consult-git-grep consult-grep
    consult-find consult-locate))
@@ -141,10 +147,13 @@
 ;; 2. In-Buffer 代码编辑自动补全 (Corfu + Cape + Kind-Icon + Yasnippet)
 ;; ---------------------------------------------------------------------------
 
-;; Yasnippet 代码模板
+;; Yasnippet 代码模板 (延迟挂载至主模式，避免启动时耗时扫描全量模版目录)
 (use-package yasnippet
+  :commands (yas-minor-mode yas-global-mode yas-expand yas-insert-snippet)
+  :hook ((prog-mode . yas-minor-mode)
+         (text-mode . yas-minor-mode))
   :config
-  (yas-global-mode 1))
+  (yas-reload-all))
 
 (use-package yasnippet-snippets
   :after yasnippet)
@@ -176,7 +185,6 @@
 
 ;; 补全源融合工具 Cape
 (use-package cape
-  :demand t
   :init
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
