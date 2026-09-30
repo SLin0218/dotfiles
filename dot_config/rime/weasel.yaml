@@ -17,29 +17,28 @@ config_version: "2024-09-25"
 
 # [app_options]
 # 针对特定应用的设置
-#
 app_options:
+  firefox.exe:
+    inline_preedit: true # 行内显示预编辑区：规避 <https://github.com/rime/weasel/issues/946>
+  cmd.exe: # 带 .exe 的进程名：Weasel 15.0 及之前版本须小写
+    ascii_mode: true # 英文模式
   emacs.exe:
     ascii_mode: true
-  wezterm-gui.exe:
+  conhost.exe:
     ascii_mode: true
-  # cmd.exe:               # 带 .exe 的进程名：Weasel 15.0 及之前版本须小写
-  #   ascii_mode: true     # 英文模式
-  # conhost.exe:
-  #   ascii_mode: true
-  # windowsterminal.exe:
-  #   ascii_mode: true
-  # wt.exe:
-  #   ascii_mode: true
-  # pwsh.exe:
-  #   ascii_mode: true
-  # powershell.exe:
-  #   ascii_mode: true
-  # mintty.exe:
-  #   ascii_mode: true
-  # nvim-qt.exe:
-  #   ascii_mode: true
-  #   vim_mode: true       # vim 模式, Esc <C-c> <C-[> 切换到 ascii 状态
+  windowsterminal.exe:
+    ascii_mode: true
+  wt.exe:
+    ascii_mode: true
+  pwsh.exe:
+    ascii_mode: true
+  powershell.exe:
+    ascii_mode: true
+  mintty.exe:
+    ascii_mode: true
+  nvim-qt.exe:
+    ascii_mode: true
+    vim_mode: true # vim 模式, Esc <C-c> <C-[> 切换到 ascii 状态
 # [End of <app_options>]
 
 # [global settings]
@@ -51,20 +50,20 @@ global_ascii: false # 切换为 ascii 模式时，是否影响所有窗口：tru
 # [style]
 # 字体；候选项、候选窗口的行为、布局及样式
 style:
-  color_scheme: catppuccin_latte
-  color_scheme_dark: catppuccin_mocha
+  color_scheme: catppuccin_mocha # 默认配色方案
+  # color_scheme_dark: catppuccin_mocha # 深色模式下，Weasel 的配色方案，Windows 10 1809+ 可用
 
   # 全局字体
   # 格式：字体1:起始码位:结束码位:字重:字形,字体2……，字体会依次 fallback
   # 详细设定请参考 <https://github.com/rime/weasel/wiki/字體設定>
-  font_face: "思源黑体, Segoe UI Emoji:23:23, Segoe UI Emoji:2a:2a, Segoe UI Emoji:30:39, Segoe UI Emoji:fe0f:fe0f, Segoe UI Emoji:20e3:20e3, Segoe UI, Microsoft YaHei, DengXian, Segoe UI Emoji, Noto Color Emoji, Segoe UI Symbol"
-  label_font_face: "思源黑体, Microsoft YaHei" # 标签字体
-  comment_font_face: "思源黑体, Microsoft YaHei" # 注释字体
+  font_face: "霞鹜975圆体SC:7c:7c, JetBrainsMono Nerd Font Mono:31:39, 霞鹜975圆体SC:4E00:9FA5, JetBrainsMono Nerd Font Mono:41:7A, JetBrainsMono Nerd Font Mono:F0000:F1AF0"
+  # label_font_face: "Microsoft YaHei" # 标签字体
+  # comment_font_face: "Microsoft YaHei" # 注释字体
   font_point: 14 # 全局字体字号
-  label_font_point: 14 # 标签字体字号，不设定 fallback 到 font_point
+  # label_font_point: 16 # 标签字体字号，不设定 fallback 到 font_point
   comment_font_point: 13 # 注释字体字号，不设定 fallback 到 font_point
 
-  inline_preedit: true # 行内显示预编辑区：true；false
+  inline_preedit: false # 行内显示预编辑区：true；false
   preedit_type: composition # 预编辑区内容：composition（编码）； preview（选中的候选）；preview_all（全部候选）
 
   fullscreen: false # 候选窗口全屏显示：true；false
@@ -76,7 +75,7 @@ style:
   vertical_auto_reverse: false # 文本竖排模式下，候选窗口位于光标上方时倒序排列：true；false
 
   label_format: "%s" # 标签字符：例如 %s. 效果为 1. 2. 3. ....
-  mark_text: "" # 标记字符，显示在选中的候选标签前，需要在配色方案中指定颜色；如该项为空字符串 "" 而配色方案中 hilited_mark_color 非透明色，则显示 Windows 11 输入法风格标记
+  # mark_text: "|" # 标记字符，显示在选中的候选标签前，需要在配色方案中指定颜色；如该项为空字符串 "" 而配色方案中 hilited_mark_color 非透明色，则显示 Windows 11 输入法风格标记
   ascii_tip_follow_cursor: false # 切换 ASCII 模式时，提示跟随鼠标，而非输入光标
   enhanced_position: true # 无法定位候选框时，在窗口左上角显示候选框：true；false
   display_tray_icon: false # 托盘显示独立于语言栏的额外图标：true；false
@@ -97,9 +96,9 @@ style:
     min_height: 0 # 候选框最小高度
     min_width: 10 # 候选框最小宽度
     border_width: 2 # 边框宽度；又名 border
-    margin_x: 8 # 主体元素和候选框的左右边距；为负值时，不显示候选框
-    margin_y: 8 # 主体元素的上下边距；为负值时，不显示候选框
-    spacing: 13 # inline_preedit 为否时，编码区域和候选区域的间距
+    margin_x: 15 # 主体元素和候选框的左右边距；为负值时，不显示候选框
+    margin_y: 15 # 主体元素的上下边距；为负值时，不显示候选框
+    spacing: 0 # inline_preedit 为否时，编码区域和候选区域的间距
     candidate_spacing: 22 # 候选项之间的间距
     hilite_spacing: 6 # 候选项和相应标签的间距
     hilite_padding: 8 # 高亮区域和内部文字的间距，影响高亮区域大小
@@ -122,38 +121,19 @@ style:
 # [RIME 西米](https://fxliang.github.io/RimeSeeMe/)
 # [小狼毫配色详解](https://github.com/rime/weasel/wiki/定制小狼毫配色)
 
-# 皮肤主题，颜色参数均使用(#aabbggrr)
 preset_color_schemes:
-  catppuccin_latte:
-    name: Catppuccin Latte
-
-    back_color: 0xE8E0DC
-    border_color: 0xEFE9E6
-    text_color: 0x775F5C
-    label_color: 0x856F6C
-    candidate_text_color: 0x694F4C
-    hilited_back_color: 0xef3988
-    hilited_candidate_text_color: 0xF5F1EF
-    hilited_candidate_label_color: 0xDAD0CC
-    hilited_text_color: 0xBEB0AC
-    hilited_comment_text_color: 0xDAD0CC
-    comment_text_color: 0xBEB0AC
-
   catppuccin_mocha:
     name: Catppuccin Mocha
-
-    back_color: 0x1B1111
-    border_color: 0x251818
-    text_color: 0xDEC2BA
-    label_color: 0xC8ADA6
-    candidate_text_color: 0xF4D6CD
-    hilited_mark_color: 0xf38ba8
-    hilited_text_color: 0xDEC2BA
-    hilited_back_color: 0x1B1111
-    hilited_label_color: 0x1B1111
-    hilited_candidate_text_color: 0x2E1E1E
-    hilited_candidate_label_color: 0x443231
-    hilited_candidate_back_color: 0xF7A6CB
-    hilited_comment_text_color: 0x443231
-    comment_text_color: 0x705B58
-# [End of <preset_color_schemes>]
+    back_color: 0x1B1111 # 候选条背景色 Crust
+    border_color: 0x251818 # 边框色 Mantle
+    text_color: 0xDEC2BA # 拼音行文字颜色 Subtext1
+    label_color: 0xC8ADA6 # 预选栏编号颜色 Subtext0
+    candidate_text_color: 0xF4D6CD # 预选项文字颜色 Text
+    # hilited_mark_color: 0x0000FF # mark颜色
+    hilited_text_color: 0xAFE2F9 # 编码文字颜色 Yellow
+    hilited_back_color: 0x1B1111 # 编码背景色 Crust
+    hilited_candidate_text_color: 0x2E1E1E # 第一候选项文字颜色 Base
+    hilited_candidate_label_color: 0x443231 # 第一候选项编号颜色 Surface0
+    hilited_candidate_back_color: 0xF7A6CB # 第一候选项编号颜色 Surface0
+    hilited_comment_text_color: 0x443231 # 注解文字高亮 Surface0
+    comment_text_color: 0x705B58 # 拼音等提示文字颜色 Surface2

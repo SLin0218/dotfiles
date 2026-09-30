@@ -44,11 +44,6 @@
                            (getenv "PATH")))
     (setq exec-path (append expanded-paths exec-path))))
 
-;; 注入 Nix 安装的 librime 路径供编译使用
-(when (bound-and-true-p nix-librime-path)
-  (setenv "LIBRARY_PATH" (concat nix-librime-path "/lib:" (getenv "LIBRARY_PATH")))
-  (setenv "CPATH" (concat nix-librime-path "/include" (if (getenv "CPATH") (concat ":" (getenv "CPATH")) ""))))
-
 ;; 基础缩进风格
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
@@ -56,21 +51,35 @@
 ;; M-x 命令历史保留
 (savehist-mode 1)
 
-;; 4. 按逻辑模块划分依次加载子配置
+;; 4. 核心编辑与交互体系（同步即刻载入，保障编辑器外观与键位立即可用）
 (require 'init-package)      ; 包管理器初始化 (use-package / ELPA)
 (require 'init-base)         ; 基础编辑策略 (Session, Undo-tree, Magit, Recentf)
 (require 'init-ui)           ; 外观界面美化 (Theme, Font, Modeline, Dimmer)
-(require 'init-input)        ; 中文输入法 (emacs-rime/Rime) 与按键修饰符
 (require 'init-completion)   ; Minibuffer & In-buffer 补全检索 (Vertico, Consult, Corfu, Xref)
 (require 'init-keybinding)   ; Evil 框架与全局 Leader 快捷键映射
 (require 'init-prog)         ; 编程语言服务 (Eglot, Treesit, Apheleia, Project)
-(require 'init-dap)          ; 代码调试器 (Dape, Java HCR, Attach)
-(require 'init-database)     ; 数据库支持 (SQL, Clutch, myclirc 自动解析)
-(require 'init-dired)        ; 文件管理器 (Dired)
-(require 'init-org)          ; Org-mode 知识库 & GTD & Roam
-(require 'init-v2ex)         ; V2EX 社区客户端 (API 2.0 Beta)
 
-;; 5. 加载本地自定义变量文件
+;; 5. 延迟/按需加载应用与扩展模块（大幅削减冷启动耗时）
+;; 针对 CLI 直接打开特定类型文件时的即时加载保障
+(with-eval-after-load 'org (require 'init-org))
+(with-eval-after-load 'dired (require 'init-dired))
+
+;; 注册命令级自动加载 (Autoload)，按需瞬时触发
+(autoload 'v2ex "init-v2ex" "V2EX client" t)
+(autoload 'v2ex-set-token "init-v2ex" "Set V2EX token" t)
+(autoload 'dape "init-dap" "Dape debugger" t)
+(autoload 'clutch "init-database" "Clutch database UI" t)
+
+;; 次要重型模块统一安排在启动后空闲时静默载入（或用户首次对应操作时触发）
+(run-with-idle-timer 0.1 nil
+  (lambda ()
+    (require 'init-dired)
+    (require 'init-org)
+    (require 'init-dap)
+    (require 'init-database)
+    (require 'init-v2ex)))
+
+;; 6. 加载本地自定义变量文件
 (when (and custom-file (file-exists-p custom-file))
   (load custom-file nil :nomessage))
 

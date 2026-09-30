@@ -9,4 +9,6 @@ install_files: >-
   cn_dicts/*.*
   en_dicts/*.*
   opencc/*.*
+  xhup_dicts/*.*
+  xhup.dict.yaml
   radical_pinyin.dict.yaml

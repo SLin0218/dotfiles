@@ -1,0 +1,38 @@
+# Rime schema
+# encoding: utf-8
+#
+# Hidden lookup schema for Xiaohe shape-code filtering in the Xiaohe double
+# pinyin schema. It is a dependency only and must not be added to schema_list.
+# Rebuild xhup_aux.dict.yaml after updating xhup_dicts:
+#   cd others/script && go run ./xhup_aux
+
+schema:
+  schema_id: xhup_aux
+  name: 小鹤形码辅助
+  version: "10.9"
+
+engine:
+  processors:
+    - key_binder
+    - speller
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - abc_segmentor
+  translators:
+    - table_translator
+  filters:
+    - uniquifier
+
+speller:
+  alphabet: abcdefghijklmnopqrstuvwxyz
+
+translator:
+  dictionary: xhup_aux
+  enable_sentence: false
+  enable_user_dict: false
+  enable_completion: true
+
+key_binder:
+  __include: default:/key_binder?

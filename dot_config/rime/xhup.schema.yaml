@@ -4,12 +4,16 @@
 schema:
   schema_id: xhup
   name: 小鹤音形
-  version: "v10.9v"
+  version: "v1.26.9c"
+  icon: "icons/flypy_icon.ico"
+  ascii_icon: "icons/flypy_ascii_icon.ico"
+  full_icon: "icons/flypy_ascii_icon.ico"
+  half_icon: "icons/flypy_ascii_icon.ico"
   author:
     - 方案设计：何海峰 <flypy@qq.com>
     - 方案调整：水猫 <kchen0x@gmail.com>
   description: |
-    小鹤音形主码表
+    小鹤音形（对齐官方清风便携版 v1.26.9c 规范）
   dependencies:
     - xhup_reverse
 
@@ -30,7 +34,7 @@ switches:
     states: [。，, ．，]
     reset: 0
   - name: short_hints #滤镜
-    reset: 0
+    reset: 1
     states: [🙈, 🐵]
 
 engine:
@@ -122,19 +126,25 @@ xhup_reverse:
 
 # 快捷键设置
 key_binder:
-  import_preset: default # 从 default.yaml 继承通用的
+  # import_preset: default # 从 default.yaml 继承通用的
   bindings: # 一些专用的快捷键
-    - { accept: bracketleft, send: bracketleft, when: paging } # 注销[上翻页
-    - { accept: bracketright, send: bracketright, when: has_menu } # 注销]下翻页
-    - { accept: comma, send: comma, when: paging } # 注销逗号翻页
-    - { accept: period, send: period, when: has_menu } # 注销句号翻页
-    - { accept: semicolon, send: "2", when: has_menu } # 分号次选
-    #  - {accept: Release+semicolon, send: semicolon, when: has_menu} # 如启用此行，则分号引导符号功能无效
-    - { accept: Release+period, send: period, when: composing } # 句号顶屏
-    - { accept: Release+comma, send: comma, when: composing } # 逗号顶屏
-    - { accept: "Tab", send: Escape, when: composing } # 注销 Tab 键（default 可以通过 Tab 来切换光标至下一个拼音）
-    - { accept: "Shift_R", send: Escape, when: composing } # 注销右侧 Shift 键，用来进行输入法切换中英（配合 Karabiner）
-    - { accept: "Control+period", toggle: ascii_punct, when: always } # 切换中英标点
+    - { when: has_menu, accept: Up, send: Page_Up }
+    - { when: has_menu, accept: Down, send: Page_Down }
+    - { when: has_menu, accept: Left, send: Up }
+    - { when: has_menu, accept: Right, send: Down }
+#   - { accept: bracketleft, send: bracketleft, when: paging } # 注销[上翻页
+#   - { accept: bracketright, send: bracketright, when: has_menu } # 注销]下翻页
+#   - { accept: comma, send: comma, when: paging } # 注销逗号翻页
+#   - { accept: period, send: period, when: has_menu } # 注销句号翻页
+#   - { accept: semicolon, send: "2", when: has_menu } # 分号次选
+#  - {accept: Release+semicolon, send: semicolon, when: has_menu} # 如启用此行，则分号引导符号功能无效
+# - { accept: Release+period, send: period, when: composing } # 句号顶屏
+# - { accept: Release+comma, send: comma, when: composing } # 逗号顶屏
+# - { accept: "Tab", send: Escape, when: composing } # 注销 Tab 键（default 可以通过 Tab 来切换光标至下一个拼音）
+# - { accept: "Shift_R", send: Escape, when: composing } # 注销右侧 Shift 键，用来进行输入法切换中英（配合 Karabiner）
+# - { accept: "Shift+space", toggle: full_shape, when: always } # 切换全半角
+# - { accept: "Control+period", toggle: ascii_punct, when: always } # 切换中英标点
+# - { accept: "Control+j", toggle: simplification, when: always } # 切换简繁
 
 # 识别器
 recognizer:
@@ -148,3 +158,39 @@ recognizer:
 
 menu:
   page_size: 5 # 候选项数
+
+style:
+  color_scheme: catppuccin_latte
+  color_scheme_dark: catppuccin_mocha
+  candidate_list_layout: linear
+
+  preset_color_schemes:
+    catppuccin_latte:
+      name: Catppuccin Latte
+
+      back_color: 0xE8E0DC # 候选条背景色 Crust
+      border_color: 0xEFE9E6 # 边框色 Mantle
+      text_color: 0x775F5C # 拼音行文字颜色 Subtext1
+      label_color: 0x856F6C # 预选栏编号颜色 Subtext0
+      candidate_text_color: 0x694F4C # 预选项文字颜色 Text
+      hilited_back_color: 0xef3988 # 第一候选项背景背景色 Mauve
+      hilited_candidate_text_color: 0xF5F1EF # 第一候选项文字颜色 Base
+      hilited_candidate_label_color: 0xDAD0CC # 第一候选项编号颜色 Surface0
+      hilited_text_color: 0xBEB0AC # 高亮拼音 (需要开启内嵌编码) Surface2
+      hilited_comment_text_color: 0xDAD0CC # 注解文字高亮 Surface0
+      comment_text_color: 0xBEB0AC # 拼音等提示文字颜色 Surface2
+
+    catppuccin_mocha:
+      name: Catppuccin Mocha
+
+      back_color: 0x1B1111 # 候选条背景色 Crust
+      border_color: 0x251818 # 边框色 Mantle
+      text_color: 0xDEC2BA # 拼音行文字颜色 Subtext1
+      label_color: 0xC8ADA6 # 预选栏编号颜色 Subtext0
+      candidate_text_color: 0xF4D6CD # 预选项文字颜色 Text
+      hilited_back_color: 0xF7A6CB # 第一候选项背景背景色 Mauve
+      hilited_candidate_text_color: 0x2E1E1E # 第一候选项文字颜色 Base
+      hilited_candidate_label_color: 0x443231 # 第一候选项编号颜色 Surface0
+      hilited_text_color: 0x705B58 # 高亮拼音 (需要开启内嵌编码) Surface2
+      hilited_comment_text_color: 0x443231 # 注解文字高亮 Surface0
+      comment_text_color: 0x705B58 # 拼音等提示文字颜色 Surface2

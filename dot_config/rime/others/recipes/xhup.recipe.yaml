@@ -1,0 +1,22 @@
+# encoding: utf-8
+---
+recipe:
+  Rx: others/recipes/xhup
+  description: >-
+    仅安装/更新小鹤音形专属方案与码表（轻量纯形码模式，不含全拼大词库）
+install_files: >-
+  xhup_dicts/*.*
+  xhup.schema.yaml
+  xhup.dict.yaml
+  xhup_reverse.schema.yaml
+  xhup_reverse.dict.yaml
+  opencc/short_hints.*
+  lua/xhup/*.*
+  default.yaml
+  squirrel.yaml
+  weasel.yaml
+patch_files:
+  default.custom.yaml:
+    - patch/+:
+        schema_list:
+          - schema: xhup

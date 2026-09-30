@@ -1,3 +1,4 @@
+# vim: set noexpandtab :
 # Rime dictionary
 # encoding: utf-8
 #---config@码表分类=主码-用户码表
@@ -9,3 +10,18 @@ version: "v10.9s"
 sort: by_weight
 use_preset_vocabulary: false
 ...
+测试	ceu
+物料	wuln
+打样	dayh
+小试	xnui
+中试	vsui
+排期	pdqi
+
+windows	win
+windows	wind
+emacs	ema
+emacs	emac
+# Local Variables:
+# indent-tabs-mode: t
+# tab-width: 4
+# End:

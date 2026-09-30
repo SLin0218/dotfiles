@@ -1,0 +1,25 @@
+##  一些常用的设置项。找到需要进行的设置所在的行，
+##  取消注释（删除行开头的单个 # 符号）即可启用该设置项。
+##  注意不要删除前面的空格，YAML 文件的缩进比较严格，缩进不对容易报错。
+patch:
+  speller/max_code_length: 100 # 提高最大编码长度，可以实现空格确认再上屏
+  speller/auto_select: false # 关闭自动上屏
+  style/candidate_list_layout: linear # 候选窗横向显示
+  style/inline_preedit: true # 按键编码是否嵌入到输入框
+  style/inline_candidate: false # 候选词是否嵌入到输入框，开启这个功能后，候选词会覆盖输入框，不建议开启
+
+  ## --- 英文词库联想扩展（输入满 5 码起联想雾凇英文，4 码以内不干扰中文）---
+  # speller/max_code_length: 32
+  # speller/auto_select: false
+  # speller/auto_clear: none
+  # schema/dependencies/+:
+  #   - melt_eng
+  # engine/translators/+:
+  #   - table_translator@melt_eng
+  # engine/filters/@before 3: lua_filter@*xhup/english_len_filter
+  # melt_eng:
+  #   dictionary: melt_eng
+  #   enable_completion: true
+  #   enable_sentence: false
+  #   enable_user_dict: false
+  #   initial_quality: -2

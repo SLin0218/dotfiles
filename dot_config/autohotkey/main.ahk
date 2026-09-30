@@ -10,7 +10,13 @@ SetCapsLockState("AlwaysOff")
 ; --- 单独按下 CapsLock 发送 Esc ---
 *CapsLock::
 {
-    Send "{Blind}{Esc}"
+    ; 等待 CapsLock 被释放
+    KeyWait "CapsLock"
+
+    ; 如果在按下到释放期间，你没有按过其他任何键，则判定为单独按下
+    if (A_PriorKey == "CapsLock") {
+        Send "{Blind}{Esc}"
+    }
 }
 
 ProgramFiles := "C:\Program Files\"
@@ -158,7 +164,7 @@ CapsLock & n::
 }
 CapsLock & u::
 {
-    ToggleApp("WeLink ahk_exe WeLink.exe", ProgramFilesX86 . "WeLink\WeLink.exe")
+    ToggleApp("飞书 ahk_exe Feishu.exe", ProgramFilesX86 . A_AppData . "\..\Local\Feishu\Feishu.exe")
 }
 CapsLock & e::
 {
@@ -271,10 +277,12 @@ DmGetWindowCloaked(hwnd) {
 ; ==============================================================================
 ; 输入法切换
 ; ==============================================================================
-#HotIf WinActive("ahk_exe emacs.exe")
-    CapsLock & Space::send("^{\}")
-#HotIf
+; #HotIf WinActive("ahk_exe emacs.exe")
+;     CapsLock & Space::send("^{\}")
+; #HotIf
 
-#HotIf !WinActive("ahk_exe emacs.exe")
-    CapsLock & Space::send("^{space}")
-#HotIf
+; #HotIf !WinActive("ahk_exe emacs.exe")
+;     CapsLock & Space::send("^{space}")
+; #HotIf
+
+CapsLock & Space::send("^{space}")

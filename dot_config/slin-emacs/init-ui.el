@@ -68,9 +68,9 @@
 ;; 基础图标集
 (use-package all-the-icons)
 
-;; 状态栏
+;; 状态栏 (挂载至 after-init，确保首屏 Frame 渲染优先，避免阻塞)
 (use-package doom-modeline
-  :init (doom-modeline-mode 1)
+  :hook (after-init . doom-modeline-mode)
   :config
   (setq doom-modeline-buffer-file-name-style 'truncate-nil))
 
@@ -113,12 +113,11 @@
   :config
   (add-to-list 'global-colorful-modes 'helpful-mode))
 
-;; 非活动窗口淡化
+;; 非活动窗口淡化 (挂载至 after-init)
 (use-package dimmer
   :custom
   (dimmer-fraction 0.4)
-  :config
-  (dimmer-mode 1))
+  :hook (after-init . dimmer-mode))
 
 (defun my-eww-clean-v2ex-format ()
   "优化 EWW 中 V2EX 首页的排版：删除下方重复用户名，合并多余换行，并保留链接"

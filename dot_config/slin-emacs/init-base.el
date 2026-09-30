@@ -24,9 +24,12 @@
   :config
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-envs '("SSH_AUTH_SOCK" "GPG_TTY"))
-  (when (boundp 'my-paths-join)
-    (setenv "PATH" (concat my-paths-join ":" (getenv "PATH")))
-    (setq exec-path (append (mapcar #'expand-file-name my-paths) exec-path))))
+  (when (bound-and-true-p my-paths)
+    (let ((expanded-paths (mapcar #'expand-file-name my-paths)))
+      (setenv "PATH" (concat (string-join expanded-paths path-separator)
+                             path-separator
+                             (getenv "PATH")))
+      (setq exec-path (append expanded-paths exec-path)))))
 
 ;; GPG / EPA 设置：在 Emacs Minibuffer 中直接输入 GPG 密码 (Loopback 模式)
 (setq epa-pinentry-mode 'loopback)
@@ -117,7 +120,6 @@
            (margin-body-face . nil))))
 
   ;; 挂载底层格式化 Advice，动态注入最优先级的 Commit Face
-  (advice-remove 'magit-blame-propertize-margin #'my/magit-blame-color-margin-string)
   (advice-add 'magit-blame--format-string-1 :around #'my/magit-blame-format-string-1))
 
 (global-auto-revert-mode 1)
@@ -136,16 +138,19 @@
   ("M-n" . symbol-overlay-jump-next)
   ("M-p" . symbol-overlay-jump-prev))
 
-;; 最近打开的文件记录
+;; 最近打开的文件记录 (禁用启动同步全盘 stat 检查，移至空闲定时器载入)
 (use-package recentf
+  :defer 0.5
+  :custom
+  (recentf-auto-cleanup 'never)
   :init
-  (recentf-mode 1)
+  (run-with-idle-timer 1 nil #'recentf-mode)
   :config
   (setq recentf-max-saved-items 100
         recentf-exclude '("/tmp/" "/ssh:" "\\.git/" "/elpa/" "eglot-jdtls-sources")))
 
-;; 记住上次打开文件时的光标位置
-(save-place-mode 1)
+;; 记住上次打开文件时的光标位置 (延迟加载)
+(run-with-idle-timer 1 nil #'save-place-mode)
 
 ;; 网页内置浏览器与 HTML 渲染优化 (EWW / SHR)
 (with-eval-after-load 'shr
