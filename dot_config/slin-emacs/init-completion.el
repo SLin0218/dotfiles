@@ -208,6 +208,8 @@
   (plist-put kind-icon-default-style :height 0.8)
   (plist-put kind-icon-default-style :scale 0.8))
 
+(use-package git-modes)
+
 
 (provide 'init-completion)
 ;;; init-completion.el ends here
