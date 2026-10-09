@@ -17,30 +17,77 @@
 (use-package vertico
   :custom
   (vertico-count 13)
+  (vertico-count-format nil)  ; 设为 nil 即可彻底关闭 1/xxx 计数显示
   (vertico-resize t)
   (vertico-cycle nil)
   :config
-  (vertico-mode)
-  (defvar +vertico-current-arrow t)
-  (cl-defmethod vertico--format-candidate :around
-    (cand prefix suffix index start &context ((and +vertico-current-arrow
-                                                   (not (bound-and-true-p vertico-flat-mode)))
-                                              (eql t)))
-    (setq cand (cl-call-next-method cand prefix suffix index start))
-    (if (bound-and-true-p vertico-grid-mode)
-        (if (= vertico--index index)
-            (concat #("▶" 0 1 (face vertico-current)) cand)
-          (concat #("_" 0 1 (display " ")) cand))
-      (if (= vertico--index index)
-          (concat
-           #(" " 0 1 (display (left-fringe right-triangle vertico-current)))
-           cand)
-        cand))))
+  (vertico-mode))
 
 ;; Minibuffer 条目详细说明注解
 (use-package marginalia
   :config
   (marginalia-mode))
+
+;; Minibuffer NANO 风格美化 (命令标题头、药丸计数、极简分割线)
+(use-package nano-vertico
+  :ensure nil
+  :after vertico
+  :custom
+  (nano-vertico-symbols '((pill-left  . "")
+                          (pill-right . "")
+                          (selection  . "")
+                          (line       . ?╴)))
+  :config
+  ;; 消除 Minibuffer 左右 Fringe 边缘栏，使背景条完全顶满最左与最右边缘
+  (add-hook 'minibuffer-setup-hook
+            (lambda ()
+              (set-window-fringes (minibuffer-window) 0 0)))
+
+  ;; 定制符合 Catppuccin 主题调性的色彩
+  (defun slin/setup-nano-vertico-faces ()
+    (when (featurep 'catppuccin-theme)
+      (let ((mauve    (catppuccin-color 'mauve))
+            (surface0 (catppuccin-color 'surface0))
+            (surface1 (catppuccin-color 'surface1))
+            (mantle   (catppuccin-color 'mantle))
+            (crust    (catppuccin-color 'crust))
+            (text     (catppuccin-color 'text))
+            (subtext0 (catppuccin-color 'subtext0)))
+        ;; 1. 药丸深度指示器：Catppuccin mauve (紫红色) 胶囊
+        (set-face-attribute 'nano-vertico-pill nil
+                            :foreground crust
+                            :background mauve
+                            :weight 'bold)
+        (set-face-attribute 'nano-vertico-pill-right nil
+                            :foreground mauve
+                            :background surface0)
+        (set-face-attribute 'nano-vertico-pill-left nil
+                            :foreground surface0
+                            :background mauve)
+        ;; 2. 标题头背景与文本 (surface0 弱底色)
+        (set-face-attribute 'nano-vertico-header nil
+                            :foreground text
+                            :background surface0
+                            :weight 'normal)
+        (set-face-attribute 'nano-vertico-header-bold nil
+                            :foreground text
+                            :background surface0
+                            :weight 'bold)
+        (set-face-attribute 'nano-vertico-header-shadow nil
+                            :foreground subtext0
+                            :background surface0)
+        ;; 3. 边框分割线 (与 tab-line/window-divider 一致的 surface0 色)
+        (set-face-attribute 'nano-vertico-line nil
+                            :foreground surface0)
+        ;; 4. 左侧指示器留白槽
+        (set-face-attribute 'nano-vertico-gutter nil
+                            :foreground subtext0)
+        (set-face-attribute 'nano-vertico-gutter-current nil
+                            :foreground mauve
+                            :weight 'bold))))
+
+  (slin/setup-nano-vertico-faces)
+  (nano-vertico-mode 1))
 
 ;; Minibuffer 图标拓展
 (use-package nerd-icons-completion
@@ -62,73 +109,6 @@
 ;; Consult 全方位搜索与 Buffer 增强
 (use-package consult
   :config
-  (require 'consult)
-  ;; 自定义 consult-buffer 数据源，区分用户打开的文件 Buffer 与系统只读/临时 Buffer
-  (defvar consult-source-file-buffer
-    `(:name "User Buffers"
-            :narrow ?b
-            :category buffer
-            :face consult-buffer
-            :history buffer-name-history
-            :state ,#'consult--buffer-state
-            :default t
-            :items ,(lambda ()
-                      (consult--buffer-query
-                       :sort 'visibility
-                       :as #'consult--buffer-pair
-                       :predicate (lambda (buf)
-                                    (let ((name (buffer-name buf)))
-                                      (and (not (string-prefix-p " " name))
-                                           (or (buffer-file-name buf)
-                                               (and (not (string-prefix-p "*" name))
-                                                    (not (string-prefix-p "magit" name)))))))))))
-
-  (defvar consult-source-temp-buffer
-    `(:name "System/Temp Buffers"
-            :narrow ?s
-            :category buffer
-            :face consult-buffer
-            :history buffer-name-history
-            :state ,#'consult--buffer-state
-            :items ,(lambda ()
-                      (consult--buffer-query
-                       :sort 'visibility
-                       :as #'consult--buffer-pair
-                       :predicate (lambda (buf)
-                                    (let ((name (buffer-name buf)))
-                                      (and (not (string-prefix-p " " name))
-                                           (not (buffer-file-name buf))
-                                           (or (string-prefix-p "*" name)
-                                               (string-prefix-p "magit" name)))))))))
-
-  (setq consult-buffer-sources
-        (append
-         '(consult-source-file-buffer
-           consult-source-temp-buffer)
-         (delq 'consult-source-recent-file
-               (delq 'consult-source-buffer consult-buffer-sources))))
-
-  (defun my/consult-kill-buffer ()
-    "Kill a buffer, with grouping like `consult-buffer`."
-    (interactive)
-    (let ((sources (mapcar (lambda (src)
-                             (let ((copy (copy-sequence (eval src))))
-                               (plist-put copy :state nil)
-                               (plist-put copy :action #'kill-buffer)
-                               copy))
-                           '(consult-source-file-buffer
-                             consult-source-temp-buffer))))
-      (consult--multi sources
-                      :prompt "Kill buffer: "
-                      :require-match t
-                      :sort nil)))
-
-  (defun my/switch-to-star-buffers ()
-    "Switch to system/temporary star buffers using `consult-buffer`."
-    (interactive)
-    (let ((consult-buffer-sources '(consult-source-temp-buffer)))
-      (consult-buffer)))
-
   (consult-customize
    consult-ripgrep consult-git-grep consult-grep
    consult-find consult-locate))

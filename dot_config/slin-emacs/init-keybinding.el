@@ -36,8 +36,7 @@
 
   ;; Buffer 操作
   (evil-define-key 'normal 'global (kbd "<leader>bb") 'consult-buffer)
-  (evil-define-key 'normal 'global (kbd "<leader>bB") 'my/switch-to-star-buffers)
-  (evil-define-key 'normal 'global (kbd "<leader>bk") 'my/consult-kill-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bx") 'kill-current-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bs") 'save-buffer)
 

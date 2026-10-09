@@ -88,6 +88,99 @@
       (add-hook 'after-make-frame-functions #'slin/load-theme-once)
     (load-theme 'catppuccin :no-confirm)))
 
+;; Buffer 标签页 (tab-line) 样式配置
+(use-package tab-line
+  :hook (after-init . global-tab-line-mode)
+  :custom
+  ;; 关闭标签页上的关闭按钮，使外观更整洁居中
+  (tab-line-close-button-show nil)
+  ;; 不显示前后的翻页切换按钮
+  (tab-line-new-button-show nil)
+  :config
+  ;; 1. 禁用 tab-line 原生把未保存标签变灰 (tab-line-tab-modified) 的 face 覆盖
+  (setq tab-line-tab-face-functions (delq 'tab-line-tab-face-modified tab-line-tab-face-functions))
+
+  ;; 定义未保存图标专属 face (Catppuccin yellow)
+  (defface slin/tab-line-modified-face
+    '((t :weight bold))
+    "Face for modified buffer indicator icon in tab-line."
+    :group 'slin)
+
+  ;; 2. Tab 名称居中
+  (defun slin/tab-line-tab-name-buffer-centered (buffer &optional _buffers)
+    (let ((name (buffer-name buffer)))
+      (format "  %s  " name)))
+  (setq tab-line-tab-name-function #'slin/tab-line-tab-name-buffer-centered)
+
+  ;; 3. 在原生标签格式化字符串中，追加未保存图标 (\ueeb1)
+  (defun slin/tab-line-tab-name-format (tab tabs)
+    (let* ((orig (tab-line-tab-name-format-default tab tabs))
+           (buffer-p (bufferp tab))
+           (buffer (if buffer-p tab (cdr (assq 'buffer tab))))
+           (modified (and buffer (buffer-file-name buffer) (buffer-modified-p buffer))))
+      (if (and modified (stringp orig) (string-suffix-p "  " orig))
+          (concat (substring orig 0 -2)
+                  (propertize " \ueeb1"
+                              'face 'slin/tab-line-modified-face
+                              'tab tab
+                              'keymap tab-line-tab-map
+                              'mouse-face 'tab-line-highlight)
+                  "  ")
+        orig)))
+  (setq tab-line-tab-name-format-function #'slin/tab-line-tab-name-format)
+  ;; 4. 颜色与分割线样式调整 (保持原有背景色)
+  (defun slin/setup-tab-line-faces ()
+    (when (featurep 'catppuccin-theme)
+      (let ((sep-color    (catppuccin-color 'surface0))     ; 分隔线颜色 (Catppuccin surface0)
+            (active-fg    (catppuccin-color 'mauve))        ; 选中文字高亮 (Catppuccin mauve)
+            (inactive-fg  (catppuccin-color 'subtext0))     ; 未选中文字颜色
+            (yellow-color (catppuccin-color 'yellow)))      ; 未保存图标颜色 (Catppuccin yellow)
+        ;; 1. Tab 栏与下方 Buffer 区域的分割线（使用 bottom-line 下划线）
+        (set-face-attribute 'tab-line nil
+                            :underline (list :color sep-color :style 'line :position t))
+        ;; 2. 选中的 tab：取消背景高亮（与 tab-line 背景一致），仅文字高亮加粗
+        (let ((base-bg (face-attribute 'tab-line :background nil t)))
+          (set-face-attribute 'tab-line-tab-current nil
+                              :foreground active-fg
+                              :background base-bg
+                              :weight 'bold
+                              :box nil))
+        ;; 3. 未选中的 tab
+        (set-face-attribute 'tab-line-tab-inactive nil
+                            :foreground inactive-fg
+                            :box nil)
+        ;; 普通 tab
+        (set-face-attribute 'tab-line-tab nil
+                            :box nil)
+        ;; 4. 未保存图标颜色：Catppuccin yellow
+        (set-face-attribute 'slin/tab-line-modified-face nil
+                            :foreground yellow-color
+                            :weight 'bold)
+        ;; 5. 窗口垂直分割线（与 Tab 栏分割线一致，使用 surface0 细线）
+        (set-face-attribute 'vertical-border nil
+                            :foreground sep-color
+                            :background (catppuccin-color 'base))
+        (set-face-attribute 'window-divider nil
+                            :foreground sep-color)
+        (set-face-attribute 'window-divider-first-pixel nil
+                            :foreground sep-color)
+        (set-face-attribute 'window-divider-last-pixel nil
+                            :foreground sep-color)
+        ;; 强制刷新全局 tab-line 缓存
+        (when (fboundp 'tab-line-force-update)
+          (tab-line-force-update t)))))
+
+  ;; 主题加载后立即应用 face 定制
+  (slin/setup-tab-line-faces)
+  (advice-add 'load-theme :after (lambda (&rest _) (slin/setup-tab-line-faces))))
+
+;; 开启单像素窗口分割线，确保树窗口侧边栏与主编辑区分割线风格与 Tab 分割线一致
+(setq window-divider-default-places 'right-only
+      window-divider-default-right-width 1)
+(add-hook 'after-init-hook #'window-divider-mode)
+(unless (daemonp)
+  (window-divider-mode 1))
+
 ;; 层级缩进线
 (use-package indent-bars
   :custom
