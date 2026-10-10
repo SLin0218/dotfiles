@@ -108,10 +108,16 @@
 
 ;; Consult 全方位搜索与 Buffer 增强
 (use-package consult
+  :custom
+  (consult-async-min-input 2)          ; 输入至少 2 个字符后再触发搜索进程，降低无谓开销
+  (consult-async-input-debounce 0.3)   ; 异步进程输入防抖延迟 (0.3 秒)
   :config
   (consult-customize
    consult-ripgrep consult-git-grep consult-grep
-   consult-find consult-locate))
+   consult-find consult-locate
+   consult-line consult-outline
+   consult-recent-file consult-buffer
+   :preview-key '(:debounce 0.4 any)))
 
 ;; 优化代码跳转 (xref) 体验：Minibuffer (Vertico) 结合 Consult 实时预览目标代码
 (use-package xref

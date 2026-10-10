@@ -55,9 +55,11 @@
 (require 'init-package)      ; 包管理器初始化 (use-package / ELPA)
 (require 'init-base)         ; 基础编辑策略 (Session, Undo-tree, Magit, Recentf)
 (require 'init-ui)           ; 外观界面美化 (Theme, Font, Modeline, Dimmer)
+(require 'init-tab)          ; Tab-line
 (require 'init-completion)   ; Minibuffer & In-buffer 补全检索 (Vertico, Consult, Corfu, Xref)
 (require 'init-keybinding)   ; Evil 框架与全局 Leader 快捷键映射
 (require 'init-prog)         ; 编程语言服务 (Eglot, Treesit, Apheleia, Project)
+(require 'init-treemacs)     ; 侧边栏文件树 (Treemacs)
 
 ;; 5. 延迟/按需加载应用与扩展模块（大幅削减冷启动耗时）
 ;; 针对 CLI 直接打开特定类型文件时的即时加载保障

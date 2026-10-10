@@ -29,6 +29,8 @@
   (evil-set-leader '(normal visual) (kbd "SPC") nil)
 
   ;; File 操作
+  (evil-define-key 'normal 'global (kbd "<leader>fe") 'treemacs)
+  (evil-define-key 'normal 'global (kbd "<leader>op") 'treemacs)
   (evil-define-key 'normal 'global (kbd "<leader>fr") 'consult-recent-file)
   (evil-define-key 'normal 'global (kbd "<leader>ff") 'find-file)
   (evil-define-key 'normal 'global (kbd "<leader>fd") 'dired)

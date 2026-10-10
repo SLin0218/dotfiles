@@ -104,6 +104,35 @@
   ;; 让 org-link 继承所在的文本前景色 (如标题的彩虹色)，断开与基础 link 蓝色前景色继承
   (set-face-attribute 'org-link nil :inherit nil :foreground 'unspecified :underline t)
 
+  ;; 设置标题行在被 hl-line 高亮时，仅高亮标题文本内容，避开前导星号、TODO 标签、优先级、末尾标签及折叠省略号 (org-ellipsis)
+  (defun slin/org-hl-line-range ()
+    "Compute hl-line range for `org-mode' headlines to exclude stars, TODO, tags, and ellipsis."
+    (save-excursion
+      (goto-char (line-beginning-position))
+      (let ((eol (line-end-position)))
+        (if (looking-at org-complex-heading-regexp)
+            (let ((beg-title (match-beginning 4))
+                  (end-title (match-end 4))
+                  (end-priority (match-end 3))
+                  (end-todo (match-end 2))
+                  (end-stars (match-end 1)))
+              (let ((beg (cond
+                          (beg-title beg-title)
+                          (end-priority (min eol (1+ end-priority)))
+                          (end-todo (min eol (1+ end-todo)))
+                          (t (min eol (1+ end-stars)))))
+                    (end (cond
+                          (end-title end-title)
+                          (t eol))))
+                (if (< beg end)
+                    (cons beg end)
+                  nil)))
+          (cons (line-beginning-position) (line-beginning-position 2))))))
+
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (setq-local hl-line-range-function #'slin/org-hl-line-range)))
+
   (setq org-startup-indented t)         ; 开启标题缩进
   (setq org-hide-leading-stars t)       ; 隐藏标题星号
   (setq org-src-tab-acts-natively t)    ; code按语言缩进
@@ -137,7 +166,7 @@
           ("ACTIVITY" . (:foreground ,(catppuccin-color 'red)      :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :weight bold))
           ("WAITING"  . (:foreground ,(catppuccin-color 'sapphire) :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
           ("DONE"     . (:foreground ,(catppuccin-color 'green)    :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
-          ("CANCELED" . (:foreground ,(catppuccin-color 'surface2) :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :strike-through t ))))
+          ("CANCELED" . (:foreground ,(catppuccin-color 'surface2) :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :strike-through t))))
 
   ;; 设置 Org 打开文件链接时在当前窗口打开 (不分屏)
   (setq org-link-frame-setup
