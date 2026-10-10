@@ -73,7 +73,19 @@
   :hook (after-init . doom-modeline-mode)
   :config
   (setq doom-modeline-bar-width 0)
-  (setq doom-modeline-buffer-file-name-style 'truncate-nil))
+  (setq doom-modeline-buffer-file-name-style 'truncate-nil)
+
+  (defun slin/setup-modeline-separator ()
+    "Add top border separator between buffer and mode-line matching theme in GUI."
+    (let* ((sep-color (if (featurep 'catppuccin-theme)
+                          (catppuccin-color 'surface0)
+                        "#45475a"))
+           (box `(:line-width (1 . 1) :color ,sep-color :style flat-button)))
+      (set-face-attribute 'mode-line nil :box box)
+      (set-face-attribute 'mode-line-inactive nil :box box)))
+
+  (slin/setup-modeline-separator)
+  (advice-add 'load-theme :after (lambda (&rest _) (slin/setup-modeline-separator))))
 
 ;; Catppuccin 主题
 (use-package catppuccin-theme

@@ -97,33 +97,35 @@
              (modified-fg (catppuccin-color 'yellow))
              (sep-color   bg-surface0))
 
-        ;; 整个 Tab-line 栏背景底色（mantle 底色 + surface0 下划分割线）
-        (set-face-attribute 'tab-line nil
-                            :background bg-mantle
-                            :foreground inactive-fg
-                            :height 0.95
-                            :underline (list :color sep-color :style 'line :position t)
-                            :box nil)
+        (let ((box-spec `(:line-width (1 . 1) :color ,sep-color :style flat-button)))
+          ;; 整个 Tab-line 栏背景底色（mantle 底色 + surface0 顶部分割线与下划分割线）
+          (set-face-attribute 'tab-line nil
+                              :background bg-mantle
+                              :foreground inactive-fg
+                              :height 0.95
+                              :underline (list :color sep-color :style 'line :position t)
+                              :box box-spec)
 
-        ;; 当前选中 Tab：微高亮底色 (base)、mauve 强调文字
-        (set-face-attribute 'tab-line-tab-current nil
-                            :background bg-base
-                            :foreground active-fg
-                            :weight 'bold
-                            :box nil)
+          ;; 当前选中 Tab：微高亮底色 (base)、mauve 强调文字，底部彩色边框/下划线，顶部统一分割线
+          (set-face-attribute 'tab-line-tab-current nil
+                              :background bg-base
+                              :foreground active-fg
+                              :weight 'bold
+                              :underline (list :color active-fg :style 'line :position t)
+                              :box box-spec)
 
-        ;; 非活动 Tab：沉浸于 mantle 背景，subtext0 柔和文字
-        (set-face-attribute 'tab-line-tab-inactive nil
-                            :background bg-mantle
-                            :foreground inactive-fg
-                            :weight 'normal
-                            :box nil)
+          ;; 非活动 Tab：沉浸于 mantle 背景，subtext0 柔和文字，顶部统一分割线
+          (set-face-attribute 'tab-line-tab-inactive nil
+                              :background bg-mantle
+                              :foreground inactive-fg
+                              :weight 'normal
+                              :box box-spec)
 
-        ;; 普通 Tab 兜底 face
-        (set-face-attribute 'tab-line-tab nil
-                            :background bg-mantle
-                            :foreground inactive-fg
-                            :box nil)
+          ;; 普通 Tab 兜底 face
+          (set-face-attribute 'tab-line-tab nil
+                              :background bg-mantle
+                              :foreground inactive-fg
+                              :box box-spec))
 
         ;; 鼠标悬浮预览 (Hover)
         (set-face-attribute 'tab-line-highlight nil

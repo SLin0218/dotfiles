@@ -25,6 +25,9 @@
 
 ;; Minibuffer 条目详细说明注解
 (use-package marginalia
+  :custom
+  (marginalia-align 'right)
+  (marginalia-align-offset -1)
   :config
   (marginalia-mode))
 
