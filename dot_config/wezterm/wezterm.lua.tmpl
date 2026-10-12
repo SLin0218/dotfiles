@@ -86,30 +86,28 @@ config.default_cursor_style = "BlinkingUnderline"
 config.show_new_tab_button_in_tab_bar = false
 config.use_fancy_tab_bar = false
 
--- 获取主题配色与衍生自适应色板
+-- 获取主题配色与衍生自适应色板 (统一 Palette)
 local builtin_schemes = wezterm.color.get_builtin_schemes()
-local colors = builtin_schemes[config.color_scheme]
+local scheme = (config.color_schemes and config.color_schemes[config.color_scheme])
+   or builtin_schemes[config.color_scheme]
    or builtin_schemes["Tokyo Night"]
-   or {}
-local ansi = colors.ansi or { "#15161e", "#f7768e", "#9ece6a", "#e0af68", "#7aa2f7", "#bb9af7", "#7dcfff", "#a9b1d6" }
-local brights = colors.brights or { "#414868", "#f7768e", "#9ece6a", "#e0af68", "#7aa2f7", "#bb9af7", "#7dcfff", "#c0caf5" }
-local bg_main = colors.background or "#1a1b26"
-local fg_main = colors.foreground or "#c0caf5"
 
-local tab_colors = {
-   active_bg = (colors.tab_bar and colors.tab_bar.active_tab and colors.tab_bar.active_tab.bg_color)
-      or brights[5]
-      or "#cba6f7",
-   active_fg = (colors.tab_bar and colors.tab_bar.active_tab and colors.tab_bar.active_tab.fg_color)
-      or ansi[1]
-      or "#15161e",
-   inactive_bg = (colors.tab_bar and colors.tab_bar.inactive_tab and colors.tab_bar.inactive_tab.bg_color)
-      or ansi[1]
-      or "#15161e",
-   inactive_fg = (colors.tab_bar and colors.tab_bar.inactive_tab and colors.tab_bar.inactive_tab.fg_color)
-      or brights[1]
-      or "#565f89",
-   tab_bar_bg = (colors.tab_bar and colors.tab_bar.background) or bg_main,
+local tb = scheme.tab_bar or {}
+local act_tab = tb.active_tab or {}
+local inact_tab = tb.inactive_tab or {}
+
+local palette = {
+   bg = scheme.background,
+   tab_bar_bg = tb.background or scheme.background,
+   tab_active_bg = act_tab.bg_color or scheme.brights[5],
+   tab_active_fg = act_tab.fg_color or scheme.ansi[1],
+   tab_inactive_bg = inact_tab.bg_color or scheme.ansi[1],
+   tab_inactive_fg = inact_tab.fg_color or scheme.brights[1],
+   tab_icon_active = scheme.brights[3],
+   tab_icon_inactive = scheme.brights[8],
+   status_mode_bg_normal = scheme.ansi[5],
+   status_mode_bg_table = scheme.ansi[4],
+   status_mode_fg = scheme.ansi[1],
 }
 
 local ICON_WSL = nerdfonts.linux_nixos or "󱄅"
@@ -155,7 +153,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
    local split_icon = panes_size > 1 and (SPLIT_ICONS[panes_size - 1] or "") or ""
 
    local icon = tab.is_active and nerdfonts.md_checkbox_blank_circle or nerdfonts.md_checkbox_blank_circle_outline
-   local icon_color = tab.is_active and (brights[3] or "#9ece6a") or (brights[8] or "#414868")
+   local icon_color = tab.is_active and palette.tab_icon_active or palette.tab_icon_inactive
 
    if is_windows then
       local proc_and_title = (pane.foreground_process_name or "") .. (pane.title or "")
@@ -198,8 +196,8 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 
    local final_title = string.format("%s%s", prefix, title_text)
    local is_act = tab.is_active
-   local bg = is_act and tab_colors.active_bg or tab_colors.inactive_bg
-   local fg = is_act and tab_colors.active_fg or tab_colors.inactive_fg
+   local bg = is_act and palette.tab_active_bg or palette.tab_inactive_bg
+   local fg = is_act and palette.tab_active_fg or palette.tab_inactive_fg
 
    return {
       { Background = { Color = bg } },
@@ -208,7 +206,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
       { Text = " " .. icon .. " " },
       { Foreground = { Color = fg } },
       { Text = final_title .. " " },
-      { Background = { Color = tab_colors.tab_bar_bg } },
+      { Background = { Color = palette.tab_bar_bg } },
       { Foreground = { Color = bg } },
       { Text = "▊" },
    }
@@ -224,27 +222,26 @@ local mode_mapping = {
 wezterm.on("update-status", function(window, _)
    local name = window:active_key_table()
    local mode = name and (mode_mapping[name] or name) or "Normal"
-   local bg_index = name and 4 or 5
+   local mode_bg = name and palette.status_mode_bg_table or palette.status_mode_bg_normal
    mode = string.format("%s %s", nerdfonts.dev_vim or "", mode)
 
-   local ansi_bg = ansi[bg_index] or "#7aa2f7"
    local active_workspace = window:active_workspace()
 
    window:set_right_status(wezterm.format({
-      { Foreground = { Color = tab_colors.active_bg } },
-      { Background = { Color = bg_main } },
+      { Foreground = { Color = palette.tab_active_bg } },
+      { Background = { Color = palette.bg } },
       { Text = "" },
 
-      { Background = { Color = tab_colors.active_bg } },
-      { Foreground = { Color = tab_colors.active_fg } },
+      { Background = { Color = palette.tab_active_bg } },
+      { Foreground = { Color = palette.tab_active_fg } },
       { Text = "  " .. active_workspace .. " " },
 
-      { Background = { Color = tab_colors.active_bg } },
-      { Foreground = { Color = ansi_bg } },
+      { Background = { Color = palette.tab_active_bg } },
+      { Foreground = { Color = mode_bg } },
       { Text = "" },
 
-      { Background = { Color = ansi_bg } },
-      { Foreground = { Color = ansi[1] or "#15161e" } },
+      { Background = { Color = mode_bg } },
+      { Foreground = { Color = palette.status_mode_fg } },
       { Text = " " .. mode .. " " },
    }))
 end)
