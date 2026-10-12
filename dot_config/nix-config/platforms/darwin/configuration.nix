@@ -14,8 +14,6 @@
     pkgs.jar-launcher
   ];
 
-
-
   nixpkgs.config.allowUnfree = true;
 
   # Necessary for using flakes on this system.
@@ -91,6 +89,8 @@
       "container"
       "pinentry-mac"
       "openvpn"
+      "colima"
+      "docker"
     ];
 
     taps = [
