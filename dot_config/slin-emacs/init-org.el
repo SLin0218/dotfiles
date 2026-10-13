@@ -365,12 +365,18 @@
 (use-package org-modern
   :hook (org-mode . org-modern-mode)
   :config
-  (setq org-modern-star 'replace)
-  (setq org-modern-star '("●" "○" "◆" "◇" "▶" "▷"))
-  ;; (setq org-modern-replace-stars '("" "" "" "" ""))
+  (setq org-modern-star 'fold)
+  (setq org-modern-fold-stars
+        '(("●" . "○")
+          ("◆" . "◇")
+          ("▶" . "▷")
+          ("■" . "□")
+          ("▲" . "△")))
   (setq org-modern-hide-stars t)
   (setq org-hide-emphasis-markers t)
   (setq org-pretty-entities t)
+  ;; 确保 Tag 和 Label 保持标准定宽与 1.0 高度，避免 condensed 压缩导致字符宽度错位
+  (set-face-attribute 'org-modern-label nil :height 1.0 :width 'normal)
   (setq org-modern-block-name
         `(("src" . (,(nerd-icons-devicon "nf-dev-codeac" :face 'nerd-icons-blue-alt)
                     ,(nerd-icons-devicon "nf-dev-codeac" :face 'org-block-end-line)))

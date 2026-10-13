@@ -21,15 +21,26 @@
    '(("h" "~/"                          "Home")
      ("d" "~/Downloads/"                "Downloads")
      ("p" "~/workspace/"                "Projects")))
+  (dirvish-mode-line-bar-image-width 0)  ; 去掉最前面的竖条/色块
   (dirvish-mode-line-format
    '(:left (sort symlink) :right (omit yank index)))
   (dirvish-attributes
-   '(nerd-icons file-time file-size collapse subtree-state vc-state-face))
-  ;; 侧边栏属性配置
+   '(nerd-icons file-time file-size subtree-state vc-state-face))
+  ;; 侧边栏配置
   (dirvish-side-width 32)
   (dirvish-side-attributes
-   '(nerd-icons collapse subtree-state vc-state-face))
+   '(nerd-icons subtree-state vc-state-face))
+  (dirvish-side-header-line-format '(:left (project-name)))
   :config
+  ;; 自定义 project-name widget：去掉固定的 "Project:" 前缀，仅保留纯净的项目名称并保留左边距空格
+  (dirvish-define-mode-line project-name
+    "Show current project root name without prefix label."
+    (let ((root (dirvish--vc-root-dir)))
+      (format "  %s"
+              (if root
+                  (propertize (file-name-base (directory-file-name root))
+                              'face 'font-lock-string-face)
+                (propertize "-" 'face 'dirvish-inactive)))))
   ;; 自动跟随当前激活的 buffer 文件并在项目间自动切换
   (dirvish-side-follow-mode 1)
 
