@@ -170,6 +170,10 @@ CapsLock & e::
 {
     ToggleApp("ahk_exe explorer.exe ahk_class CabinetWClass", "explorer.exe")
 }
+CapsLock & s::
+{
+    ToggleApp("ahk_exe ApplicationFrameHost.exe ahk_class ApplicationFrameWindow", "ms-settings:")
+}
 CapsLock & o::
 {
     ToggleApp("ahk_class WeWorkWindow", ProgramFilesX86 . "WXWork\WXWork.exe", ,"Max")
@@ -192,7 +196,7 @@ CapsLock & y::
 ;     CapsLock & Space::Send("{LAlt down}{LShift down}{LShift up}{LAlt up}")
 ; #HotIf
 
-~F5:: {
+~F9:: {
     TrayTip "AHK 脚本正在重新加载...", "系统提示", 4
     Sleep 500
     Reload()
@@ -284,5 +288,21 @@ DmGetWindowCloaked(hwnd) {
 ; #HotIf !WinActive("ahk_exe emacs.exe")
 ;     CapsLock & Space::send("^{space}")
 ; #HotIf
+
+; 长按“后退”侧键 -> 屏幕连续【向右】滚动
+XButton1:: {
+    while GetKeyState("XButton1", "P") {
+        Send("{WheelRight}")
+        Sleep(40) ; 滚动速度，数值越小越快
+    }
+}
+
+; 长按“前进”侧键 -> 屏幕连续【向左】滚动
+XButton2:: {
+    while GetKeyState("XButton2", "P") {
+        Send("{WheelLeft}")
+        Sleep(40)
+    }
+}
 
 CapsLock & Space::send("^{space}")

@@ -15,10 +15,13 @@ if (Get-Module -ListAvailable PSReadLine) {
     Import-Module PSReadLine
     # vi 模式开启
     Set-PSReadLineOption -EditMode Vi
-    # 开启类似 zsh-autosuggestions 的历史命令灰色预测
-    Set-PSReadLineOption -PredictionSource History
-    Set-PSReadLineOption -PredictionViewStyle InlineView
-
+    # 开启类似 zsh-autosuggestions 的历史命令灰色预测 (仅在终端支持且未重定向时启用)
+    if (-not [Console]::IsOutputRedirected -and -not [Console]::IsInputRedirected) {
+        try {
+            Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+            Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue
+        } catch {}
+    }
     # Tab 键触发类 Linux 的网格菜单补全
     Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 

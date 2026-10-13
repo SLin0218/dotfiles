@@ -163,6 +163,10 @@
   :config
   (corfu-popupinfo-mode 1)
   (setq corfu-popupinfo-delay 0.3)
+  ;; 确保 corfu child-frame 内部行距为 0，防止文本下半部分被裁切
+  (add-hook 'corfu-mode-hook
+            (lambda ()
+              (setq-local line-spacing nil)))
   ;; 不在字符串或注释中自动弹出补全（除非看起来像路径）
   (setq corfu-auto-skip-predicates
         (list (lambda ()
@@ -192,18 +196,11 @@
                        #'cape-dabbrev))))
   (add-hook 'eglot-managed-mode-hook #'my-eglot-capf))
 
-;; 图标美化 Kind Icon
-(use-package kind-icon
+;; 图标美化 Nerd Icons Corfu (基于字体字符，避免 SVG 图片行高不一致导致的截断)
+(use-package nerd-icons-corfu
   :after corfu
-  :custom
-  (kind-icon-default-face 'corfu-default)
-  (corfu-min-width 30)
-  (corfu-right-margin-width 0.8)
-  (corfu-bar-width 0.2)
   :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
-  (plist-put kind-icon-default-style :height 0.8)
-  (plist-put kind-icon-default-style :scale 0.8))
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 (use-package git-modes)
 

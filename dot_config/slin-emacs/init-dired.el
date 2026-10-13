@@ -18,11 +18,6 @@
   ;; 深入新目录时，自动杀死旧目录的 Dired 缓冲区，防止堆积
   (setq dired-kill-when-opening-new-dired-buffer t))
 
-;; Dired 图标美化
-(use-package all-the-icons-dired
-  :after (dired all-the-icons)
-  :hook (dired-mode . all-the-icons-dired-mode))
-
 ;; 文件类型语法高亮
 (use-package diredfl
   :hook

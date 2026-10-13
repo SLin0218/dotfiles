@@ -20,6 +20,20 @@
   (tab-line-close-button-show nil)
   (tab-line-new-button-show nil)
   :config
+  ;; 标记 dired-mode 及其派生模式（Dirvish）彻底排除 tab-line-mode
+  (put 'dired-mode 'tab-line-exclude t)
+  (put 'dirvish-mode 'tab-line-exclude t)
+  (put 'dirvish-directory-view-mode 'tab-line-exclude t)
+
+  ;; 在全局 Tab 刷新或进入 Dired/Dirvish 时，确保当前 Buffer 禁用 tab-line-mode
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (setq-local tab-line-exclude t)
+              (tab-line-mode -1)))
+  (add-hook 'dirvish-mode-hook
+            (lambda ()
+              (setq-local tab-line-exclude t)
+              (tab-line-mode -1)))
   ;; 1. 禁用原生覆盖未保存标签的置灰行为
   (setq tab-line-tab-face-functions (delq 'tab-line-tab-face-modified tab-line-tab-face-functions))
 
@@ -97,12 +111,13 @@
              (modified-fg (catppuccin-color 'yellow))
              (sep-color   bg-surface0))
 
+        ;; 统一使用 1 像素极细分割线，高度通过 :height 1.15 自然撑高与 Dirvish 顶部对齐，避免边框变粗
         (let ((box-spec `(:line-width (1 . 1) :color ,sep-color :style flat-button)))
           ;; 整个 Tab-line 栏背景底色（mantle 底色 + surface0 顶部分割线与下划分割线）
           (set-face-attribute 'tab-line nil
                               :background bg-mantle
                               :foreground inactive-fg
-                              :height 0.95
+                              :height 1.15
                               :underline (list :color sep-color :style 'line :position t)
                               :box box-spec)
 
