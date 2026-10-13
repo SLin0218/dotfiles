@@ -88,8 +88,8 @@
 
 ;; ----------------- Org 延时加载配置项 -----------------
 (with-eval-after-load 'org
-  ;; 1. 标题层级保留彩虹前景色
-  (set-face-attribute 'org-level-1 nil :weight 'bold :height 1.25 :foreground (catppuccin-color 'red))
+  ;; 1. 标题层级保留彩虹前景色 (保持 1.0 默认高度以实现中英文严格等宽)
+  (set-face-attribute 'org-level-1 nil :weight 'bold :height 1.0 :foreground (catppuccin-color 'red))
   (let ((colors (list (catppuccin-color 'peach)
                       (catppuccin-color 'yellow)
                       (catppuccin-color 'green)
@@ -98,7 +98,7 @@
     (dolist (i (number-sequence 2 6))
       (set-face-attribute (intern (format "org-level-%d" i)) nil
                           :weight 'bold
-                          :height (- 1.15 (* 0.03 (- i 2)))
+                          :height 1.0
                           :foreground (nth (- i 2) colors))))
 
   ;; 让 org-link 继承所在的文本前景色 (如标题的彩虹色)，断开与基础 link 蓝色前景色继承
@@ -156,17 +156,17 @@
   (setq org-fontify-quote-and-verse-blocks t)
   (setq org-indent-mode-respect-standard-blocks t)
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "ACTIVITY(a)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELED(c@)")))
+        '((sequence "TODO(t)" "NEXT(n)" "PROG(p)" "WAIT(w@/!)" "|" "DONE(d!)" "SKIP(s@)")))
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)          ; 日志放入 LOGBOOK drawer
 
   (setq org-modern-todo-faces
-        `(("TODO"     . (:foreground ,(catppuccin-color 'mauve)    :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
-          ("NEXT"     . (:foreground ,(catppuccin-color 'peach)    :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :weight bold))
-          ("ACTIVITY" . (:foreground ,(catppuccin-color 'red)      :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :weight bold))
-          ("WAITING"  . (:foreground ,(catppuccin-color 'sapphire) :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
-          ("DONE"     . (:foreground ,(catppuccin-color 'green)    :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
-          ("CANCELED" . (:foreground ,(catppuccin-color 'surface2) :background ,(catppuccin-color 'surface0) :height 1.2 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :strike-through t))))
+        `(("TODO" . (:foreground ,(catppuccin-color 'mauve)    :background ,(catppuccin-color 'surface0) :height 1.0 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
+          ("NEXT" . (:foreground ,(catppuccin-color 'peach)    :background ,(catppuccin-color 'surface0) :height 1.0 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :weight bold))
+          ("PROG" . (:foreground ,(catppuccin-color 'red)      :background ,(catppuccin-color 'surface0) :height 1.0 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :weight bold))
+          ("WAIT" . (:foreground ,(catppuccin-color 'sapphire) :background ,(catppuccin-color 'surface0) :height 1.0 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
+          ("DONE" . (:foreground ,(catppuccin-color 'green)    :background ,(catppuccin-color 'surface0) :height 1.0 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil)))
+          ("SKIP" . (:foreground ,(catppuccin-color 'surface2) :background ,(catppuccin-color 'surface0) :height 1.0 :box (:line-width (0 . 1) :color ,(catppuccin-color 'base) :style nil) :strike-through t))))
 
   ;; 设置 Org 打开文件链接时在当前窗口打开 (不分屏)
   (setq org-link-frame-setup

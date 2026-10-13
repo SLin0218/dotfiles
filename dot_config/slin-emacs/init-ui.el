@@ -12,53 +12,47 @@
 (global-hl-line-mode 1)                  ; 高亮当前光标行
 
 ;; 字体设置
-(defvar slin/font-size 12
-  "默认英文字体大小.")
-(defvar slin/font-family
-  (cond
-   ((eq system-type 'windows-nt) "JetBrainsMono NFM")
-   (t "JetBrainsMono Nerd Font Mono")))
+(defvar slin/font-family "Maple Mono NF CN"
+  "默认字体族.")
 
-(defvar slin/font-family-cjk "Maple Mono NF CN"
-  "默认中文字体族.")
+(defvar slin/font-size 15
+  "默认字号.")
 
 (defconst sys/wsl-p
   (and (eq system-type 'gnu/linux)
        (getenv "WSL_DISTRO_NAME")))
 
-(cond ((eq system-type 'darwin) (setq slin/font-size 16)))
-(when sys/wsl-p
-  (setq slin/font-size 15))
-(when (eq system-type 'windows-nt) (setq slin/font-size 15))
-
-(when (eq system-type 'windows-nt)
-  ;; 1. 禁用“使用默认字体显示符号”，允许 Emacs 使用字体集回退
-  (setq use-default-font-for-symbols nil)
-  ;; 2. 为 emoji 和 symbol 脚本指定 Windows 自带的 Segoe UI Emoji 字体
-  (when (member "Segoe UI Emoji" (font-family-list))
-    ;; 为 emoji 分类指定字体 (Emacs 28+)
-    (set-fontset-font t 'emoji (font-spec :family "Segoe UI Emoji") nil 'prepend)
-    ;; 为 symbol 分类指定字体
-    (set-fontset-font t 'symbol (font-spec :family "Segoe UI Emoji") nil 'prepend)))
+(cond
+ ((eq system-type 'darwin) (setq slin/font-size 16))
+ (sys/wsl-p (setq slin/font-size 15))
+ ((eq system-type 'windows-nt) (setq slin/font-size 15)))
 
 (defun load-font-setup (&optional frame)
-  "根据当前 FRAME 设置默认英文字体与中文字体映射."
+  "根据当前 FRAME 设置统一字体与 CJK 映射，确保中英文 1:2 等宽对齐."
   (let ((target-frame (or frame (selected-frame))))
     (when (display-graphic-p target-frame)
       (with-selected-frame target-frame
-        (set-face-attribute 'default target-frame :family slin/font-family :height (* slin/font-size 10))
-        (set-face-attribute 'fixed-pitch target-frame :family slin/font-family :height (* slin/font-size 10))
-        (dolist (charset '(han kana bopomofo cjk-misc symbol))
-          (set-fontset-font t charset (font-spec :family slin/font-family-cjk))
-          (set-fontset-font (frame-parameter target-frame 'font) charset (font-spec :family slin/font-family-cjk)))))))
+        ;; 1. 基础默认面与定宽面统一使用 Maple Mono
+        (set-face-attribute 'default target-frame
+                            :family slin/font-family
+                            :height (* slin/font-size 10))
+        (set-face-attribute 'fixed-pitch target-frame
+                            :family slin/font-family
+                            :height (* slin/font-size 10))
+
+        ;; 2. CJK 字符与脚本映射：置顶优先走 Maple Mono，保证全角字符宽度统一
+        (dolist (script '(han kana bopomofo cjk-misc))
+          (set-fontset-font t script (font-spec :family slin/font-family) nil 'prepend))
+
+        ;; 3. Windows 环境 Emoji 回退（append 后置，不影响 Maple Mono 自带符号与制表符）
+        (when (eq system-type 'windows-nt)
+          (setq use-default-font-for-symbols nil)
+          (when (member "Segoe UI Emoji" (font-family-list))
+            (set-fontset-font t 'emoji (font-spec :family "Segoe UI Emoji") nil 'append)))))))
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions #'load-font-setup)
   (load-font-setup))
-
-;; org-table 单独指定中文字体族
-(with-eval-after-load 'org
-  (set-face-attribute 'org-table nil :family slin/font-family-cjk :height (* slin/font-size 10)))
 
 ;; WSL 环境专享：GUI Org 表格像素级自动对齐
 ;; (use-package valign
