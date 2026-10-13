@@ -4,9 +4,16 @@
 $env:https_proxy="http://127.0.0.1:7890"
 $env:http_proxy="http://127.0.0.1:7890"
 
+# 1. PowerShell / .NET 级别 UTF-8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+# 2. 原生程序/子进程环境级别 (agy、Neovim 等工具必须)
+$env:LANG = "zh_CN.UTF-8"
+$env:LC_ALL = "zh_CN.UTF-8"
+$env:EDITOR = "nvim"
+$env:VISUAL = "nvim"
 
 # =====================================================================
 # PSReadLine 智能补全与历史记录 (体验类似 Zsh)

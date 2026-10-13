@@ -70,17 +70,15 @@ config.window_padding = {
 config.font_size = 16.0
 config.macos_window_background_blur = 20
 config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
-config.window_background_opacity = 1
 {{- else if eq .chezmoi.os "windows" }}
 config.font_size = 14.0
 config.win32_system_backdrop = "Acrylic"
 config.window_decorations = "RESIZE"
-config.window_background_opacity = 0.95
 {{- else }}
 config.font_size = 14.0
-config.window_background_opacity = 1
 config.window_decorations = "RESIZE"
 {{- end }}
+config.window_background_opacity = 1
 
 config.default_cursor_style = "BlinkingUnderline"
 config.show_new_tab_button_in_tab_bar = false
