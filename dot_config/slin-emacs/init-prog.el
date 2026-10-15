@@ -113,18 +113,30 @@
   (add-to-list 'eglot-server-programs '(nix-mode . ("nixd")))
   (add-to-list 'eglot-server-programs `((python-mode python-ts-mode) . ("pyright-langserver" "--stdio")))
 
-  ;; 全局 LSP 工作区参数
+  ;; 全局 LSP 工作区参数 (参考 Eclipse 与 VS Code Java 最佳实践)
   (setq-default eglot-workspace-configuration
                 '((:pyright . (:python (:analysis (:completeFunctionParens t))))
                   (:java . (:autobuild (:enabled t)
                                        :maxConcurrentBuilds 1
                                        :import (:resourceFilters ["node_modules" "\\.git" "build" "bin" "target" "dist" ".gradle" ".metadata" ".settings" ".project" ".classpath"]
-                                                                 :maven (:offline (:enabled :json-false) :downloadSources t)
-                                                                 :gradle (:offline (:enabled :json-false) :downloadSources t))
+                                                                 :maven (:offline (:enabled :json-false) :downloadSources t :downloadJavadocs t)
+                                                                 :gradle (:offline (:enabled :json-false) :downloadSources t :downloadJavadocs t))
                                        :configuration (:updateBuildConfiguration "automatic")
                                        :referencesCodeLens (:enabled :json-false)
                                        :implementationsCodeLens (:enabled :json-false)
-                                       :completion (:favoriteStaticMembers ["org.junit.Assert.*" "org.mockito.Mockito.*"] :importOrder ["java" "javax" "org" "com"])
+                                       :signatureHelp (:enabled t :description (:enabled t))
+                                       :quickfix (:showAt "line")
+                                       :saveActions (:organizeImports :json-false)
+                                       :sources (:organizeImports (:starThreshold 99 :staticStarThreshold 99))
+                                       :completion (:favoriteStaticMembers ["org.junit.Assert.*"
+                                                                            "org.junit.jupiter.api.Assertions.*"
+                                                                            "org.mockito.Mockito.*"
+                                                                            "org.assertj.core.api.Assertions.*"
+                                                                            "java.util.Objects.requireNonNull"
+                                                                            "java.util.Objects.requireNonNullElse"]
+                                                                           :importOrder ["java" "javax" "jakarta" "org" "com" ""]
+                                                                           :guessMethodArguments t
+                                                                           :matchCase "off")
                                        :eclipse (:downloadSources t)
                                        :contentProvider (:preferred "fernflower")
                                        :decompiler (:fernflower (:bLineNumberTable "1"))))))
@@ -148,39 +160,69 @@
           (message "Download finished: %s" target-file)
           target-file))))
 
-  ;; 自动整合 Nix 注入的 JBRSDK 17 与 Lombok 的 JDTLS 启动定义
+  ;; 自动跨平台定位 lombok.jar
+  (defun my/find-jdtls-lombok-jar ()
+    "Find lombok.jar from mason or common paths cross-platform."
+    (let ((candidates (list
+                       (and (getenv "LOCALAPPDATA")
+                            (expand-file-name "nvim-data/mason/packages/jdtls/lombok.jar" (getenv "LOCALAPPDATA")))
+                       (expand-file-name "~/.local/share/nvim/mason/packages/jdtls/lombok.jar")
+                       (expand-file-name "~/.config/emacs/.cache/lombok.jar"))))
+      (cl-find-if (lambda (p) (and p (file-exists-p p))) candidates)))
+
+  ;; 自动整合 Java 与 Lombok 的 JDTLS 启动定义（跨平台兼容 Windows 与 Linux）
   (add-to-list 'eglot-server-programs
                `((java-mode java-ts-mode) .
                  ,(lambda (&rest _)
                     (let* ((project-root (project-root (project-current t)))
-                           (cache-dir (expand-file-name (md5 project-root) "~/.cache/jdtls-workspace"))
+                           (cache-dir (expand-file-name (md5 project-root)
+                                                        (locate-user-emacs-file ".cache/jdtls-workspace")))
                            (debug-jar (my/download-java-debug-adapter-if-missing))
-                           (lombok-jar (expand-file-name "~/.local/share/nvim/mason/packages/jdtls/lombok.jar"))
+                           (lombok-jar (my/find-jdtls-lombok-jar))
+                           ;; 自动兼容 Windows (.cmd / .bat) 与 Unix (无后缀) 的 jdtls 可执行文件
+                           (jdtls-cmd (or (executable-find "jdtls.cmd")
+                                          (executable-find "jdtls.bat")
+                                          (executable-find "jdtls")
+                                          "jdtls"))
+                           (java-exe-name (if (eq system-type 'windows-nt) "java.exe" "java"))
                            (java-home (and (boundp 'nix-jbrsdk-path)
-                                           nix-jbrsdk-path
-                                           (file-directory-p nix-jbrsdk-path)
-                                           nix-jbrsdk-path))
+                                           (stringp nix-jbrsdk-path)
+                                           (not (string-empty-p nix-jbrsdk-path))
+                                           (if (file-directory-p nix-jbrsdk-path)
+                                               nix-jbrsdk-path
+                                             (file-name-directory (directory-file-name (file-name-directory nix-jbrsdk-path))))))
                            (java-bin (and java-home
                                           (expand-file-name "bin" java-home)))
-                           (java21-home (and (boundp 'nix-openjdk21-path)
-                                             nix-openjdk21-path
-                                             (file-directory-p nix-openjdk21-path)
-                                             nix-openjdk21-path))
-                           (java21-executable (and java21-home
-                                                   (expand-file-name "bin/java" java21-home))))
+                           (java21-executable
+                            (cond
+                             ;; 如果显式指定了完整的 java 可执行文件路径
+                             ((and (boundp 'nix-openjdk21-path)
+                                   (stringp nix-openjdk21-path)
+                                   (not (string-empty-p nix-openjdk21-path))
+                                   (file-regular-p nix-openjdk21-path))
+                              nix-openjdk21-path)
+                             ;; 如果指定了 java home 目录
+                             ((and (boundp 'nix-openjdk21-path)
+                                   (stringp nix-openjdk21-path)
+                                   (not (string-empty-p nix-openjdk21-path))
+                                   (file-directory-p nix-openjdk21-path))
+                              (expand-file-name (concat "bin/" java-exe-name) nix-openjdk21-path))
+                             (t nil))))
                       (make-directory cache-dir t)
-                      (let ((process-environment (if (not (string-empty-p java-home))
+                      (let ((process-environment (if (and java-home (not (string-empty-p java-home)))
                                                      (cons (format "JAVA_HOME=%s" java-home)
-                                                           (cons (format "PATH=%s:%s" java-bin (getenv "PATH"))
+                                                           ;; 使用 path-separator 兼容 Windows (;) 与 Unix (:)
+                                                           (cons (format "PATH=%s%s%s" java-bin path-separator (getenv "PATH"))
                                                                  process-environment))
                                                    process-environment))
                             (exec-path (if java-bin
                                            (cons java-bin exec-path)
                                          exec-path)))
-                        `("jdtls"
-                          ,@(when java21-executable `(,(concat "--java-executable=" java21-executable)))
+                        `(,jdtls-cmd
+                          ,@(when (and java21-executable (file-executable-p java21-executable))
+                              `(,(concat "--java-executable=" java21-executable)))
                           "-data" ,cache-dir
-                          ,(concat "--jvm-arg=-javaagent:" lombok-jar)
+                          ,@(when lombok-jar `(,(concat "--jvm-arg=-javaagent:" lombok-jar)))
                           "--jvm-arg=-Djava.import.generatesMetadataFilesAtProjectRoot=false"
                           "--jvm-arg=-DDetectVMInstallationsJob.disabled=true"
                           "--jvm-arg=-Dfile.encoding=utf8"
@@ -332,6 +374,30 @@
               (lambda (orig-fn path &rest args)
                 (or (+eglot/jdtls-path-to-uri path)
                     (apply orig-fn path args))))
+
+  ;; 参考 Eclipse 的常用 Java 辅助交互命令 (Organize Imports, Update Project, Download Sources)
+  (defun +java/organize-imports ()
+    "Organize imports for current Java file using JDTLS (like Eclipse Shift+Alt+O)."
+    (interactive)
+    (eglot-code-actions nil nil "source.organizeImports" t))
+
+  (defun +java/update-project-configuration ()
+    "Force JDTLS to update project configuration from pom.xml or build.gradle."
+    (interactive)
+    (if-let* ((server (or (eglot-current-server) (+eglot/jdtls-find-active-server))))
+        (let ((uri (eglot-path-to-uri default-directory)))
+          (eglot-execute-command server "java.project.updateConfiguration" (vector uri))
+          (message "JDTLS: Updating project configuration..."))
+      (user-error "No active JDTLS server found")))
+
+  (defun +java/download-sources ()
+    "Trigger Maven/Gradle dependency source download in JDTLS."
+    (interactive)
+    (if-let* ((server (or (eglot-current-server) (+eglot/jdtls-find-active-server))))
+        (let ((uri (eglot-path-to-uri default-directory)))
+          (eglot-execute-command server "java.project.resolveClasspath" (vector uri))
+          (message "JDTLS: Triggered dependency and source resolution."))
+      (user-error "No active JDTLS server found")))
 
   (advice-add 'jsonrpc-events-buffer :filter-return
               (lambda (buf)
@@ -507,6 +573,87 @@
                          (apheleia-mode -1))
                        ;; 开启 Go 模板高亮
                        (go-template-font-lock-mode 1)))))
+
+;; ---------------------------------------------------------------------------
+;; 13. Jinx 拼写检查 (基于 libenchant 高性能实时拼写纠错)
+;; ---------------------------------------------------------------------------
+(use-package jinx
+  :hook ((text-mode . jinx-mode)
+         (prog-mode . jinx-mode))
+  :bind (("M-$" . jinx-correct)
+         ("C-M-$" . jinx-languages))
+  :custom
+  ;; 显式指定检查语言为美式英语 (en_US)，防止 Windows 自动探测系统区域为中文 (CHS) 导致报缺少字典
+  (jinx-languages "en_US")
+  :config
+  ;; 排除中日韩文字 (CJK Unified Ideographs 及全角标点符号)，防止对中文标红波浪线
+  (add-to-list 'jinx-exclude-regexps '(t "\\cc" "\\cC" "\\cj" "\\ch" "[一-龥]"))
+
+  ;; ----------------- 自定义词库同步 (chezmoi) -----------------
+  (defvar my/jinx-dict-file
+    (expand-file-name "dict.txt" (file-name-directory (or load-file-name buffer-file-name (locate-library "init-prog") "~/.config/slin-emacs/")))
+    "由 chezmoi 同步管理的全局自定义词典文件路径 (位于 ~/.config/slin-emacs/dict.txt).")
+
+  (defvar my/jinx-dict-words nil
+    "内存中缓存的 dict.txt 词汇表.")
+
+  (defun my/jinx-reload-dict-words ()
+    "从 dict.txt 重新加载白名单词汇到内存 (强制 Unix LF 换行)."
+    (setq my/jinx-dict-words
+          (when (file-exists-p my/jinx-dict-file)
+            (let ((coding-system-for-read 'utf-8-unix))
+              (with-temp-buffer
+                (insert-file-contents my/jinx-dict-file)
+                (split-string (buffer-string) "\n" t "[ \t\r]+"))))))
+
+  ;; 初始化加载词库
+  (my/jinx-reload-dict-words)
+
+  ;; 注册为 Jinx 的全局单词验证断言 (Predicate)
+  ;; 只要单词存在于 dict.txt 中，无论重启还是新建 Buffer，均视为合法单词
+  (defun my/jinx-dict-word-valid-p (word)
+    "Return non-nil if WORD exists in chezmoi dict.txt."
+    (unless (stringp word)
+      (setq word (buffer-substring-no-properties word (point))))
+    (member word my/jinx-dict-words))
+
+  (add-to-list 'jinx--predicates #'my/jinx-dict-word-valid-p)
+
+  (defun my/jinx-write-dict-file (words)
+    "将 WORDS 写入 dict.txt，强制使用 Unix LF (\\n) 换行，避免产生 Windows \\r."
+    (let ((coding-system-for-write 'utf-8-unix))
+      (with-temp-file my/jinx-dict-file
+        (dolist (w (delete-dups (sort (copy-sequence words) #'string<)))
+          (unless (string-blank-p w)
+            (insert w "\n"))))))
+
+  ;; 定义 chezmoi 词典的增删与交互行为
+  (defun my/jinx-save-dotfiles (action key word)
+    "支持在 Jinx 交互纠错中，直接将单词添加/删除到 chezmoi 同步的 dict.txt，并自动后台 re-add."
+    (pcase-exhaustive action
+      ('add
+       (setq word (string-trim word))
+       (add-to-list 'jinx--session-words word)
+       (unless (member word my/jinx-dict-words)
+         (push word my/jinx-dict-words)
+         (my/jinx-write-dict-file my/jinx-dict-words)
+         ;; 后台静默调用 chezmoi re-add 同步到 dotfiles 仓库
+         (when (executable-find "chezmoi")
+           (start-process "chezmoi-re-add" nil "chezmoi" "re-add" my/jinx-dict-file))))
+      ('remove
+       (setq word (string-trim word))
+       (cl-callf2 remove word jinx--session-words)
+       (setq my/jinx-dict-words (remove word my/jinx-dict-words))
+       (my/jinx-write-dict-file my/jinx-dict-words)
+       (when (executable-find "chezmoi")
+         (start-process "chezmoi-re-add" nil "chezmoi" "re-add" my/jinx-dict-file)))
+      ('has
+       (member (string-trim word) my/jinx-dict-words))
+      ('format
+       `((,(char-to-string key) ,word "Dotfiles (chezmoi)")))))
+
+  ;; 注册快捷键 '$' 保存到 chezmoi dict.txt
+  (add-to-list 'jinx--save-keys '(?$ . my/jinx-save-dotfiles)))
 
 (provide 'init-prog)
 ;;; init-prog.el ends here

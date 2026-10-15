@@ -377,6 +377,22 @@
   (setq org-pretty-entities t)
   ;; 确保 Tag 和 Label 保持标准定宽与 1.0 高度，避免 condensed 压缩导致字符宽度错位
   (set-face-attribute 'org-modern-label nil :height 1.0 :width 'normal)
+
+  ;; 复选框 (- [ ]) 美化
+  (setq org-modern-checkbox
+        '((?X . "󰄲")   ;; 已完成勾选
+          (?- . "󰡖")   ;; 部分完成/进行中
+          (?\s . "󰄱"))) ;; 未勾选
+
+  ;; 隐藏带有复选框的项目前面的列表符号 (如 "- [ ]" 前面的 "-")
+  (font-lock-add-keywords
+   'org-mode
+   `((,(concat "^[ \t]*"
+               "\\([-+*]\\)"
+               "[ \t]+\\(?:\\[@\\(?:start:\\)?[0-9A-Za-z]+\\][ \t]*\\)?"
+               "\\[[ X-]\\]")
+      (1 '(face nil display ""))))
+   'append)
   (setq org-modern-block-name
         `(("src" . (,(nerd-icons-devicon "nf-dev-codeac" :face 'nerd-icons-blue-alt)
                     ,(nerd-icons-devicon "nf-dev-codeac" :face 'org-block-end-line)))

@@ -57,11 +57,13 @@
   (evil-define-key 'normal 'global (kbd "<leader>gp") 'eglot-find-declaration)
   (evil-define-key 'normal 'global (kbd "<leader>gu") 'xref-find-references)
 
-  ;; 重构 修改名称
+  ;; 重构 修改名称与导入组织
   (evil-define-key 'normal 'global (kbd "<leader>rn") 'eglot-rename)
-  ;; 代码格式化
+  (evil-define-key 'normal 'global (kbd "<leader>oi") '+java/organize-imports)
+  ;; 代码格式化与 Quickfix / Code Actions
   (evil-define-key 'normal 'global (kbd "<leader>fm") 'my/format-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>da") 'eglot-code-actions)
+  (evil-define-key 'normal 'global (kbd "<leader>ca") 'eglot-code-actions)
 
   ;; 注释
   (evil-define-key '(normal visual) 'global (kbd "<leader>/") 'evilnc-comment-or-uncomment-lines)
@@ -84,6 +86,11 @@
   ;; Flymake 错误跳转
   (evil-define-key 'normal 'global (kbd "<leader>en") 'flymake-goto-next-error)
   (evil-define-key 'normal 'global (kbd "<leader>ep") 'flymake-goto-prev-error)
+
+  ;; Jinx 拼写纠错
+  (evil-define-key 'normal 'global (kbd "<leader>sc") 'jinx-correct)
+  (evil-define-key 'normal 'global (kbd "<leader>sn") 'jinx-next)
+  (evil-define-key 'normal 'global (kbd "<leader>sp") 'jinx-previous)
 
   ;; 快捷打开 Dired & Magit
   (evil-define-key 'normal 'global (kbd "<leader>dj") 'dired-jump)

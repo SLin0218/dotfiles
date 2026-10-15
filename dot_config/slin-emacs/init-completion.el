@@ -150,6 +150,9 @@
 (use-package yasnippet-capf
   :after yasnippet)
 
+;; 禁用 Text-mode 默认挂载的 ispell 词典补全 (避免缺乏词典或输入中文时 Corfu 触发 ispell-lookup-words 错误)
+(setq text-mode-ispell-word-completion nil)
+
 ;; Corfu 补全界面
 (use-package corfu
   :custom
