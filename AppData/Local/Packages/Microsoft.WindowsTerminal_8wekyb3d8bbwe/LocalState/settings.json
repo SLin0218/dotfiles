@@ -56,6 +56,10 @@
             "keys": "ctrl+shift+5"
         },
         {
+            "id": "Terminal.MoveTabBackward",
+            "keys": "ctrl+shift+comma"
+        },
+        {
             "id": "Terminal.CopyToClipboard",
             "keys": "ctrl+shift+c"
         },
@@ -110,6 +114,22 @@
         {
             "id": "Terminal.NextTab",
             "keys": "ctrl+tab"
+        },
+        {
+            "id": null,
+            "keys": "ctrl+shift+m"
+        },
+        {
+            "id": "Terminal.ToggleMarkMode",
+            "keys": "ctrl+shift+enter"
+        },
+        {
+            "id": "Terminal.MoveTabForward",
+            "keys": "ctrl+shift+period"
+        },
+        {
+            "id": "Terminal.OpenTabRenamer",
+            "keys": "ctrl+shift+n"
         }
     ],
     "launchMode": "maximized",
@@ -207,6 +227,7 @@
     ],
     "showTabsFullscreen": true,
     "tabSwitcherMode": "disabled",
+    "tabWidthMode": "titleLength",
     "theme": "dark",
     "themes":
     [

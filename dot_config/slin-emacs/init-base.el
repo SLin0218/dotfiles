@@ -103,11 +103,42 @@
            str))))
     str))
 
+;; 提高 Emacs 与外部子进程通信的吞吐量 (Windows 默认 4KB 太低，提升到 1MB 大幅提升 Magit 读 git 管道性能)
+(setq read-process-output-max (* 1024 1024))
+;; 限制版本控制后端只检测 Git，避免扫描 RCS/CVS/SVN/Bazaar 产生额外开销
+(setq vc-handled-backends '(Git))
+
 (use-package magit
   :defer t
   :init
+  ;; 禁用 magit 自动更新模式与全局 revert，由用户手动控制或按需触发
   (setq magit-auto-revert-mode nil)
   :config
+  ;; 1. 精简 status sections 钩子：移除非必需的 tags/unpushed 遍历，极大降低一次性 spawn 进程数
+  (setq magit-status-sections-hook
+        '(magit-insert-status-headers
+          magit-insert-merge-log
+          magit-insert-rebase-sequence
+          magit-insert-am-sequence
+          magit-insert-sequencer-sequence
+          magit-insert-bisect-output
+          magit-insert-bisect-rest
+          magit-insert-bisect-log
+          magit-insert-untracked-files
+          magit-insert-unstaged-changes
+          magit-insert-staged-changes
+          magit-insert-stashes
+          magit-insert-unpushed-to-pushremote
+          magit-insert-unpushed-to-upstream-or-recent
+          magit-insert-unpulled-from-pushremote
+          magit-insert-unpulled-from-upstream))
+
+  ;; 2. 禁用昂贵的 word-diff (字符级差异高亮，极耗 CPU)
+  (setq magit-diff-refine-hunk nil)
+
+  ;; 3. 避免刷新关联附属 buffer，只刷新当前 status 页面
+  (setq magit-refresh-status-buffer nil)
+
   ;; 设置 Blame 时间格式为 yy-MM-dd HH:mm:ss
   (setq magit-blame-time-format "%y-%m-%d %H:%M:%S")
 
@@ -121,6 +152,122 @@
 
   ;; 挂载底层格式化 Advice，动态注入最优先级的 Commit Face
   (advice-add 'magit-blame--format-string-1 :around #'my/magit-blame-format-string-1))
+
+;; =============================================================================
+;; AI 辅助 Commit 注释生成 (基于 gptel)
+;; =============================================================================
+
+(use-package gptel
+  :defer t
+  :config
+  ;; 配置网络代理（适配 Clash / v2ray 默认 7890 端口，确保 Google Gemini API 顺畅连通）
+  (setenv "http_proxy" "http://127.0.0.1:7890")
+  (setenv "https_proxy" "http://127.0.0.1:7890")
+  (setq gptel-proxy "http://127.0.0.1:7890")
+
+  ;; 配置 Google Gemini 模型后端
+  ;; 支持从环境变量 GEMINI_API_KEY 读取，或通过 my/gemini-api-key 变量提供
+  (setq gptel-model 'gemini-2.5-flash
+        gptel-backend
+        (gptel-make-gemini "Gemini"
+          :key (lambda () (or (getenv "GEMINI_API_KEY")
+                              (bound-and-true-p my/gemini-api-key)
+                              "YOUR_GEMINI_API_KEY"))
+          :stream t)))
+
+(defun my/magit-generate-commit-message ()
+  "直接调用 curl 通过代理异步请求 Gemini API，将生成的 Commit 注释插入当前 Buffer。"
+  (interactive)
+  (let* ((target-buffer (current-buffer))
+         (api-key (or (getenv "GEMINI_API_KEY")
+                      (bound-and-true-p my/gemini-api-key)))
+         (raw-diff (with-temp-buffer
+                     (call-process "git" nil t nil "diff" "--cached")
+                     (buffer-string)))
+         ;; 过滤掉 git 的 warning/提示信息
+         (clean-diff (with-temp-buffer
+                       (insert raw-diff)
+                       (goto-char (point-min))
+                       (flush-lines "^warning: ")
+                       (buffer-string)))
+         (diff (if (> (length clean-diff) 4000)
+                   (concat (substring clean-diff 0 4000) "\n\n... (diff truncated)")
+                 clean-diff)))
+    (cond
+     ((not api-key)
+      (message "未找到 Gemini API Key！请检查 init-secret.el 或 GEMINI_API_KEY 环境变量。"))
+     ((string-blank-p (string-trim diff))
+      (message "没有检测到已暂存的更改 (staged changes)！请先在 Magit 中暂存 (s) 文件。"))
+     (t
+      (message "正在调用 Gemini 流式生成 Commit Message...")
+      (let* ((prompt (format "请根据以下 `git diff --cached` 内容生成一条规范的 Git Commit 提交说明。\n要求：\n1. 严格遵循 Conventional Commits 规范 (例如 feat, fix, docs, style, refactor, perf, test, chore)。\n2. 第一行：简洁明确的主题行（不超过 70 字符），使用中文（或与项目风格一致）。\n3. 如果变动内容较多，空一行后列出具体变更要点（要点式短句）。\n4. 只输出 Commit Message 正文，严禁包含任何 Markdown 格式代码块标记（如 ```），不要添加任何额外寒暄与解释。\n\nDiff 内容:\n%s" diff))
+             (json-payload (json-encode
+                            `((contents . [((parts . [((text . ,prompt))]))]))))
+             ;; Gemini SSE 流式端点: streamGenerateContent?alt=sse
+             (url (format "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:streamGenerateContent?alt=sse&key=%s" api-key))
+             (insert-marker (with-current-buffer target-buffer
+                              (goto-char (point-min))
+                              (copy-marker (point) t)))
+             (sse-buffer "")
+             (accumulated-text "")
+             (proc (let ((process-connection-type nil)
+                         (default-process-coding-system '(utf-8-unix . utf-8-unix)))
+                     (start-process "gemini-curl" nil
+                                    "curl.exe"
+                                    "-N"                  ; 禁用 curl 缓冲区，即时流式输出
+                                    "-s"
+                                    "-x" "http://127.0.0.1:7890"
+                                    "-X" "POST"
+                                    "-H" "Content-Type: application/json; charset=utf-8"
+                                    "-d" json-payload
+                                    url))))
+        (set-process-coding-system proc 'utf-8-unix 'utf-8-unix)
+        ;; 进程输出过滤器：实时拦截 SSE 数据帧，解析并打字流式写入 Commit Buffer
+        (set-process-filter
+         proc
+         (lambda (_proc string)
+           (setq sse-buffer (concat sse-buffer string))
+           ;; 循环解析出完整的行
+           (while (string-match "\\(.*\\)[\r\n]+" sse-buffer)
+             (let ((line (string-trim (match-string 1 sse-buffer))))
+               (setq sse-buffer (substring sse-buffer (match-end 0)))
+               (when (string-prefix-p "data: " line)
+                 (let* ((json-str (string-trim (substring line 6)))
+                        (json-data (ignore-errors (json-read-from-string json-str)))
+                        (chunk-text (ignore-errors
+                                      (let* ((candidates (alist-get 'candidates json-data))
+                                             (first-cand (if (vectorp candidates) (aref candidates 0) (car candidates)))
+                                             (content (alist-get 'content first-cand))
+                                             (parts (alist-get 'parts content))
+                                             (first-part (if (vectorp parts) (aref parts 0) (car parts))))
+                                        (alist-get 'text first-part)))))
+                   (when (and chunk-text (> (length chunk-text) 0))
+                     (setq accumulated-text (concat accumulated-text chunk-text))
+                     (when (buffer-live-p target-buffer)
+                       (with-current-buffer target-buffer
+                         (save-excursion
+                           (goto-char insert-marker)
+                           (insert chunk-text)))))))))))
+        (set-process-sentinel
+         proc
+         (lambda (proc event)
+           (when (string-match-p "finished" event)
+             (when (buffer-live-p target-buffer)
+               (with-current-buffer target-buffer
+                 (save-excursion
+                   (goto-char insert-marker)
+                   (insert "\n\n"))))
+             (message "--- [Gemini 流式返回日志] ---\n%s\n--------------------------------"
+                      (if (> (length accumulated-text) 0) accumulated-text "空返回"))
+             (if (> (length accumulated-text) 0)
+                 (message "Commit Message 流式生成完毕！")
+               (message "生成失败: %s" sse-buffer))))))))))
+
+;; 在提交说明编辑窗口 (git-commit-mode) 绑定快捷键
+(with-eval-after-load 'git-commit
+  (define-key git-commit-mode-map (kbd "C-c C-a") #'my/magit-generate-commit-message)
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal git-commit-mode-map (kbd "<leader>a") #'my/magit-generate-commit-message)))
 
 (global-auto-revert-mode 1)
 

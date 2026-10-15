@@ -12,7 +12,15 @@
   editor = "nvim"
 {{- if eq .chezmoi.os "windows" }}
   sshCommand = "C:/Windows/System32/OpenSSH/ssh.exe"
+  ; 1. 忽略文件系统的更改时间戳检查差异，避免 DLP 改变元数据触发全量哈希对比
+  trustctime = false
+  ; 2. 开启 Windows 原生文件系统监控驻留（核心！避免遍历目录树触发大量监控钩子）
+  fsmonitor = true
+[status]
+  ; 3. 避免 git 状态检查时扫描未跟踪文件的内容详情
+  showUntrackedFiles = normal
 {{- end }}
+
 [interactive]
   diffFilter = delta --color-only
 [delta]

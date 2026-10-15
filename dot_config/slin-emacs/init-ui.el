@@ -25,7 +25,7 @@
 (cond
  ((eq system-type 'darwin) (setq slin/font-size 16))
  (sys/wsl-p (setq slin/font-size 15))
- ((eq system-type 'windows-nt) (setq slin/font-size 15)))
+ ((eq system-type 'windows-nt) (setq slin/font-size 11)))
 
 (defun load-font-setup (&optional frame)
   "根据当前 FRAME 设置统一字体与 CJK 映射，确保中英文 1:2 等宽对齐."

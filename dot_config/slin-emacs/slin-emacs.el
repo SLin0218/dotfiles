@@ -53,6 +53,10 @@
 
 ;; 4. 核心编辑与交互体系（同步即刻载入，保障编辑器外观与键位立即可用）
 (require 'init-package)      ; 包管理器初始化 (use-package / ELPA)
+;; 加载本地或 chezmoi GPG 解密生成的敏感私密配置 (如 API Keys)
+(let ((secret-file (expand-file-name "init-secret.el" (file-name-directory (or load-file-name buffer-file-name "~/.config/slin-emacs/")))))
+  (when (file-exists-p secret-file)
+    (load secret-file nil t)))
 (require 'init-base)         ; 基础编辑策略 (Session, Undo-tree, Magit, Recentf)
 (require 'init-ui)           ; 外观界面美化 (Theme, Font, Modeline, Dimmer)
 (require 'init-tab)          ; Tab-line
