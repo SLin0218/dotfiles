@@ -33,6 +33,7 @@ ProgramFilesX86 := "C:\Program Files (x86)\"
 ; ==========================================
 GroupAdd "TabeSwitchApp", "ahk_exe wezterm-gui.exe"
 GroupAdd "TabeSwitchApp", "Brave ahk_exe brave.exe"
+GroupAdd "TabeSwitchApp", "ahk_exe WindowsTerminal.exe"
 
 #HotIf WinActive("ahk_group TabeSwitchApp")
     ; Ctrl + ] 切换到下一个标签页
@@ -150,10 +151,11 @@ ToggleApp(winTitle, exeName, workingDir?, Options?)
 }
 
 
-CapsLock & i::
-{
-    ToggleApp("ahk_exe wezterm-gui.exe", "wezterm-gui.exe")
-}
+CapsLock & i::Send("^+{i}")
+; CapsLock & i::
+; {
+;     ToggleApp("ahk_exe wezterm-gui.exe", "wezterm-gui.exe")
+; }
 CapsLock & g::
 {
     ToggleApp("Brave ahk_exe brave.exe", "brave.exe")

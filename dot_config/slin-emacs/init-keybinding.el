@@ -87,11 +87,6 @@
   (evil-define-key 'normal 'global (kbd "<leader>en") 'flymake-goto-next-error)
   (evil-define-key 'normal 'global (kbd "<leader>ep") 'flymake-goto-prev-error)
 
-  ;; Jinx 拼写纠错
-  (evil-define-key 'normal 'global (kbd "<leader>sc") 'jinx-correct)
-  (evil-define-key 'normal 'global (kbd "<leader>sn") 'jinx-next)
-  (evil-define-key 'normal 'global (kbd "<leader>sp") 'jinx-previous)
-
   ;; 快捷打开 Dired & Magit
   (evil-define-key 'normal 'global (kbd "<leader>dj") 'dired-jump)
   (evil-define-key 'normal 'global (kbd "<leader>mg") 'magit)

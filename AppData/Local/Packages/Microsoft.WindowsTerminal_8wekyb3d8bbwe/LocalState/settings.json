@@ -1,0 +1,238 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions":
+    [
+        {
+            "command":
+            {
+                "action": "splitPane",
+                "split": "left"
+            },
+            "id": "User.splitPane.left"
+        },
+        {
+            "command":
+            {
+                "action": "globalSummon"
+            },
+            "id": "User.globalSummon.51A3D78C"
+        },
+        {
+            "command":
+            {
+                "action": "splitPane",
+                "split": "down"
+            },
+            "id": "User.splitPane.down"
+        }
+    ],
+    "alwaysShowNotificationIcon": true,
+    "compatibility.enableUnfocusedAcrylic": true,
+    "copyFormatting": "none",
+    "copyOnSelect": false,
+    "defaultProfile": "{d510c7f4-dfa3-4324-af88-b36d565c3755}",
+    "disabledProfileSources":
+    [
+        "Windows.Terminal.Wsl",
+        "Windows.Terminal.Azure"
+    ],
+    "keybindings":
+    [
+        {
+            "id": "Terminal.PrevTab",
+            "keys": "ctrl+shift+tab"
+        },
+        {
+            "id": "Terminal.MoveFocusUp",
+            "keys": "ctrl+shift+k"
+        },
+        {
+            "id": null,
+            "keys": "alt+shift+minus"
+        },
+        {
+            "id": "User.splitPane.down",
+            "keys": "ctrl+shift+5"
+        },
+        {
+            "id": "Terminal.CopyToClipboard",
+            "keys": "ctrl+shift+c"
+        },
+        {
+            "id": "User.splitPane.left",
+            "keys": "ctrl+shift+'"
+        },
+        {
+            "id": "Terminal.FindText",
+            "keys": "ctrl+shift+f"
+        },
+        {
+            "id": "User.globalSummon.51A3D78C",
+            "keys": "ctrl+shift+i"
+        },
+        {
+            "id": "Terminal.DuplicatePaneAuto",
+            "keys": "alt+shift+d"
+        },
+        {
+            "id": null,
+            "keys": "alt+shift+plus"
+        },
+        {
+            "id": null,
+            "keys": "alt+up"
+        },
+        {
+            "id": "Terminal.MoveFocusDown",
+            "keys": "ctrl+shift+j"
+        },
+        {
+            "id": null,
+            "keys": "alt+down"
+        },
+        {
+            "id": "Terminal.MoveFocusRight",
+            "keys": "ctrl+shift+l"
+        },
+        {
+            "id": null,
+            "keys": "alt+right"
+        },
+        {
+            "id": "Terminal.MoveFocusLeft",
+            "keys": "ctrl+shift+h"
+        },
+        {
+            "id": null,
+            "keys": "alt+left"
+        },
+        {
+            "id": "Terminal.NextTab",
+            "keys": "ctrl+tab"
+        }
+    ],
+    "launchMode": "maximized",
+    "minimizeToNotificationArea": false,
+    "newTabMenu":
+    [
+        {
+            "icon": null,
+            "profile": "{101403c7-4377-4e98-8231-bef144c66cba}",
+            "type": "profile"
+        },
+        {
+            "icon": null,
+            "profile": "{d510c7f4-dfa3-4324-af88-b36d565c3755}",
+            "type": "profile"
+        }
+    ],
+    "profiles":
+    {
+        "defaults":
+        {
+            "adjustIndistinguishableColors": "indexed",
+            "antialiasingMode": "cleartype",
+            "backgroundImageOpacity": 1,
+            "bellStyle":
+            [
+                "window",
+                "taskbar"
+            ],
+            "colorScheme": "Catppuccin Mocha",
+            "cursorShape": "underscore",
+            "experimental.retroTerminalEffect": false,
+            "font":
+            {
+                "face": "JetBrainsMono Nerd Font Mono",
+                "size": 12,
+                "weight": "normal"
+            },
+            "intenseTextStyle": "bold",
+            "opacity": 90,
+            "padding": "20,10,10,0",
+            "scrollbarState": "hidden",
+            "useAcrylic": true
+        },
+        "list":
+        [
+            {
+                "commandline": "C:\\Windows\\system32\\wsl.exe",
+                "guid": "{101403c7-4377-4e98-8231-bef144c66cba}",
+                "hidden": false,
+                "icon": "%USERPROFILE%\\images\\nixos.ico",
+                "name": "NixOS",
+                "opacity": 100,
+                "pathTranslationStyle": "wsl",
+                "startingDirectory": "~",
+                "useAcrylic": false
+            },
+            {
+                "commandline": "pwsh.exe",
+                "guid": "{d510c7f4-dfa3-4324-af88-b36d565c3755}",
+                "hidden": false,
+                "icon": "%USERPROFILE%\\images\\pwsh7.ico",
+                "name": "Pwsh 7",
+                "opacity": 100,
+                "startingDirectory": "%USERPROFILE%",
+                "useAcrylic": false
+            }
+        ]
+    },
+    "schemes":
+    [
+        {
+            "background": "#1E1E2E",
+            "black": "#45475A",
+            "blue": "#89B4FA",
+            "brightBlack": "#585B70",
+            "brightBlue": "#89B4FA",
+            "brightCyan": "#94E2D5",
+            "brightGreen": "#A6E3A1",
+            "brightPurple": "#F5C2E7",
+            "brightRed": "#F38BA8",
+            "brightWhite": "#A6ADC8",
+            "brightYellow": "#F9E2AF",
+            "cursorColor": "#F5E0DC",
+            "cyan": "#94E2D5",
+            "foreground": "#CDD6F4",
+            "green": "#A6E3A1",
+            "name": "Catppuccin Mocha",
+            "purple": "#F5C2E7",
+            "red": "#F38BA8",
+            "selectionBackground": "#585B70",
+            "white": "#BAC2DE",
+            "yellow": "#F9E2AF"
+        }
+    ],
+    "showTabsFullscreen": true,
+    "tabSwitcherMode": "disabled",
+    "theme": "dark",
+    "themes":
+    [
+        {
+            "name": "Catppuccin Mocha",
+            "tab":
+            {
+                "background": "#1E1E2EFF",
+                "iconStyle": "default",
+                "showCloseButton": "always",
+                "unfocusedBackground": null
+            },
+            "tabRow":
+            {
+                "background": "#181825FF",
+                "unfocusedBackground": "#11111BFF"
+            },
+            "window":
+            {
+                "applicationTheme": "dark",
+                "experimental.rainbowFrame": false,
+                "frame": null,
+                "unfocusedFrame": null,
+                "useMica": false
+            }
+        }
+    ],
+    "useAcrylicInTabRow": true
+}
