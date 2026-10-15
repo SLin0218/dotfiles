@@ -167,7 +167,7 @@
 
   ;; 配置 Google Gemini 模型后端
   ;; 支持从环境变量 GEMINI_API_KEY 读取，或通过 my/gemini-api-key 变量提供
-  (setq gptel-model 'gemini-2.5-flash
+  (setq gptel-model 'gemini-3.6-flash
         gptel-backend
         (gptel-make-gemini "Gemini"
           :key (lambda () (or (getenv "GEMINI_API_KEY")
@@ -175,14 +175,24 @@
                               "YOUR_GEMINI_API_KEY"))
           :stream t)))
 
+(defcustom my/gemini-proxy "http://127.0.0.1:7890"
+  "Gemini API 访问代理，设为 nil 则直连。"
+  :type '(choice (string :tag "Proxy URL") (const :tag "Direct" nil))
+  :group 'slin)
+
 (defun my/magit-generate-commit-message ()
-  "直接调用 curl 通过代理异步请求 Gemini API，将生成的 Commit 注释插入当前 Buffer。"
+  "直接调用 curl 通过标准输入异步请求 Gemini API，流式生成 Commit 注释（跨平台兼容）。"
   (interactive)
   (let* ((target-buffer (current-buffer))
+         (curl-bin (or (executable-find "curl")
+                       (and (eq system-type 'windows-nt) (executable-find "curl.exe"))))
          (api-key (or (getenv "GEMINI_API_KEY")
                       (bound-and-true-p my/gemini-api-key)))
+         ;; 1. 跨平台强制以 UTF-8 读取 Git diff，防止 Windows 下中文乱码
          (raw-diff (with-temp-buffer
-                     (call-process "git" nil t nil "diff" "--cached")
+                     (let ((coding-system-for-read 'utf-8-unix)
+                           (coding-system-for-write 'utf-8-unix))
+                       (call-process "git" nil t nil "diff" "--cached"))
                      (buffer-string)))
          ;; 过滤掉 git 的 warning/提示信息
          (clean-diff (with-temp-buffer
@@ -194,6 +204,8 @@
                    (concat (substring clean-diff 0 4000) "\n\n... (diff truncated)")
                  clean-diff)))
     (cond
+     ((null curl-bin)
+      (message "未找到 curl 命令，请检查系统 PATH！"))
      ((not api-key)
       (message "未找到 Gemini API Key！请检查 init-secret.el 或 GEMINI_API_KEY 环境变量。"))
      ((string-blank-p (string-trim diff))
@@ -203,24 +215,30 @@
       (let* ((prompt (format "请根据以下 `git diff --cached` 内容生成一条规范的 Git Commit 提交说明。\n要求：\n1. 严格遵循 Conventional Commits 规范 (例如 feat, fix, docs, style, refactor, perf, test, chore)。\n2. 第一行：简洁明确的主题行（不超过 70 字符），使用中文（或与项目风格一致）。\n3. 如果变动内容较多，空一行后列出具体变更要点（要点式短句）。\n4. 只输出 Commit Message 正文，严禁包含任何 Markdown 格式代码块标记（如 ```），不要添加任何额外寒暄与解释。\n\nDiff 内容:\n%s" diff))
              (json-payload (json-encode
                             `((contents . [((parts . [((text . ,prompt))]))]))))
-             ;; Gemini SSE 流式端点: streamGenerateContent?alt=sse
+             ;; Gemini SSE 流式端点
              (url (format "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:streamGenerateContent?alt=sse&key=%s" api-key))
              (insert-marker (with-current-buffer target-buffer
                               (goto-char (point-min))
                               (copy-marker (point) t)))
              (sse-buffer "")
              (accumulated-text "")
+             ;; 2. 自动检测代理配置（支持自定义与系统环境变量）
+             (proxy (or my/gemini-proxy
+                        (getenv "https_proxy")
+                        (getenv "http_proxy")
+                        (getenv "all_proxy")))
+             ;; 3. 使用 stdin (@-) 传递 JSON，彻底避免 Windows 命令行参数长度限制与转义崩溃
+             (curl-args (append (list "-N" "-s")
+                                (when (and proxy (not (string-empty-p proxy)))
+                                  (list "-x" proxy))
+                                (list "-X" "POST"
+                                      "-H" "Content-Type: application/json; charset=utf-8"
+                                      "-d" "@-"
+                                      url)))
              (proc (let ((process-connection-type nil)
                          (default-process-coding-system '(utf-8-unix . utf-8-unix)))
-                     (start-process "gemini-curl" nil
-                                    "curl.exe"
-                                    "-N"                  ; 禁用 curl 缓冲区，即时流式输出
-                                    "-s"
-                                    "-x" "http://127.0.0.1:7890"
-                                    "-X" "POST"
-                                    "-H" "Content-Type: application/json; charset=utf-8"
-                                    "-d" json-payload
-                                    url))))
+                     (apply #'start-process "gemini-curl" nil curl-bin curl-args))))
+
         (set-process-coding-system proc 'utf-8-unix 'utf-8-unix)
         ;; 进程输出过滤器：实时拦截 SSE 数据帧，解析并打字流式写入 Commit Buffer
         (set-process-filter
@@ -248,23 +266,27 @@
                          (save-excursion
                            (goto-char insert-marker)
                            (insert chunk-text)))))))))))
+
+        ;; 写入 stdin 并发送 EOF
+        (process-send-string proc (encode-coding-string json-payload 'utf-8-unix))
+        (process-send-eof proc)
+
         (set-process-sentinel
          proc
-         (lambda (proc event)
+         (lambda (_proc event)
            (when (string-match-p "finished" event)
              (when (buffer-live-p target-buffer)
                (with-current-buffer target-buffer
                  (save-excursion
                    (goto-char insert-marker)
                    (insert "\n\n"))))
-             (message "--- [Gemini 流式返回日志] ---\n%s\n--------------------------------"
-                      (if (> (length accumulated-text) 0) accumulated-text "空返回"))
              (if (> (length accumulated-text) 0)
                  (message "Commit Message 流式生成完毕！")
                (message "生成失败: %s" sse-buffer))))))))))
 
 ;; 在提交说明编辑窗口 (git-commit-mode) 绑定快捷键
 (with-eval-after-load 'git-commit
+  (setq git-commit-summary-max-length 72)
   (define-key git-commit-mode-map (kbd "C-c C-a") #'my/magit-generate-commit-message)
   (with-eval-after-load 'evil
     (evil-define-key 'normal git-commit-mode-map (kbd "<leader>a") #'my/magit-generate-commit-message)))
@@ -285,16 +307,15 @@
   ("M-n" . symbol-overlay-jump-next)
   ("M-p" . symbol-overlay-jump-prev))
 
-;; 最近打开的文件记录 (禁用启动同步全盘 stat 检查，移至空闲定时器载入)
+;; 最近打开的文件记录 (启动时即刻载入，确保文件历史立即可用且不被定时器打断)
 (use-package recentf
-  :defer 0.5
+  :ensure nil
   :custom
   (recentf-auto-cleanup 'never)
+  (recentf-max-saved-items 100)
+  (recentf-exclude '("/tmp/" "/ssh:" "\\.git/" "/elpa/" "eglot-jdtls-sources"))
   :init
-  (run-with-idle-timer 1 nil #'recentf-mode)
-  :config
-  (setq recentf-max-saved-items 100
-        recentf-exclude '("/tmp/" "/ssh:" "\\.git/" "/elpa/" "eglot-jdtls-sources")))
+  (recentf-mode 1))
 
 ;; 记住上次打开文件时的光标位置 (延迟加载)
 (run-with-idle-timer 1 nil #'save-place-mode)
