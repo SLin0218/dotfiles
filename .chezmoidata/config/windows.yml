@@ -6,6 +6,7 @@ config:
         - '%USERPROFILE%\.local\bin'
         - '%USERPROFILE%\scoop\apps\msys2\current\mingw64\bin'
       others:
+        SSH_AUTH_SOCK: '\\.\pipe\openssh-ssh-agent'
         MSYSTEM_PREFIX: '%USERPROFILE%\scoop\apps\msys2\current\mingw64'
         HOME: "%USERPROFILE%"
         FZF_DEFAULT_OPTS: >-

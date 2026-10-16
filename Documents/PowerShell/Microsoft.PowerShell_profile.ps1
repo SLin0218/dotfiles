@@ -4,6 +4,8 @@
 $env:https_proxy="http://127.0.0.1:7890"
 $env:http_proxy="http://127.0.0.1:7890"
 
+$env:SSH_AUTH_SOCK = '\\.\pipe\openssh-ssh-agent'
+
 # 1. PowerShell / .NET 级别 UTF-8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8

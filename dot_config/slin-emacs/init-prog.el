@@ -574,5 +574,26 @@
                        ;; 开启 Go 模板高亮
                        (go-template-font-lock-mode 1)))))
 
+;; ---------------------------------------------------------------------------
+;; 12. 代码折叠：基于 hideshow (hs-minor-mode) 的两行折叠显示方案 (来自 Emacs China)
+;; ---------------------------------------------------------------------------
+(use-package hideshow
+  :ensure nil
+  :hook (prog-mode . hs-minor-mode)
+  :custom
+  (hs-allow-nesting t)
+  (hs-hide-comments-when-hiding-all nil)
+  :config
+  ;; 核心优化：将折叠范围调整到闭括号的前一行，使闭括号保留在独立的一行（呈现类似 VS Code 的两行折叠效果）
+  (defun my-hs-set-up-overlay-two-lines (ov)
+    "Adjust overlay OV so that closing delimiters remain on their own line."
+    (when (eq 'code (overlay-get ov 'hs))
+      (goto-char (overlay-end ov))
+      (let ((end-pos (max (overlay-start ov) (1- (line-beginning-position)))))
+        (move-overlay ov (overlay-start ov) end-pos))
+      (overlay-put ov 'display (propertize " ... " 'face 'shadow))))
+
+  (setq hs-set-up-overlay #'my-hs-set-up-overlay-two-lines))
+
 (provide 'init-prog)
 ;;; init-prog.el ends here

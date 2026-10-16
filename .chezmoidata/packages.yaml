@@ -3,64 +3,65 @@ packages:
     buckets:
       - "extras"
       - "nerd-fonts"
+      - "versions"
     pkgs:
       - "main/7zip"
-      - "main/unrar"
-      - "main/neovim"
-      - "main/msys2"
-      - "main/nodejs"
-      - "main/wget"
-      - "main/starship"
-      - "main/fzf"
-      - "main/fd"
-      - "main/fastfetch"
+      - "main/antigravity-cli"
       - "main/bat"
       - "main/delta"
       - "main/eza"
-      - "main/jq"
-      - "main/zoxide"
-      - "main/git"
+      - "main/fastfetch"
+      - "main/fd"
       - "main/flameshot"
-      - "main/copyq"
+      - "main/fzf"
+      - "main/git"
+      - "main/gnupg"
+      - "main/jq"
+      - "main/maven"
+      - "main/msys2"
+      - "main/nodejs"
+      - "main/openvpn"
       - "main/python"
-      - "main/antigravity-cli"
-      # wsl 下剪切板工具
-      - "main/win32yank"
+      - "main/ripgrep"
+      - "main/starship"
+      - "main/unrar"
+      - "main/wget"
+      - "main/zoxide"
 
-      # - "extras/vcxsrv"
-
-      # wm
-      # - "extras/komorebi"
-      # status bar
-      - "extras/yasb"
+      - "extras/emacs"
+      - "extras/lazygit"
       - "extras/powertoys"
       - "extras/scoop-completion"
-      # - "extras/autohotkey"
       - "extras/ultravnc"
-      - "extras/wezterm"
-      - "extras/lazygit"
-      - "extras/emacs"
+      - "extras/wsl-ssh-pageant"
 
-      - "nerd-fonts/Maple-Mono-NF-CN"
+      # - "extras/komorebi"
+      # - "extras/vcxsrv"
+      # - "extras/yasb"
+
       - "nerd-fonts/JetBrainsMono-NF-Mono"
+      - "nerd-fonts/LXGWWenKai"
+      - "nerd-fonts/Maple-Mono-NF-CN"
+
+      - "versions/neovim-nightly"
+      - "versions/wezterm-nightly"
 
     importRegistry:
-      # - '$env:USERPROFILE\scoop\apps\windows-terminal\current\install-context.reg'
-      - '$env:USERPROFILE\scoop\apps\pwsh\current\install-explorer-context.reg'
-      - '$env:USERPROFILE\scoop\apps\pwsh\current\install-file-context.reg'
       - '$env:USERPROFILE\scoop\apps\7zip\current\install-context.reg'
-      - '$env:USERPROFILE\scoop\apps\wezterm\current\install-context.reg'
-      #- '$env:USERPROFILE\scoop\apps\vscode\current\install-github-integration.reg'
-      #- '$env:USERPROFILE\scoop\apps\vscode\current\install-associations.reg'
-      #- '$env:USERPROFILE\scoop\apps\vscode\current\install-github-integration.reg'
-      #- '$env:USERPROFILE\scoop\apps\vscode\current\install-context.reg'
       - '$env:USERPROFILE\scoop\apps\git\current\install-associations.reg'
       - '$env:USERPROFILE\scoop\apps\git\current\install-context.reg'
+      - '$env:USERPROFILE\scoop\apps\pwsh\current\install-explorer-context.reg'
+      - '$env:USERPROFILE\scoop\apps\pwsh\current\install-file-context.reg'
+      - '$env:USERPROFILE\scoop\apps\wezterm\current\install-context.reg'
+      # - '$env:USERPROFILE\scoop\apps\vscode\current\install-associations.reg'
+      # - '$env:USERPROFILE\scoop\apps\vscode\current\install-context.reg'
+      # - '$env:USERPROFILE\scoop\apps\vscode\current\install-github-integration.reg'
+      # - '$env:USERPROFILE\scoop\apps\windows-terminal\current\install-context.reg'
   winget:
-    - "Rime.Weasel"
-    - "Microsoft.PowerShell"
     - "Brave.Brave"
+    - "Microsoft.PowerShell"
+    - "Rime.Weasel"
   psGallery:
-    - "PsReadLine"
     - "PSFzf"
+    - "PsReadLine"
     # - "CompletionPredictor"
