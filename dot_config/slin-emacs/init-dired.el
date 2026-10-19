@@ -26,7 +26,7 @@
 ;; 模糊检索与过滤
 (use-package dired-narrow
   :bind (:map dired-mode-map
-         ("/" . dired-narrow))
+              ("/" . dired-narrow))
   :config
   (setq dired-narrow-backend 'consult-line))
 
@@ -34,7 +34,7 @@
 ;; 快速新建 Java 文件 (类似 IDEA 体验：自动计算包名、选类型、自动生成类骨架)
 ;; ---------------------------------------------------------------------------
 (defun my/java-create-class (name type)
-  "像 IDEA 一样在 Dired 或当前 Java 项目中快速新建类/接口/枚举/Record。
+  "像 IDEA 一样在 Dired 或当前 Java 项目中快速新建类/接口/枚举/Record.
 NAME 支持直接输入类名 (如 UserService) 或包含包前缀 (如 dto.UserReqDto)。
 TYPE 可选 class, interface, enum, record, @interface。"
   (interactive
@@ -64,14 +64,14 @@ TYPE 可选 class, interface, enum, record, @interface。"
            ((string-match "/src/\\(.*\\)$" clean-dir)
             (replace-regexp-in-string "/" "." (match-string 1 clean-dir)))
            (t nil))))
-    
+
     ;; 1. 若输入了深层包路径（如 dto.UserDto），自动创建缺失的子目录
     (unless (file-exists-p target-dir)
       (make-directory target-dir t))
-    
+
     ;; 2. 打开/新建 Java 文件
     (find-file file-path)
-    
+
     ;; 3. 如果是新文件，写入包名与类定义模板
     (when (= (buffer-size) 0)
       (when (and package-name (not (string-empty-p package-name)))
@@ -86,4 +86,3 @@ TYPE 可选 class, interface, enum, record, @interface。"
 
 (provide 'init-dired)
 ;;; init-dired.el ends here
-

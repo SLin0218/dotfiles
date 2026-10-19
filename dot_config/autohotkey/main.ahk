@@ -1,6 +1,5 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
-; #WinActivateForce
 
 DetectHiddenWindows(True)
 
@@ -18,12 +17,6 @@ SetCapsLockState("AlwaysOff")
         Send "{Blind}{Esc}"
     }
 }
-
-ProgramFiles := "C:\Program Files\"
-ProgramFilesX86 := "C:\Program Files (x86)\"
-
-; 示例：使用 Hyper Key 组合键快捷操作
-; Hyper + H/J/K/L 方向键映射
 
 ; 禁用单独按下 WIN
 ; ~LWin::Send("{Blind}{vkE8}")
@@ -72,6 +65,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe WindowsTerminal.exe"
     CapsLock & 0::Send("^!{0}")
 
     #e::Send("^e")
+    !e::Send("^e")
     #+f::Send("^+f")
     #+r::Send("^+r")
     #f::Send("^f")
@@ -111,6 +105,18 @@ CapsLock & j::Send("{Down}")
 CapsLock & h::Send("{Left}")
 CapsLock & l::Send("{Right}")
 
+; 当 Alt+Tab 切换窗口的界面处于激活状态时，启用以下映射
+#HotIf WinActive("ahk_class XamlExplorerHostIslandWindow") or WinActive("ahk_class TaskSwitcherWnd")
+; ! 代表 Alt 键，{Blind} 确保发送按键时 Alt 键一直保持按下状态
+!h::Send("{Blind}{Shift Down}{Tab}{Shift Up}")   ; 向左移动
+!l::Send("{Blind}{Tab}")                         ; 向右移动
+!k::Send("{Blind}{Up}")                          ; 向上移动
+!j::Send("{Blind}{Down}")                        ; 向下移动
+
+#HotIf
+; ==========================================
+
+
 CapsLock & t::Send("^{t}")
 CapsLock & f::
 {
@@ -122,10 +128,48 @@ CapsLock & f::
       WinMaximize("A")
 }
 
+; !q::
+; {
+;   WinClose("A")
+; }
+; 长按 Alt + Q 关闭当前窗口进程
 !q::
 {
-  WinClose("A")
+    ; 等待 q 键被释放。t0.5 表示长按 0.5 秒触发，可以根据习惯修改这个时间
+    if !KeyWait("q", "T1.5")
+    {
+        try {
+            pname := WinGetProcessName("A")
+            if (pname = "wps.exe")
+            {
+                try {
+                    ProcessClose("wps.exe")
+                }
+                try {
+                    ProcessClose("wpscloudsvr.exe")
+                }
+                try {
+                    ProcessClose("wpscenter.exe")
+                }
+            }
+            else
+            {
+                pid := WinGetPID("A")
+                ProcessClose(pid)
+            }
+            ; 成功关闭后等待用户完全释放 q 键，防止连续触发
+            KeyWait("q")
+        }
+    }
+    else
+    {
+        ; 【短按逻辑】在 1.5 秒内释放了按键，正常关闭当前窗口
+        try {
+            WinClose("A")
+        }
+    }
 }
+
 CapsLock & w::Send("^{w}")
 CapsLock & r::Send("^{r}")
 CapsLock & a::Send("^{a}")
@@ -148,23 +192,27 @@ CapsLock & a::Send("^{a}")
 ; 触发 app
 ToggleApp(winTitle, exeName, workingDir?, Options?)
 {
+    DetectHiddenWindows(False)
     if WinActive(winTitle)
     {
+        ; TrayTip("Active winTitle: " . winTitle, "Debug", 4)
         WinActivate(winTitle)
     }
     else if WinExist(winTitle)
     {
+        ; TrayTip("Exist winTitle: " . winTitle, "Debug", 4)
         WinActivate(winTitle)
     }
     else
     {
         Run(exeName, workingDir?, Options?)
     }
+    DetectHiddenWindows(True)
 }
 
 CapsLock & i::
 {
-    ToggleApp("ahk_exe wezterm-gui.exe", "wezterm-gui.exe")
+    ToggleApp("ahk_exe wezterm-gui.exe ahk_class org.wezfurlong.wezterm", "wezterm-gui.exe")
 }
 CapsLock & g::
 {
@@ -172,11 +220,20 @@ CapsLock & g::
 }
 CapsLock & n::
 {
-    ToggleApp("\s-\s ahk_exe idea64.exe", ProgramFiles . "JetBrains\IntelliJ IDEA 2026.2.1\bin\idea64.exe")
+    patternPath := A_ProgramsCommon . "\JetBrains\IntelliJ IDEA*.lnk"
+    actualPath := ""
+    Loop Files, patternPath {
+        actualPath := A_LoopFileFullPath
+    }
+    ToggleApp("\s-\s ahk_exe idea64.exe", actualPath)
 }
 CapsLock & u::
 {
-    ToggleApp("飞书 ahk_exe Feishu.exe", ProgramFilesX86 . A_AppData . "\..\Local\Feishu\Feishu.exe")
+    ToggleApp("飞书 ahk_exe Feishu.exe", A_Programs . "\飞书.lnk")
+}
+CapsLock & b::
+{
+    ToggleApp("WPS Office ahk_class OpusApp ahk_exe wps.exe", A_Programs . "\WPS Office.lnk")
 }
 CapsLock & e::
 {
@@ -188,7 +245,7 @@ CapsLock & s::
 }
 CapsLock & o::
 {
-    ToggleApp("ahk_class WeWorkWindow", ProgramFilesX86 . "WXWork\WXWork.exe", ,"Max")
+    ToggleApp("企业微信 ahk_class WeWorkWindow ahk_exe WXWork.exe", A_StartMenuCommon . "\企业微信.lnk", ,"Max")
 }
 CapsLock & m::
 {
@@ -206,22 +263,6 @@ CapsLock & y::
     Sleep 500
     Reload()
 }
-
-
-; 定义全局变量
-global activeWindows := []       ; 存储过滤后的有效窗口ID
-global currentIndex := 0         ; 当前窗口索引
-global lastPressTime := 0        ; 上次按键时间
-global timeoutThreshold := 1500  ; 1.5秒超时
-
-; 辅助函数：检测窗口是否被 Windows 隐藏（针对 UWP 应用如应用商店、设置等）
-DmGetWindowCloaked(hwnd) {
-    cloaked := 0
-    ; DWMWA_CLOAKED = 14
-    res := DllCall("dwmapi\DwmGetWindowAttribute", "Ptr", hwnd, "UInt", 14, "Ptr*", &cloaked, "UInt", 4)
-    return (res == 0) ? cloaked : 0
-}
-
 
 ; ==============================================================================
 ; 输入法切换

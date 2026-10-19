@@ -40,28 +40,28 @@
     "keybindings":
     [
         {
-            "id": "Terminal.PrevTab",
-            "keys": "ctrl+shift+tab"
+            "id": null,
+            "keys": "alt+shift+minus"
         },
         {
             "id": "Terminal.MoveFocusUp",
             "keys": "ctrl+shift+k"
         },
         {
-            "id": null,
-            "keys": "alt+shift+minus"
+            "id": "Terminal.PrevTab",
+            "keys": "ctrl+shift+tab"
         },
         {
-            "id": "User.splitPane.down",
-            "keys": "ctrl+shift+5"
+            "id": "Terminal.CopyToClipboard",
+            "keys": "ctrl+shift+c"
         },
         {
             "id": "Terminal.MoveTabBackward",
             "keys": "ctrl+shift+comma"
         },
         {
-            "id": "Terminal.CopyToClipboard",
-            "keys": "ctrl+shift+c"
+            "id": "User.splitPane.down",
+            "keys": "ctrl+shift+5"
         },
         {
             "id": "User.splitPane.left",

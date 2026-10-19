@@ -135,6 +135,8 @@
 
   (setq org-startup-indented t)         ; 开启标题缩进
   (setq org-hide-leading-stars t)       ; 隐藏标题星号
+  (setq org-startup-with-inline-images t) ; 打开文件时自动渲染内联图片
+  (setq org-image-actual-width '(600))    ; 限制图片内联最大显示宽度 (防止大图撑破视口)
   (setq org-src-tab-acts-natively t)    ; code按语言缩进
   (setq org-src-preserve-indentation nil)
   (setq org-blank-before-new-entry
@@ -517,6 +519,64 @@
     :defer t
     :config
     (setq org-pandoc-options-for-docx '((standalone . t)))))
+
+;; Org-download: 剪贴板快速插入图片 & 截图粘贴
+(use-package org-download
+  :after org
+  :defer t
+  :commands (org-download-clipboard
+             org-download-yank
+             org-download-screenshot)
+  :init
+  ;; 传统 Emacs 快捷键
+  (with-eval-after-load 'org
+    (define-key org-mode-map (kbd "C-M-y") #'org-download-clipboard))
+  ;; Evil 模式下的 Leader 快捷键: SPC m p 或 SPC m i
+  (with-eval-after-load 'evil
+    (evil-define-key 'normal org-mode-map (kbd "<leader>mp") #'org-download-clipboard)
+    (evil-define-key 'normal org-mode-map (kbd "<leader>mi") #'org-download-clipboard))
+  :config
+  ;; 默认保存到当前文档同级目录下的 images 子目录
+  (setq-default org-download-image-dir "./images")
+  ;; 插入后立即内联渲染显示
+  (setq org-download-display-inline-images t)
+  ;; 文件名采用时间戳格式 (如 20261016_152500_)
+  (setq org-download-timestamp "%Y%m%d_%H%M%S_")
+  ;; 禁用自动生成的二级标题和注释行 (#+DOWNLOADED: ...)，保持笔记纯净
+  (setq org-download-heading-lvl nil)
+  (setq org-download-annotate-function (lambda (_link) ""))
+  ;; 跨平台剪贴板截图抓取适配
+  (cond
+   ((eq system-type 'windows-nt)
+    (defun my/org-download-clipboard-windows (filename)
+      "Save clipboard image to FILENAME using PowerShell on Windows."
+      (let* ((target-path (replace-regexp-in-string "/" "\\" (expand-file-name filename) t t))
+             (ps-script
+              (format "Add-Type -AssemblyName System.Windows.Forms; if ([System.Windows.Forms.Clipboard]::ContainsImage()) { [System.Windows.Forms.Clipboard]::GetImage().Save('%s', [System.Drawing.Imaging.ImageFormat]::Png) } else { exit 1 }"
+                      target-path)))
+        (call-process "powershell.exe" nil nil nil
+                      "-NoProfile" "-NonInteractive" "-Command" ps-script)))
+
+    (setq org-download-screenshot-method #'my/org-download-clipboard-windows)
+
+    ;; org-download-clipboard 原生逻辑在 Windows 下硬编码了对 magick (ImageMagick) 的检查
+    ;; 若本地未安装 magick，自动回退至系统原生 PowerShell，免装任何外部软件
+    (advice-add 'org-download-clipboard :around
+                (lambda (orig-fun &rest args)
+                  (if (executable-find "magick")
+                      (apply orig-fun args)
+                    (let ((org-download-screenshot-method #'my/org-download-clipboard-windows))
+                      (org-id-get-create)
+                      (org-download-screenshot (car args)))))))
+   ((eq system-type 'darwin)
+    (when (executable-find "pngpaste")
+      (setq org-download-screenshot-method "pngpaste %s")))
+   ((eq system-type 'gnu/linux)
+    (cond
+     ((executable-find "wl-paste")
+      (setq org-download-screenshot-method "wl-paste --type image/png > %s"))
+     ((executable-find "xclip")
+      (setq org-download-screenshot-method "xclip -selection clipboard -t image/png -o > %s"))))))
 
 (provide 'init-org)
 ;;; init-org.el ends here

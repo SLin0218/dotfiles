@@ -430,8 +430,8 @@
   (apheleia-global-mode +1))
 
 (defun my/indent-template-region (start end)
-  "对包含 Go 模板 {{ }} 的区域进行智能缩进：
-完全跳过包含 {{ }} 的行（保留原行及其缩进不变），并临时添加注释前缀，防止模板标签干扰 Major Mode 的缩进计算。"
+  "对 START 到 END 之间包含 Go 模板 {{ }} 的区域进行智能缩进.
+完全跳过包含 {{ }} 的行（保留原行及其缩进不变），并临时添加注释前缀，防止模板标签干扰 Major Mode 的缩进计算."
   (interactive "r")
   (save-excursion
     (save-restriction
@@ -471,7 +471,7 @@
             (forward-line 1)))))))
 
 (defun my/format-buffer ()
-  "格式化当前 Buffer：若为模板文件 (.tmpl/.tmp) 则调用智能模板缩进 (my/indent-template-region) 跳过 {{ }} 行；
+  "格式化当前 Buffer：若为模板文件 (.tmpl/.tmp) 则调用智能模板缩进 (my/indent-template-region) 跳过 {{ }} 行；.
 否则若 Eglot 已启动且 LSP 服务器支持格式化则使用 Eglot，否则降级使用 Apheleia。"
   (interactive)
   (cond
@@ -540,7 +540,7 @@
      (2 'font-lock-keyword-face t))))
 
 (define-minor-mode go-template-font-lock-mode
-  "在任何模式下额外高亮 Go 模板语法 {{ ... }}"
+  "在任何模式下额外高亮 Go 模板语法 {{ ... }} ."
   :lighter " GoTmpl"
   (if go-template-font-lock-mode
       (font-lock-add-keywords nil go-template-font-lock-keywords t)
