@@ -1,14 +1,16 @@
 [wsl2]
-dnsProxy = false
-dnsTunneling = false
-firewall = true
-autoProxy = false
+# networkingMode = Mirrored
+# dnsTunneling = false
+# firewall = false
+# autoProxy = false
+
+networkingMode = Nat
+dnsProxy = true
 memory = 16GB
 swap = 8GB
 swapFile = {{ .chezmoi.homeDir }}/wsl-swap.vhdx
-networkingMode = Mirrored
 guiApplications = true
 
 [experimental]
-hostAddressLoopback = true
+# hostAddressLoopback = true
 autoMemoryReclaim = dropcache

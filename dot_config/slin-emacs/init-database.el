@@ -15,6 +15,7 @@
 
 (setq clutch-connection-alist
       '(("pg-dev-rx-plm" . (:backend pg    :profile-entry "pg/dev/rx-plm"))
+        ("pg-prod-txled" . (:backend pg    :profile-entry "pg/prod/txled"))
         ("tw-dev-yg"     . (:backend mysql :profile-entry "mysql/dev/tw-yg"))
         ("fawa-dev-ssh"  . (:backend mysql :profile-entry "mysql/dev/fwh"))
         ("redis-dev"     . (:backend redis :profile-entry "redis/dev"))))
@@ -36,26 +37,47 @@
 (use-package sql-indent
   :hook (sql-mode . sql-indent-enable))
 
+(defun my/sql-get-dialect ()
+  "获取当前 SQL buffer 对应的 dialect（供 sqlfluff 格式化使用）。"
+  (let ((backend (and (bound-and-true-p clutch--connection-params)
+                      (plist-get clutch--connection-params :backend))))
+    (cond
+     ((eq backend 'pg) "postgres")
+     ((eq backend 'mysql) "mysql")
+     ((eq backend 'sqlite) "sqlite")
+     ((bound-and-true-p sql-product)
+      (pcase sql-product
+        ('postgres "postgres")
+        ('mysql "mysql")
+        ('sqlite "sqlite")
+        (_ "mysql")))
+     (t "mysql"))))
+
 (use-package apheleia
   :ensure t
   :defer t
-  :hook (sql-mode . apheleia-mode)  ;; 进入 sql-mode 时激活
+  :hook ((sql-mode . apheleia-mode)
+         (clutch-mode . apheleia-mode))  ;; 进入 clutch-mode 时也激活
   :init
   ;; 如果你想全局所有编程语言保存时都自动格式化，可直接开启：
   ;; (apheleia-global-mode +1)
   :config
-  ;; 1. 确保 apheleia 针对 sql-mode 默认使用 sqlfluff
+  ;; 1. 确保 apheleia 针对 sql-mode 和 clutch-mode 默认使用 sqlfluff
   (setf (alist-get 'sql-mode apheleia-mode-alist) 'sqlfluff)
+  (setf (alist-get 'clutch-mode apheleia-mode-alist) 'sqlfluff)
 
-  ;; 2. 如果项目里没有 .sqlfluff 配置文件，默认回退方言（比如 mysql 或 ansi）
-  ;; 格式化命令相当于: sqlfluff format --dialect mysql -
+  ;; 2. 动态匹配方言（避免 pg 连接使用 mysql 方言报错）
+  ;; 格式化命令相当于: sqlfluff format --dialect <mysql|postgres|sqlite> -
   (setf (alist-get 'sqlfluff apheleia-formatters)
-        '("sqlfluff" "format" "--dialect" "mysql" "-"))
+        '("sqlfluff" "format" "--dialect" (my/sql-get-dialect) "-"))
 
-  ;; 3. 绑定 Evil normal 模式下的快捷键
+  ;; 3. 绑定 Evil normal 模式下的快捷键（兼容 sql-mode 与 clutch-mode）
   (with-eval-after-load 'evil
     (evil-define-key 'normal sql-mode-map
-      (kbd "<leader>fm") #'apheleia-format-buffer)))
+      (kbd "<leader>fm") #'apheleia-format-buffer)
+    (with-eval-after-load 'clutch
+      (evil-define-key 'normal clutch-mode-map
+        (kbd "<leader>fm") #'apheleia-format-buffer))))
 
 ;; Clutch 现代化交互式数据库客户端
 (use-package mysql :ensure t :defer t)
@@ -63,7 +85,7 @@
 (use-package redis :vc (:url "https://github.com/LuciusChen/redis.el") :defer t)
 (use-package clutch
   :ensure t
-  :commands (clutch clutch-open clutch-describe-table)
+  :commands (clutch clutch-open clutch-describe-table clutch-query-console)
   :config
   (evil-define-key 'normal clutch-result-mode-map
     (kbd "f")         #'clutch-result-fullscreen-toggle

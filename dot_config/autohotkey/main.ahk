@@ -1,10 +1,31 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 
+; 保持在后台运行
+Persistent(true)
 DetectHiddenWindows(True)
-
 ; 强制关闭 CapsLock 的大写锁定状态，避免干扰
 SetCapsLockState("AlwaysOff")
+
+; 注册系统 Shell 钩子
+DllCall("RegisterShellHookWindow", "Ptr", A_ScriptHwnd)
+MsgNum := DllCall("RegisterWindowMessage", "Str", "ShellHook")
+OnMessage(MsgNum, ShellMessage)
+ShellMessage(wParam, lParam, *) {
+    ; 1 代表 HSHELL_WINDOWCREATED (窗口被创建)
+    if (wParam = 1) {
+        if WinExist(lParam) {
+            ; 获取新窗口的进程名称
+            try {
+                processName := WinGetProcessName(lParam)
+                if (processName = "pinentry-basic.exe") {
+                    WinActivate(lParam)       ; 聚焦/激活窗口
+                    ; WinSetAlwaysOnTop(1, lParam) ; 强行置顶
+                }
+            }
+        }
+    }
+}
 
 ; --- 单独按下 CapsLock 发送 Esc ---
 *CapsLock::
@@ -254,7 +275,7 @@ CapsLock & m::
 }
 CapsLock & y::
 {
-   ToggleApp("ahk_exe Spotify.exe", "Spotify.exe")
+   ToggleApp("ahk_exe Spotify.exe", "C:\Users\USER\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Scoop Apps\Spotify.lnk Spotify.exe")
 }
 ; ==========================================
 
@@ -264,31 +285,5 @@ CapsLock & y::
     Reload()
 }
 
-; ==============================================================================
-; 输入法切换
-; ==============================================================================
-; #HotIf WinActive("ahk_exe emacs.exe")
-;     CapsLock & Space::send("^{\}")
-; #HotIf
-
-; #HotIf !WinActive("ahk_exe emacs.exe")
-;     CapsLock & Space::send("^{space}")
-; #HotIf
-
-; 长按“后退”侧键 -> 屏幕连续【向右】滚动
-XButton1:: {
-    while GetKeyState("XButton1", "P") {
-        Send("{WheelRight}")
-        Sleep(40) ; 滚动速度，数值越小越快
-    }
-}
-
-; 长按“前进”侧键 -> 屏幕连续【向左】滚动
-XButton2:: {
-    while GetKeyState("XButton2", "P") {
-        Send("{WheelLeft}")
-        Sleep(40)
-    }
-}
 
 CapsLock & Space::send("^{space}")
