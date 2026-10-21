@@ -11,10 +11,17 @@ config.color_scheme = "{{ .theme }}"
 config.tab_max_width = 32
 
 -- ==========================================
--- 1. 核心启动与环境配置 (PowerShell 7 & WSL)
+-- 1. 核心启动与多路复用配置 (Multiplexing & Domains)
 -- ==========================================
-{{- if eq .chezmoi.os "windows" }}
+-- 启用终端多路复用 (Unix Domain Multiplexing，支持会话持久化与后台恢复)
+config.unix_domains = {
+   {
+      name = "unix",
+   },
+}
 config.default_gui_startup_args = { "connect", "unix" }
+
+{{- if eq .chezmoi.os "windows" }}
 config.default_prog = { "pwsh.exe", "--noLogo" }
 config.default_domain = "local"
 config.launch_menu = {
@@ -34,17 +41,35 @@ config.launch_menu = {
       domain = { DomainName = "unix" },
    },
 }
-config.unix_domains = {
-   {
-      name = "unix",
-   },
-}
 {{- else }}
+-- 连接到 Unix 域多路复用时自动最大化窗口
+wezterm.on("gui-attached", function(domain)
+   for _, mux_win in ipairs(wezterm.mux.all_windows()) do
+      local gui_win = mux_win:gui_window()
+      if gui_win then
+         gui_win:maximize()
+      end
+   end
+end)
+
+-- 兜底启动（未走 connect 时）自动最大化窗口
 wezterm.on("gui-startup", function(cmd)
    local _, _, window = wezterm.mux.spawn_window(cmd or {})
    window:gui_window():maximize()
 end)
+
 config.default_prog = { "zsh" }
+config.launch_menu = {
+   {
+      label = "Zsh",
+      domain = { DomainName = "unix" },
+   },
+   {
+      label = "Bash",
+      domain = { DomainName = "unix" },
+      args = { "bash", "-l" },
+   },
+}
 {{- end }}
 
 -- ==========================================
