@@ -21,7 +21,8 @@ packages:
       - "main/msys2"
       - "main/nodejs"
       - "main/openvpn"
-      - "main/python"
+      # 包含 C++ 扩展库 预编译，最新版本需要自行编译
+      - "main/python312"
       - "main/ripgrep"
       - "main/starship"
       - "main/unrar"

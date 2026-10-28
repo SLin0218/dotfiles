@@ -57,9 +57,9 @@
 (let ((secret-file (expand-file-name "init-secret.el" (file-name-directory (or load-file-name buffer-file-name "~/.config/slin-emacs/")))))
   (when (file-exists-p secret-file)
     (load secret-file nil t)))
-(require 'init-base)         ; 基础编辑策略 (Session, Undo-tree, Magit, Recentf)
-(require 'init-ui)           ; 外观界面美化 (Theme, Font, Modeline, Dimmer)
-(require 'init-tab)          ; Tab-line
+(require 'init-base)         ; 基础编辑策略 (Session, Undo-fu, Magit, Recentf)
+(require 'init-ui)           ; 外观界面美化 (Theme, Font, Modeline, Dimmer, Tab-bar)
+
 (require 'init-completion)   ; Minibuffer & In-buffer 补全检索 (Vertico, Consult, Corfu, Xref)
 (require 'init-keybinding)   ; Evil 框架与全局 Leader 快捷键映射
 (require 'init-prog)         ; 编程语言服务 (Eglot, Treesit, Apheleia, Project)

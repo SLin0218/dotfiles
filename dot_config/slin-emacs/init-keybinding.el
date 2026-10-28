@@ -18,7 +18,7 @@
 ;; Vim 模式与 Leader 键设置
 (use-package evil
   :custom
-  (evil-undo-system 'undo-tree)
+  (evil-undo-system 'undo-fu)
   (evil-want-C-u-scroll t)
   :config
   (dolist (mode '(dashboard-mode
@@ -39,6 +39,9 @@
   (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bx") 'kill-current-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bs") 'save-buffer)
+
+  ;; 撤销历史树可视化 (vundo)
+  (evil-define-key 'normal 'global (kbd "<leader>u") 'vundo)
 
   ;; 搜索操作 (Fuzzy Search)
   (evil-define-key 'normal 'global (kbd "<leader>sp") 'consult-ripgrep)

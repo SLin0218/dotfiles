@@ -2,21 +2,30 @@
 
 ;;; Commentary:
 ;;
-;; 基础编辑设置：撤销历史树 (undo-tree)、备份策略、Magit Git 版本控制、
+;; 基础编辑设置：撤销管理 (undo-fu / vundo)、备份策略、Magit Git 版本控制、
 ;; 最近文件 (recentf)、光标记忆 (save-place) 及环境变量同步。
 ;;
 
 ;;; Code:
 
-;; 撤销历史树：重新打开文件时记住之前改动
-(use-package undo-tree
-  :init
-  (global-undo-tree-mode)
+;; 现代撤销/重做体系
+(use-package undo-fu)
+
+;; 跨会话撤销历史持久化 (轻量安全，不会像 undo-tree 那样偶发历史损坏)
+(use-package undo-fu-session
+  :hook (after-init . undo-fu-session-global-mode)
   :config
-  (let ((hist-dir (expand-file-name "undo-tree-hist" user-emacs-directory)))
-    (make-directory hist-dir t)
-    (setq undo-tree-history-directory-alist `(("." . ,hist-dir))
-          undo-tree-auto-save-history t)))
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\'" "/git-rebase-todo\'")))
+
+;; 按需唤起的可视化撤销树 (轻量无侵入)
+(use-package vundo
+  :bind ("C-x u" . vundo)
+  :config
+  (setq vundo-glyph-alist vundo-unicode-symbols)
+  (define-key vundo-mode-map (kbd "l") #'vundo-forward)
+  (define-key vundo-mode-map (kbd "h") #'vundo-backward)
+  (define-key vundo-mode-map (kbd "j") #'vundo-next)
+  (define-key vundo-mode-map (kbd "k") #'vundo-previous))
 
 ;; 同步 Shell 环境变量 (GUI 模式)
 (use-package exec-path-from-shell

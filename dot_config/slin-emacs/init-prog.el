@@ -39,6 +39,15 @@
 ;; ---------------------------------------------------------------------------
 ;; 2. Tree-sitter 语法解析支持
 ;; ---------------------------------------------------------------------------
+;; 在 Windows 下配置 MinGW 路径并指定 Tree-sitter 编译器
+(when (eq system-type 'windows-nt)
+  (let ((mingw-bin (expand-file-name "~/scoop/apps/mingw/current/bin")))
+    (when (file-directory-p mingw-bin)
+      (add-to-list 'exec-path mingw-bin)
+      (setenv "PATH" (concat mingw-bin ";" (getenv "PATH")))))
+  (setenv "CC" "gcc")
+  (setenv "CXX" "g++"))
+
 (use-package treesit-auto
   :custom
   (treesit-auto-install 'prompt)
@@ -516,6 +525,42 @@
 (use-package yaml-mode :defer t)
 (use-package powershell :defer t)
 (use-package ini-mode :defer t)
+
+;; XML 语法高亮与智能编辑 (nxml-mode)
+(use-package nxml-mode
+  :ensure nil
+  :mode (("\\.xml\\'" . nxml-mode)
+         ("\\.pom\\'" . nxml-mode)
+         ("\\.xsd\\'" . nxml-mode)
+         ("\\.xslt?\\'" . nxml-mode)
+         ("\\.svg\\'" . nxml-mode)
+         ("\\.plist\\'" . nxml-mode)
+         ("\\.xaml\\'" . nxml-mode)
+         ("\\.launch\\'" . nxml-mode))
+  :custom
+  (nxml-child-indent 2)
+  (nxml-attribute-indent 2)
+  (nxml-slash-auto-complete-flag t)       ; 输入 </ 自动闭合标签
+  (nxml-auto-insert-xml-declaration-flag nil)
+  :config
+  (defun slin/setup-nxml-faces ()
+    "将 nxml 专用 face 映射为标准 font-lock face，确保任何主题下均有丰富语法高亮."
+    (dolist (spec '((nxml-element-local-name . font-lock-function-name-face)
+                    (nxml-element-prefix . font-lock-type-face)
+                    (nxml-tag-delimiter . font-lock-bracket-face)
+                    (nxml-tag-slash . font-lock-bracket-face)
+                    (nxml-attribute-local-name . font-lock-variable-name-face)
+                    (nxml-attribute-value . font-lock-string-face)
+                    (nxml-attribute-value-delimiter . font-lock-string-face)
+                    (nxml-cdata-section-content . font-lock-string-face)
+                    (nxml-cdata-section-delimiter . font-lock-keyword-face)
+                    (nxml-cdata-section-CDATA . font-lock-keyword-face)
+                    (nxml-prolog-keyword . font-lock-keyword-face)))
+      (when (and (facep (car spec)) (facep (cdr spec)))
+        (set-face-attribute (car spec) nil :inherit (cdr spec)))))
+
+  (slin/setup-nxml-faces)
+  (advice-add 'load-theme :after (lambda (&rest _) (slin/setup-nxml-faces))))
 (use-package ahk-mode
   :ensure t
   :mode "\\.ahk\\'"

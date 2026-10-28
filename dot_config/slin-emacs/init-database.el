@@ -17,6 +17,7 @@
       '(("pg-dev-rx-plm" . (:backend pg    :profile-entry "pg/dev/rx-plm"))
         ("pg-prod-txled" . (:backend pg    :profile-entry "pg/prod/txled"))
         ("tw-dev-yg"     . (:backend mysql :profile-entry "mysql/dev/tw-yg"))
+        ("tw-prod"       . (:backend mysql :profile-entry "mysql/prod/tw"))
         ("fawa-dev-ssh"  . (:backend mysql :profile-entry "mysql/dev/fwh"))
         ("redis-dev"     . (:backend redis :profile-entry "redis/dev"))))
 
@@ -62,16 +63,15 @@
   ;; 如果你想全局所有编程语言保存时都自动格式化，可直接开启：
   ;; (apheleia-global-mode +1)
   :config
-  ;; 1. 确保 apheleia 针对 sql-mode 和 clutch-mode 默认使用 sqlfluff
+  ;; 1. 确保 apheleia 针对 sql-mode 和 clutch-mode 默认使用 sqlfluff，并动态适配方言
+  ;; 格式化命令相当于: sqlfluff format --dialect <postgres|mysql|sqlite> --disable-progress-bar -
+  (setf (alist-get 'sqlfluff apheleia-formatters)
+        '("sqlfluff" "format" "--dialect" (my/sql-get-dialect) "--disable-progress-bar" "-"))
+
   (setf (alist-get 'sql-mode apheleia-mode-alist) 'sqlfluff)
   (setf (alist-get 'clutch-mode apheleia-mode-alist) 'sqlfluff)
 
-  ;; 2. 动态匹配方言（避免 pg 连接使用 mysql 方言报错）
-  ;; 格式化命令相当于: sqlfluff format --dialect <mysql|postgres|sqlite> -
-  (setf (alist-get 'sqlfluff apheleia-formatters)
-        '("sqlfluff" "format" "--dialect" (my/sql-get-dialect) "-"))
-
-  ;; 3. 绑定 Evil normal 模式下的快捷键（兼容 sql-mode 与 clutch-mode）
+  ;; 2. 绑定 Evil normal 模式下的快捷键（兼容 sql-mode 与 clutch-mode）
   (with-eval-after-load 'evil
     (evil-define-key 'normal sql-mode-map
       (kbd "<leader>fm") #'apheleia-format-buffer)
