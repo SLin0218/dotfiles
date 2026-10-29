@@ -18,7 +18,7 @@ ShellMessage(wParam, lParam, *) {
             ; 获取新窗口的进程名称
             try {
                 processName := WinGetProcessName(lParam)
-                if (processName = "pinentry-basic.exe") {
+                if (processName = "pinentry-basic.exe" || processName = "pinentry.exe") {
                     WinActivate(lParam)       ; 聚焦/激活窗口
                     ; WinSetAlwaysOnTop(1, lParam) ; 强行置顶
                 }

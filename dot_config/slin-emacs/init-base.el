@@ -40,8 +40,8 @@
                              (getenv "PATH")))
       (setq exec-path (append expanded-paths exec-path)))))
 
-;; GPG / EPA 设置：在 Emacs Minibuffer 中直接输入 GPG 密码 (Loopback 模式)
-(setq epa-pinentry-mode 'loopback)
+;; GPG / EPA 设置：允许调用外部图形化 Pinentry 弹窗
+(setq epa-pinentry-mode nil)
 
 ;; 备份与自动保存策略
 (setq auto-save-default nil)    ; 关闭自动保存
