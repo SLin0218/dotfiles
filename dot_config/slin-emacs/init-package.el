@@ -2,15 +2,16 @@
 
 ;;; Commentary:
 ;;
-;; 包管理器初始化，配置 ELPA/MELPA 镜像源，确保 use-package 宏立即可用。
+;; 包管理器初始化，配置 ELPA/NonGNU/MELPA 镜像源，确保 use-package 宏立即可用。
 ;;
 
 ;;; Code:
 
 (require 'package)
 (setq package-archives
-      '(("gnu"   . "https://elpa.gnu.org/packages/")
-        ("melpa" . "https://melpa.org/packages/")))
+      '(("gnu"    . "https://elpa.gnu.org/packages/")
+        ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+        ("melpa"  . "https://melpa.org/packages/")))
 
 ;; 配合 early-init.el 中的 (setq package-enable-at-startup nil)
 ;; 使用官方推荐的 (package-activate-all) 激活已安装插件，稳定、干净且零缓存负担

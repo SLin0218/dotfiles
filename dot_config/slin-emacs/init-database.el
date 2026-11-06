@@ -18,7 +18,7 @@
         ("pg-prod-txled" . (:backend pg    :profile-entry "pg/prod/txled"))
         ("tw-dev-yg"     . (:backend mysql :profile-entry "mysql/dev/tw-yg"))
         ("tw-prod"       . (:backend mysql :profile-entry "mysql/prod/tw"))
-        ("fawa-dev-ssh"  . (:backend mysql :profile-entry "mysql/dev/fwh"))
+        ("fawa-dev-ssh"  . (:backend mysql :profile-entry "mysql/dev/fwh-ssh"))
         ("redis-dev"     . (:backend redis :profile-entry "redis/dev"))))
 
 ;; SQL 编辑模式

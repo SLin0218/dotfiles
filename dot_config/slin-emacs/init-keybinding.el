@@ -36,6 +36,11 @@
 
   ;; Buffer 操作
   (evil-define-key 'normal 'global (kbd "<leader>bb") 'consult-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>bB") (lambda ()
+                                                        (interactive)
+                                                        (let ((consult-buffer-list-function #'buffer-list))
+                                                          (consult-buffer))))
+  (evil-define-key 'normal 'global (kbd "<leader>ba") 'tabspaces-switch-buffer-and-tab)
   (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bx") 'kill-current-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bs") 'save-buffer)
@@ -61,10 +66,15 @@
   ;; 重构 修改名称与导入组织
   (evil-define-key 'normal 'global (kbd "<leader>rn") 'eglot-rename)
   (evil-define-key 'normal 'global (kbd "<leader>oi") '+java/organize-imports)
+  ;; Org Agenda 日程与任务看板
+  (evil-define-key 'normal 'global (kbd "<leader>oa") 'org-agenda)
+  (evil-define-key 'normal 'global (kbd "<leader>oz") 'my/org-agenda-view)
+  (evil-define-key 'normal 'global (kbd "<leader>om") 'my/org-agenda-month-view)
   ;; 代码格式化与 Quickfix / Code Actions
   (evil-define-key 'normal 'global (kbd "<leader>fm") 'my/format-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>da") 'eglot-code-actions)
   (evil-define-key 'normal 'global (kbd "<leader>ca") 'eglot-code-actions)
+  (evil-define-key 'normal 'global (kbd "<leader>cl") 'my/eglot-events-buffer)
 
   ;; 注释
   (evil-define-key '(normal visual) 'global (kbd "<leader>/") 'evilnc-comment-or-uncomment-lines)
@@ -80,19 +90,35 @@
   (evil-define-key 'normal 'global (kbd "<leader>wq") 'delete-window)
   (evil-define-key 'normal 'global (kbd "<leader>ww") 'delete-other-windows)
 
+  ;; 标签页与工作区 (Tab / Workspace) 操作
+  (evil-define-key 'normal 'global (kbd "<leader>tt") 'tabspaces-switch-or-create-workspace)
+  (evil-define-key 'normal 'global (kbd "<leader>tn") 'tab-bar-new-tab)
+  (evil-define-key 'normal 'global (kbd "<leader>tc") 'tab-bar-close-tab)
+  (evil-define-key 'normal 'global (kbd "<leader>tq") 'tabspaces-close-workspace)
+  (evil-define-key 'normal 'global (kbd "<leader>tr") 'tab-bar-rename-tab)
+  (evil-define-key 'normal 'global (kbd "<leader>t]") 'tab-bar-switch-to-next-tab)
+  (evil-define-key 'normal 'global (kbd "<leader>t[") 'tab-bar-switch-to-prev-tab)
+  (evil-define-key 'normal 'global (kbd "<leader>tb") 'tabspaces-switch-buffer-and-tab)
+
   ;; Git diff-hl 跳转
   (evil-define-key 'normal 'global (kbd "<leader>vn") 'diff-hl-next-hunk)
   (evil-define-key 'normal 'global (kbd "<leader>vp") 'diff-hl-previous-hunk)
 
-  ;; Flymake 错误跳转
+  ;; Flymake 错误跳转与诊断列表
   (evil-define-key 'normal 'global (kbd "<leader>en") 'flymake-goto-next-error)
   (evil-define-key 'normal 'global (kbd "<leader>ep") 'flymake-goto-prev-error)
+  (evil-define-key 'normal 'global (kbd "<leader>ed") 'consult-flymake)
+  (evil-define-key 'normal 'global (kbd "<leader>cx") 'consult-flymake)
+  (evil-define-key 'normal 'global (kbd "<leader>eb") 'flymake-show-buffer-diagnostics)
 
   ;; 快捷打开 Dired & Magit
   (evil-define-key 'normal 'global (kbd "<leader>dj") 'dired-jump)
   (evil-define-key 'normal 'global (kbd "<leader>mg") 'magit)
   ;; 快速查看 blame 类似 idea Git Annotate
   (evil-define-key 'normal 'global (kbd "<leader>mb") 'magit-blame-addition)
+  ;; 左右分屏代码对比 (类似 IDEA Diff)
+  (evil-define-key 'normal 'global (kbd "<leader>me") 'my/code-diff-dwim)
+  (evil-define-key 'normal 'global (kbd "<leader>mE") 'magit-ediff)
 
   ;; V2EX 客户端与主页 Dashboard
   (evil-define-key 'normal 'global (kbd "<leader>xv") 'v2ex)

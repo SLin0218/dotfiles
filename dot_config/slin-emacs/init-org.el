@@ -7,7 +7,23 @@
 
 ;;; Code:
 
-(setq org-agenda-files (list (expand-file-name "~/org/agenda/")))
+(defun my/current-month-agenda-files ()
+  "获取当前活动的 Agenda 文件列表：
+包含通用任务文件以及 logs/ 下当前月份 (YYYY-MM.org) 文件，
+自动排除历史归档月份日志，避免历史日志跨月干扰。"
+  (let* ((agenda-dir (expand-file-name "~/org/agenda/"))
+         (cur-month (format-time-string "%Y-%m"))
+         (all-files (when (file-directory-p agenda-dir)
+                      (directory-files-recursively agenda-dir "\\.org\\'"))))
+    (seq-filter
+     (lambda (file)
+       (let ((name (file-name-nondirectory file)))
+         (if (string-match-p "^[0-9]\\{4\\}-[0-9]\\{2\\}\\.org$" name)
+             (string-prefix-p cur-month name)
+           t)))
+     all-files)))
+
+(setq org-agenda-files (my/current-month-agenda-files))
 ;; 禁用默认加载的第三方链接子模块，提升启动与首次加载速度
 (setq org-modules nil)
 
@@ -365,7 +381,8 @@
 
 ;; Org Modern UI 美化
 (use-package org-modern
-  :hook (org-mode . org-modern-mode)
+  :hook ((org-mode . org-modern-mode)
+         (org-agenda-finalize . org-modern-agenda))
   :config
   (setq org-modern-star 'fold)
   (setq org-modern-fold-stars
@@ -415,11 +432,16 @@
 
 ;; Org Super Agenda
 (use-package org-super-agenda
-  :commands org-super-agenda-mode
-  :hook (org-agenda-mode . org-super-agenda-mode)
+  :demand t
   :config
+  (org-super-agenda-mode 1)
   (setq spacemacs-theme-org-agenda-height nil
-        org-agenda-time-grid '((daily today require-timed) (600 1200 1800) " ···· " "---------------------")
+        org-agenda-compact-blocks t
+        org-agenda-block-separator ?─
+        org-agenda-current-time-string " now ─────────────────────────────────"
+        org-agenda-time-grid '((daily today require-timed)
+                               (800 1000 1200 1400 1600 1800 2000)
+                               "      " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
         org-agenda-time-leading-zero t
         org-agenda-skip-scheduled-if-done t
         org-agenda-skip-deadline-if-done t
@@ -430,44 +452,137 @@
         org-agenda-tags-column 100
         org-agenda-window-setup 'current-window
         org-agenda-skip-scheduled-if-deadline-is-shown t
-        org-agenda-prefix-format '((agenda   . "  %i %-12c %s %-22t")
-                                   (todo     . "  %i %-12c")
-                                   (tags     . "  %i %-12c")
-                                   (search   . "  %i %-12c"))
+        org-agenda-timerange-leaders '("" "")
+        org-agenda-scheduled-leaders '("" "Sched.%2dx: ")
+        org-agenda-prefix-format '((agenda   . "  %i %-12:c%?-12t% s")
+                                   (todo     . "  %i %-12:c ")
+                                   (tags     . "  %i %-12:c ")
+                                   (search   . "  %i %-12:c "))
         org-agenda-start-with-log-mode t
-        org-agenda-category-icon-alist `(("work" ,(list (all-the-icons-material "computer" :height 0.8)) nil nil :ascent center)
-                                         ("diary" ,(list (all-the-icons-faicon "pencil" :height 0.9)) nil nil :ascent center)))
-  (setq org-agenda-custom-commands
-        '(("z" "Super zaen view"
-           ((agenda "" ((org-agenda-span 'day)
-                        (org-super-agenda-groups
-                         '((:name "󰃶 Today"
-                                  :time-grid t
-                                  :date today
-                                  :scheduled today
-                                  :order 1)))))
-            (alltodo "" ((org-agenda-overriding-header "")
-                         (org-super-agenda-groups
-                          `((:name " Next to do"
-                                   :todo "NEXT"
-                                   :order 2)
-                            (:name " Important"
-                                   :tag "Important"
-                                   :priority "A"
-                                   :order 4)
-                            (:name " Due Today"
-                                   :deadline today
-                                   :order 1)
-                            (:name " Due Soon"
-                                   :deadline future
-                                   :face (:foreground (catppuccin-color 'yellow))
-                                   :order 10)
-                            (:name "󰜡 Overdue"
-                                   :deadline past
-                                   :and(:not (:todo "DONE") :scheduled past)
-                                   :face (:foreground (catppuccin-color 'red))
-                                   :order 3)
-                            (:discard (:anything t)))))))))))
+        org-agenda-category-icon-alist (when (fboundp 'all-the-icons-material)
+                                         `(("work" ,(list (all-the-icons-material "computer" :height 0.8)) nil nil :ascent center)
+                                           ("diary" ,(list (all-the-icons-faicon "pencil" :height 0.9)) nil nil :ascent center)))))
+
+(setq org-agenda-custom-commands
+      '(("z" "Super zaen view"
+         ((agenda ""
+                  ((org-agenda-span 'day)
+                   (org-agenda-skip-scheduled-if-done nil)
+                   (org-agenda-skip-deadline-if-done nil)
+                   (org-super-agenda-groups
+                    '((:name "󰃶 Today"
+                             :time-grid t
+                             :date today
+                             :scheduled today
+                             :and (:anything t :not (:todo ("DONE" "SKIP")))
+                             :order 1)
+                      (:name "󰄲 Done Today"
+                             :todo ("DONE" "SKIP")
+                             :order 2)
+                      (:discard (:anything t))))))
+          (alltodo ""
+                   ((org-agenda-overriding-header "")
+                    (org-super-agenda-groups
+                     '((:name "󰜡 Overdue"
+                              :deadline past
+                              :order 1)
+                       (:name "󰜡 Overdue"
+                              :and (:scheduled past :not (:deadline today) :not (:deadline future))
+                              :order 1)
+                       (:name " Due Today"
+                              :deadline today
+                              :order 2)
+                       (:name "󰈸 In Progress"
+                              :todo "PROG"
+                              :order 4)
+                       (:name " Next to do"
+                              :todo "NEXT"
+                              :order 5)
+                       (:name "󰈸 Important"
+                              :tag "Important"
+                              :priority "A"
+                              :order 6)
+                       (:name " Due Soon"
+                              :deadline future
+                              :face warning
+                              :order 7)
+                       (:name "󰒲 Waiting"
+                              :todo "WAIT"
+                              :order 8)
+                       (:discard (:anything t))))))))
+        ("m" "Month View (当月任务全景 - 纯日期排布/无状态分组)"
+         ((agenda ""
+                  ((org-agenda-span 'month)
+                   (org-agenda-start-day (format-time-string "%Y-%m-01"))
+                   (org-agenda-overriding-header (format-time-string "󰃶 %Y年%m月 任务日程全景 (按日期排布)"))
+                   ;; 关键：只保留当月，彻底消除历史跨月逾期与每天重复提醒
+                   (org-deadline-warning-days 0)
+                   (org-scheduled-past-days 0)
+                   (org-deadline-past-days 0)
+                   (org-agenda-show-all-dates nil)
+                   (org-agenda-skip-scheduled-if-done nil)
+                   (org-agenda-skip-deadline-if-done nil)
+                   ;; 关掉月度宏观视图的时间轴网格与打卡日志
+                   (org-agenda-use-time-grid nil)
+                   (org-agenda-start-with-log-mode nil)
+                   ;; 彻底清空状态分组，按原生自然日期排布
+                   (org-super-agenda-groups nil)))))))
+
+(defun my/org-agenda-view ()
+  "直接一键呼出 Super Agenda 'z' 视图."
+  (interactive)
+  (org-agenda nil "z"))
+
+(defun my/org-agenda-month-view ()
+  "直接一键呼出当月所有任务全景视图."
+  (interactive)
+  (org-agenda nil "m"))
+
+
+(defun slin/setup-org-agenda-ui ()
+  "美化 Agenda 视图缓冲区排版与交互体验."
+  (setq-local line-spacing 0.25)
+  (when (bound-and-true-p display-line-numbers-mode)
+    (display-line-numbers-mode -1))
+  (hl-line-mode 1))
+
+(add-hook 'org-agenda-mode-hook #'slin/setup-org-agenda-ui)
+
+;; Agenda 色彩定制，与 Catppuccin 主题深度融合
+(with-eval-after-load 'org-agenda
+  (let ((color-fg (lambda (name fallback)
+                    (if (fboundp 'catppuccin-color)
+                        (catppuccin-color name)
+                      fallback))))
+    (set-face-attribute 'org-agenda-date nil
+                        :foreground (funcall color-fg 'lavender "#b4befe")
+                        :weight 'bold)
+    (set-face-attribute 'org-agenda-date-today nil
+                        :foreground (funcall color-fg 'peach "#fab387")
+                        :weight 'bold
+                        :underline t)
+    (set-face-attribute 'org-agenda-date-weekend nil
+                        :foreground (funcall color-fg 'overlay1 "#7f849c")
+                        :weight 'normal)
+    (set-face-attribute 'org-agenda-structure nil
+                        :foreground (funcall color-fg 'blue "#89b4fa")
+                        :weight 'bold
+                        :height 1.1)
+    (set-face-attribute 'org-agenda-current-time nil
+                        :foreground (funcall color-fg 'maroon "#eba0ac")
+                        :weight 'bold)
+    (set-face-attribute 'org-time-grid nil
+                        :foreground (funcall color-fg 'surface2 "#585b70"))))
+
+(with-eval-after-load 'org-super-agenda
+  (let ((color-fg (lambda (name fallback)
+                    (if (fboundp 'catppuccin-color)
+                        (catppuccin-color name)
+                      fallback))))
+    (set-face-attribute 'org-super-agenda-header nil
+                        :foreground (funcall color-fg 'sky "#89dceb")
+                        :weight 'bold
+                        :height 1.05)))
 
 (setq diary-file "~/org/diary")
 (defun slin/close-empty-diary ()
@@ -477,6 +592,40 @@
       (kill-buffer buf))))
 
 (add-hook 'org-agenda-finalize-hook #'slin/close-empty-diary)
+
+(defun slin/org-agenda-dedup-same-day ()
+  "消除同一天中来自同一任务标题的重复 Agenda 项。
+若同一天既有连续时间范围 (block) 又有 DEADLINE/SCHEDULED，优先保留连续时间范围项以避免同一天重复出现。"
+  (require 'cl-lib)
+  (save-excursion
+    (goto-char (point-min))
+    (let (groups)
+      (while (not (eobp))
+        (let* ((hd-m (get-text-property (point) 'org-hd-marker))
+               (day (get-text-property (point) 'day))
+               (type (get-text-property (point) 'type))
+               (pos (and hd-m (marker-position hd-m))))
+          (if (and pos day)
+              (let* ((key (cons pos day))
+                     (entry (list (line-beginning-position)
+                                  (min (1+ (line-end-position)) (point-max))
+                                  (equal type "block"))))
+                (push entry (alist-get key groups nil nil #'equal))))
+          (forward-line 1)))
+      (let (to-delete)
+        (dolist (item groups)
+          (let ((entries (cdr item)))
+            (when (> (length entries) 1)
+              (let* ((has-block (cl-find-if #'caddr entries))
+                     (keep (if has-block has-block (car (last entries))))
+                     (discards (cl-remove keep entries)))
+                (dolist (d discards)
+                  (push (cons (car d) (cadr d)) to-delete))))))
+        (setq to-delete (sort to-delete (lambda (a b) (> (car a) (car b)))))
+        (dolist (range to-delete)
+          (delete-region (car range) (cdr range)))))))
+
+(add-hook 'org-agenda-finalize-hook #'slin/org-agenda-dedup-same-day)
 
 ;; 农历与节日
 (use-package cal-china-x

@@ -40,8 +40,8 @@
                              (getenv "PATH")))
       (setq exec-path (append expanded-paths exec-path)))))
 
-;; GPG / EPA 设置：允许调用外部图形化 Pinentry 弹窗
-(setq epa-pinentry-mode nil)
+;; GPG / EPA 设置：在 Emacs Minibuffer 中直接输入 GPG 密码 (Loopback 模式)
+(setq epa-pinentry-mode 'loopback)
 
 ;; 备份与自动保存策略
 (setq auto-save-default nil)    ; 关闭自动保存
@@ -53,6 +53,11 @@
 (setq backup-by-copying t)      ; 复制备份，保护硬链接
 ;; 仅启用 Git 版本控制后端，避免在非 Git 目录探测老旧 VCS 卡顿
 (setq vc-handled-backends '(Git))
+
+;; Windows 平台禁用保存时在文件末尾自动追加换行符
+(when (eq system-type 'windows-nt)
+  (setq require-final-newline nil)
+  (setq mode-require-final-newline nil))
 
 ;; 保存前清理尾部空白 (排除当前光标行)
 (defun auto-save-delete-trailing-whitespace-except-current-line ()
@@ -161,6 +166,145 @@
 
   ;; 挂载底层格式化 Advice，动态注入最优先级的 Commit Face
   (advice-add 'magit-blame--format-string-1 :around #'my/magit-blame-format-string-1))
+
+;; =============================================================================
+;; 左右分屏代码对比与合并 (Ediff)
+;; =============================================================================
+
+(defvar my/ediff-last-windows nil
+  "保存进入 Ediff 前的窗口布局配置。")
+
+(defun my/ediff-save-windows ()
+  "记录当前窗口布局。"
+  (setq my/ediff-last-windows (current-window-configuration)))
+
+(defun my/ediff-restore-windows ()
+  "恢复进入 Ediff 前的窗口布局。"
+  (when (window-configuration-p my/ediff-last-windows)
+    (set-window-configuration my/ediff-last-windows)))
+
+(defun slin/setup-ediff-faces ()
+  "配置现代 IDEA 风格的 Ediff 差异对比高亮配色 (基于 Catppuccin Mocha)。"
+  (interactive)
+  (require 'ediff-init nil t)
+  (when (featurep 'ediff-init)
+    ;; 1. 当前选中的差异块 (行级柔和暗底色，保留原有语法高亮)
+    (set-face-attribute 'ediff-current-diff-A nil
+                        :background "#3b2229" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-current-diff-B nil
+                        :background "#1e3427" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-current-diff-C nil
+                        :background "#1e2d42" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-current-diff-Ancestor nil
+                        :background "#38301e" :foreground nil :inverse-video nil :extend t)
+
+    ;; 2. 行内细粒度字符差异 (Fine Diff - 鲜明底色配合白字加粗，清晰分明)
+    (set-face-attribute 'ediff-fine-diff-A nil
+                        :background "#5c2734" :foreground "#ffffff" :weight 'bold :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-fine-diff-B nil
+                        :background "#285338" :foreground "#ffffff" :weight 'bold :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-fine-diff-C nil
+                        :background "#274366" :foreground "#ffffff" :weight 'bold :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-fine-diff-Ancestor nil
+                        :background "#574825" :foreground "#ffffff" :weight 'bold :inverse-video nil :extend t)
+
+    ;; 3. 非当前选中的其它差异块 (弱化暗底色，不抢视线，同时保留代码高亮)
+    (set-face-attribute 'ediff-even-diff-A nil
+                        :background "#281d22" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-odd-diff-A nil
+                        :background "#281d22" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-even-diff-B nil
+                        :background "#192620" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-odd-diff-B nil
+                        :background "#192620" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-even-diff-C nil
+                        :background "#17202b" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-odd-diff-C nil
+                        :background "#17202b" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-even-diff-Ancestor nil
+                        :background "#262217" :foreground nil :inverse-video nil :extend t)
+    (set-face-attribute 'ediff-odd-diff-Ancestor nil
+                        :background "#262217" :foreground nil :inverse-video nil :extend t)))
+
+(defun my/ediff-cleanup-buffers ()
+  "退出对比时，自动清理 Ediff 和 Git 生成的临时快照 Buffer。"
+  (interactive)
+  ;; 1. 清理当前比对会话中的临时快照 (如 foo.el.~HEAD~, {index} 等)
+  (let ((session-buffers (list (and (boundp 'ediff-buffer-A) ediff-buffer-A)
+                               (and (boundp 'ediff-buffer-B) ediff-buffer-B)
+                               (and (boundp 'ediff-buffer-C) ediff-buffer-C)
+                               (and (boundp 'ediff-ancestor-buffer) ediff-ancestor-buffer))))
+    (dolist (buf session-buffers)
+      (when (and (bufferp buf) (buffer-live-p buf))
+        (let ((name (buffer-name buf)))
+          (when (or (string-match-p "\\.~.+~\\'" name)
+                    (string-match-p "\\`{index}" name)
+                    (string-match-p ".~[0-9a-fA-F]+~\\'" name)
+                    (and (buffer-local-value 'buffer-read-only buf)
+                         (not (buffer-modified-p buf))
+                         (boundp 'magit-buffer-revision)
+                         (buffer-local-value 'magit-buffer-revision buf)))
+            (kill-buffer buf))))))
+
+  ;; 2. 延迟彻底清理全局残余的 Ediff 内部控制面板和辅助 buffer
+  (run-at-time 0.1 nil
+               (lambda ()
+                 (dolist (buf (buffer-list))
+                   (when (buffer-live-p buf)
+                     (let ((name (buffer-name buf)))
+                       (when (or (string-match-p "\\`\\*ediff-" name)
+                                 (string-match-p "\\`\\*Ediff Control Panel" name)
+                                 (string-match-p "\\.~.+~\\'" name))
+                         (kill-buffer buf))))))))
+
+(use-package ediff
+  :ensure nil
+  :hook ((ediff-before-setup . my/ediff-save-windows)
+         (ediff-before-setup . slin/setup-ediff-faces)
+         (ediff-mode . slin/setup-ediff-faces)
+         (ediff-cleanup . my/ediff-cleanup-buffers)
+         (ediff-quit . my/ediff-cleanup-buffers)
+         (ediff-quit . my/ediff-restore-windows)
+         (ediff-suspend . my/ediff-restore-windows))
+  :config
+  ;; 1. 不弹出独立的控制 frame，在同一 frame 底部显示控制面板
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+  ;; 2. 默认采用左右并排分屏（Side-by-Side）
+  (setq ediff-split-window-function 'split-window-horizontally)
+  (setq ediff-merge-split-window-function 'split-window-horizontally)
+
+  ;; 3. 高亮所有差异区域
+  (setq-default ediff-highlight-all-diffs t)
+
+  ;; 4. 启动后自动跳到第一个差异处
+  (add-hook 'ediff-startup-hook #'ediff-next-difference)
+
+  ;; 5. 应用 IDEA 风格对比配色
+  (slin/setup-ediff-faces)
+
+  ;; 6. Magit Ediff 会话退出时也自动清理临时 buffer
+  (with-eval-after-load 'magit-ediff
+    (add-hook 'magit-ediff-quit-hook #'my/ediff-cleanup-buffers)))
+
+(defun my/code-diff-dwim ()
+  "智能左右分屏 Diff (类似 IDEA 的 Diff 对比)：
+1. 若在 Magit buffer 中，光标在文件/hunk 上则执行 `magit-ediff-dwim`，
+   光标不在具体文件上则呼出 `magit-ediff` 菜单；
+2. 若在普通代码文件中，直接对比当前文件与 Git 最新版本 (HEAD)；
+3. 其他情况提示选择两个 Buffer 进行比对。"
+  (interactive)
+  (cond
+   ((derived-mode-p 'magit-mode)
+    (if (and (fboundp 'magit-current-file) (magit-current-file))
+        (magit-ediff-dwim)
+      (call-interactively #'magit-ediff)))
+   ((and (buffer-file-name)
+         (vc-backend (buffer-file-name)))
+    (require 'vc)
+    (vc-ediff nil))
+   (t
+    (call-interactively #'ediff-buffers))))
 
 ;; =============================================================================
 ;; AI 辅助 Commit 注释生成 (基于 gptel)

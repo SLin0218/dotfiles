@@ -202,15 +202,25 @@
                                              (file-name-directory (directory-file-name (file-name-directory nix-jbrsdk-path))))))
                            (java-bin (and java-home
                                           (expand-file-name "bin" java-home)))
-                           (java21-executable
+                           (server-java-executable
                             (cond
-                             ;; 如果显式指定了完整的 java 可执行文件路径
+                             ;; 优先 1: 显式指定 Java 25 路径 (当前最新 JDTLS 强制要求 JavaSE 25)
+                             ((and (boundp 'nix-openjdk25-path)
+                                   (stringp nix-openjdk25-path)
+                                   (not (string-empty-p nix-openjdk25-path))
+                                   (file-regular-p nix-openjdk25-path))
+                              nix-openjdk25-path)
+                             ((and (boundp 'nix-openjdk25-path)
+                                   (stringp nix-openjdk25-path)
+                                   (not (string-empty-p nix-openjdk25-path))
+                                   (file-directory-p nix-openjdk25-path))
+                              (expand-file-name (concat "bin/" java-exe-name) nix-openjdk25-path))
+                             ;; 优先 2: 显式指定 Java 21 路径
                              ((and (boundp 'nix-openjdk21-path)
                                    (stringp nix-openjdk21-path)
                                    (not (string-empty-p nix-openjdk21-path))
                                    (file-regular-p nix-openjdk21-path))
                               nix-openjdk21-path)
-                             ;; 如果指定了 java home 目录
                              ((and (boundp 'nix-openjdk21-path)
                                    (stringp nix-openjdk21-path)
                                    (not (string-empty-p nix-openjdk21-path))
@@ -228,8 +238,8 @@
                                            (cons java-bin exec-path)
                                          exec-path)))
                         `(,jdtls-cmd
-                          ,@(when (and java21-executable (file-executable-p java21-executable))
-                              `(,(concat "--java-executable=" java21-executable)))
+                          ,@(when (and server-java-executable (file-executable-p server-java-executable))
+                              `(,(concat "--java-executable=" server-java-executable)))
                           "-data" ,cache-dir
                           ,@(when lombok-jar `(,(concat "--jvm-arg=-javaagent:" lombok-jar)))
                           "--jvm-arg=-Djava.import.generatesMetadataFilesAtProjectRoot=false"
@@ -246,7 +256,7 @@
                           :initializationOptions
                           (:extendedClientCapabilities (:classFileContentsSupport t)
                                                        ,@(when debug-jar `(:bundles [,debug-jar]))
-                                                       :settings (:java ,(cdr (assoc :java eglot-workspace-configuration))))))))))
+                                                       :settings (:java ,(cdr (assoc :java (default-value 'eglot-workspace-configuration)))))))))))
 
   ;; 纯 Emacs Lisp 拦截并解析 JDTLS 的 jdt:/ 和 jdt:// 协议，支持第三方依赖 Jar 查看
   (defvar +eglot/jdtls-file-to-uri-map (make-hash-table :test 'equal)
@@ -384,6 +394,29 @@
                 (or (+eglot/jdtls-path-to-uri path)
                     (apply orig-fn path args))))
 
+  ;; Windows 平台路径大小写修复：
+  ;; JDTLS 等 LSP 服务端在 Windows 下返回大写盘符 (如 "file:///C:/...")，
+  ;; 而 Emacs 的 buffer-file-name 默认使用小写盘符 (如 "c:/...")。
+  ;; Eglot 内部使用严格 equal 比较路径，导致其认为当前 buffer 未打开该文件，
+  ;; 进而把语法诊断放进全局缓存，不会派发到当前 buffer 的 Flymake 中，导致界面无语法报错波浪线。
+  (when (eq system-type 'windows-nt)
+    (advice-add 'eglot--find-buffer-visiting :around
+                (lambda (orig-fn server abspath)
+                  (or (funcall orig-fn server abspath)
+                      (cl-loop for b in (eglot--managed-buffers server)
+                               when (with-current-buffer b
+                                      (or (and buffer-file-name
+                                               (string-equal-ignore-case abspath buffer-file-name))
+                                          (and (car eglot--TextDocumentIdentifier-cache)
+                                               (string-equal-ignore-case abspath (car eglot--TextDocumentIdentifier-cache)))))
+                               return b))))
+
+    (advice-add 'eglot-uri-to-path :filter-return
+                (lambda (path)
+                  (if (and (stringp path) (string-match "\\`\\([A-Za-z]\\):" path))
+                      (concat (downcase (match-string 1 path)) (substring path 1))
+                    path))))
+
   ;; 参考 Eclipse 的常用 Java 辅助交互命令 (Organize Imports, Update Project, Download Sources)
   (defun +java/organize-imports ()
     "Organize imports for current Java file using JDTLS (like Eclipse Shift+Alt+O)."
@@ -420,6 +453,16 @@
                         (evil-local-mode 1)
                         (evil-normal-state)))))
                 buf)))
+
+(defun my/eglot-events-buffer ()
+  "打开或跳转到当前活跃的 Eglot LSP 调试与事件日志 Buffer."
+  (interactive)
+  (if-let* ((server (or (eglot-current-server)
+                        (and (fboundp '+eglot/jdtls-find-active-server)
+                             (+eglot/jdtls-find-active-server))
+                        (cl-first (apply #'append (hash-table-values eglot--servers-by-project))))))
+      (pop-to-buffer (jsonrpc-events-buffer server))
+    (user-error "当前无活跃的 Eglot LSP 服务器")))
 
 
 ;; ---------------------------------------------------------------------------

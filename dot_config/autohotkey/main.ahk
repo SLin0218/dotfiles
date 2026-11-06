@@ -120,13 +120,21 @@ GroupAdd "TabeSwitchApp", "ahk_exe emacs.exe"
 ;     CapsLock & Space::Send("{LAlt down}{LShift down}{LShift up}{LAlt up}")
 ; #HotIf
 
+; 输入法切换
+CapsLock & Space::{
+    if WinActive("ahk_exe emacs.exe")
+        send("^{\}")
+    else
+        send("^{space}")
+}
+
 ; ==========================================
 ; Win + H/J/K/L
 ; ==========================================
-CapsLock & k::Send("{Up}")
-CapsLock & j::Send("{Down}")
-CapsLock & h::Send("{Left}")
-CapsLock & l::Send("{Right}")
+CapsLock & k::Send("{Blind}{Up}")
+CapsLock & j::Send("{Blind}{Down}")
+CapsLock & h::Send("{Blind}{Left}")
+CapsLock & l::Send("{Blind}{Right}")
 
 ; 当 Alt+Tab 切换窗口的界面处于激活状态时，启用以下映射
 #HotIf WinActive("ahk_class XamlExplorerHostIslandWindow") or WinActive("ahk_class TaskSwitcherWnd")
@@ -366,5 +374,3 @@ DmGetWindowCloaked(hwnd) {
     res := DllCall("dwmapi\DwmGetWindowAttribute", "Ptr", hwnd, "UInt", 14, "Ptr*", &cloaked, "UInt", 4)
     return (res == 0) ? cloaked : 0
 }
-
-CapsLock & Space::send("^{space}")

@@ -79,7 +79,10 @@
       (set-face-attribute 'mode-line-inactive nil :box box)))
 
   (slin/setup-modeline-separator)
-  (advice-add 'load-theme :after (lambda (&rest _) (slin/setup-modeline-separator))))
+  (advice-add 'load-theme :after (lambda (&rest _)
+                                   (slin/setup-modeline-separator)
+                                   (when (fboundp 'slin/setup-ediff-faces)
+                                     (slin/setup-ediff-faces)))))
 
 ;; Catppuccin 主题
 (use-package catppuccin-theme
@@ -100,6 +103,7 @@
   :hook (after-init . tab-bar-mode)
   :custom
   (tab-bar-show t)                      ; 始终显示标签栏
+  (tab-bar-new-tab-choice "*scratch*")  ; 新建标签页默认打开独立 scratch，避免继承当前 buffer
   (tab-bar-close-button-show t)         ; 保留原生关闭按钮
   (tab-bar-new-button-show t)           ; 保留原生新建按钮
   (tab-bar-separator "")                ; 移除原生 "|" 分隔符
@@ -250,6 +254,74 @@
   ;; 主题加载及切换时自适应刷新
   (slin/setup-tab-bar-faces)
   (advice-add 'load-theme :after (lambda (&rest _) (slin/setup-tab-bar-faces))))
+
+;; 工作区与 Buffer 隔离 (Tabspaces: 基于原生 tab-bar 和 project 实现各标签页独立的 Buffer 列表)
+(use-package tabspaces
+  :hook (after-init . tabspaces-mode)
+  :custom
+  (tabspaces-use-filtered-buffers-as-default t)
+  (tabspaces-default-tab "Default")
+  (tabspaces-remove-to-default t)
+  (tabspaces-include-buffers '("*scratch*" "*Messages*"))
+  (tabspaces-initialize-project-with-todo nil)
+  (tabspaces-initialize-project-with-vc nil)
+  (tabspaces-session nil)
+  (tabspaces-session-auto-restore nil)
+  :config
+  ;; 允许在所有标签页访问的共享 Buffer 正则列表 (解决 Eglot 日志、调试日志、编译器输出等后台 Buffer 无法访问的问题)
+  (defcustom tabspaces-include-buffer-regexps
+    '("^\\*EGLOT"
+      "^\\*dape-"
+      "^\\*Flymake"
+      "^\\*compilation"
+      "^\\*Async-native-compile-log"
+      "^\\*Help"
+      "^\\*Warnings")
+    "Buffer 名称匹配这些正则时，视为在所有 Tab 工作区中均可访问的全局/共享 Buffer."
+    :type '(repeat string)
+    :group 'tabspaces)
+
+  (defun slin/tabspaces-buffer-included-p (buffer)
+    "判断 BUFFER 是否应该被当前 Tabspace 视为合法包含的 Buffer."
+    (let ((name (if (stringp buffer) buffer (buffer-name buffer))))
+      (when name
+        (or (member name tabspaces-include-buffers)
+            (cl-some (lambda (rx) (string-match-p rx name))
+                     tabspaces-include-buffer-regexps)))))
+
+  ;; 1. 扩展 local-buffer-p 判断：使得 buffer-predicate 允许访问 Eglot 等特殊 Buffer
+  (advice-add 'tabspaces--local-buffer-p :around
+              (lambda (orig-fn buffer)
+                (or (slin/tabspaces-buffer-included-p buffer)
+                    (funcall orig-fn buffer))))
+
+  ;; 2. 扩展 local-buffer-list：使得 consult-buffer (SPC b b) 候选中包含 Eglot 等日志与工具 Buffer
+  (advice-add 'tabspaces-local-buffer-list :around
+              (lambda (orig-fn &optional frame)
+                (let ((buffers (funcall orig-fn frame))
+                      (all-buffers (buffer-list frame)))
+                  (dolist (buf all-buffers)
+                    (when (and (buffer-live-p buf)
+                               (slin/tabspaces-buffer-included-p buf)
+                               (not (memq buf buffers))
+                               (not (member (buffer-name buf) tabspaces-exclude-buffers)))
+                      (push buf buffers)))
+                  buffers)))
+
+  ;; 3. 增强 tabspaces-switch-to-buffer (C-x b)：交互候选中不仅包含本地文件，也包含动态/共享 Buffer
+  (defun slin/tabspaces-switch-to-buffer-advice (orig-fn buffer &optional norecord force-same-window)
+    (interactive
+     (list
+      (let ((blst (cl-remove (buffer-name) (mapcar #'buffer-name (tabspaces-local-buffer-list)))))
+        (read-buffer
+         "Switch to local buffer: " blst nil
+         (lambda (b) (member (if (stringp b) b (car b)) blst))))))
+    (funcall orig-fn buffer norecord force-same-window))
+  (advice-add 'tabspaces-switch-to-buffer :around #'slin/tabspaces-switch-to-buffer-advice)
+
+  ;; 4. 整合 Consult：使 consult-buffer (SPC b b) 默认只列出当前 Tab/工作区隔离的 Buffer
+  (with-eval-after-load 'consult
+    (setq consult-buffer-list-function #'tabspaces-local-buffer-list)))
 
 ;; 层级缩进线
 (use-package indent-bars
