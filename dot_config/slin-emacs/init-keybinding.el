@@ -100,6 +100,13 @@
   (evil-define-key 'normal 'global (kbd "<leader>t[") 'tab-bar-switch-to-prev-tab)
   (evil-define-key 'normal 'global (kbd "<leader>tb") 'tabspaces-switch-buffer-and-tab)
 
+  ;; 项目 (Project) 操作
+  (evil-define-key 'normal 'global (kbd "<leader>p") project-prefix-map)
+  (evil-define-key 'normal 'global (kbd "<leader>pp") 'project-switch-project)
+  (evil-define-key 'normal 'global (kbd "<leader>pf") 'project-find-file)
+  (evil-define-key 'normal 'global (kbd "<leader>pd") 'project-dired)
+  (evil-define-key 'normal 'global (kbd "<leader>pb") 'project-switch-to-buffer)
+
   ;; Git diff-hl 跳转
   (evil-define-key 'normal 'global (kbd "<leader>vn") 'diff-hl-next-hunk)
   (evil-define-key 'normal 'global (kbd "<leader>vp") 'diff-hl-previous-hunk)

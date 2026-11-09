@@ -12,7 +12,7 @@
     defaultUser = "lin";
     wslConf = {
       network = {
-        generateResolvConf = false;
+        generateResolvConf = true;
       };
     };
   };
@@ -27,7 +27,7 @@
     in
     {
       settings = {
-        experimental-features = "nix-command flakes";
+        experimental-features = [ "nix-command" "flakes" ];
         flake-registry = "";
         nix-path = config.nix.nixPath;
         trusted-users = [ "lin" ];
@@ -66,6 +66,7 @@
       openvpn
       xclock
       xeyes
+      gsettings-desktop-schemas
     ];
 
     sessionVariables = {
@@ -81,6 +82,7 @@
       GDK_SCALE = "2";
       GDK_DPI_SCALE = "1.0";
       QT_SCALE_FACTOR = "2";
+      GTK_THEME = "catppuccin-mocha-lavender-standard:dark";
     };
   };
 
@@ -101,6 +103,7 @@
 
   programs = {
     zsh.enable = true;
+    dconf.enable = true;
     nix-ld = {
       enable = true;
       libraries = with pkgs; [
@@ -109,6 +112,14 @@
         glibc
       ];
     };
+  };
+
+  xdg.portal = {
+    enable = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+    ];
+    config.common.default = "*";
   };
 
   services = {
@@ -135,10 +146,10 @@
     fontDir.enable = true;
   };
 
-  networking.nameservers = [
-    "223.5.5.5"
-    "223.6.6.6"
-  ];
+  # networking.nameservers = [
+  #   "223.5.5.5"
+  #   "223.6.6.6"
+  # ];
 
   system.stateVersion = "24.11";
 }

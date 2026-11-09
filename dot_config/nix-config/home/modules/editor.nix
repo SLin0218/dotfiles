@@ -9,6 +9,7 @@
     (setq nix-emacs-dir "${pkgs.emacs-pgtk}")
     (setq nix-jbrsdk-path "${pkgs.jbrsdk-17}")
     (setq nix-openjdk21-path "${pkgs.openjdk21}")
+    (setq nix-openjdk25-path "${pkgs.openjdk25}")
     (add-to-list 'load-path "~/.config/slin-emacs")
     (require 'slin-emacs)
   '';

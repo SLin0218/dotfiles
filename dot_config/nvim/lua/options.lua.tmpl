@@ -26,6 +26,30 @@ g.neovide_padding_left = 0
 
 o.clipboard = "unnamedplus"
 
+-- WSL 环境下：复制使用 wl-copy，粘贴使用 PowerShell（避免 wl-paste 抢焦点/异常）
+if vim.fn.has("wsl") == 1 then
+   local ps = vim.fn.executable("pwsh.exe") == 1 and "pwsh.exe" or "powershell.exe"
+   local paste_cmd = {
+      ps,
+      "-NoProfile",
+      "-NonInteractive",
+      "-Command",
+      '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $c = Get-Clipboard -Raw; if ($c) { [Console]::Out.Write($c.ToString().Replace("`r", "")) }',
+   }
+   vim.g.clipboard = {
+      name = "WslClipboard",
+      copy = {
+         ["+"] = { "wl-copy" },
+         ["*"] = { "wl-copy" },
+      },
+      paste = {
+         ["+"] = paste_cmd,
+         ["*"] = paste_cmd,
+      },
+      cache_enabled = 0,
+   }
+end
+
 vim.cmd("silent! command! EnableShade lua require('shade').toggle()")
 
 -- vim leave change cursor style to underline and blinking

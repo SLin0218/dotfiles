@@ -51,4 +51,22 @@
     gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
     gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
   };
+
+  xdg.configFile."dconf/user" = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+    source = pkgs.runCommand "dconf-user" {
+      nativeBuildInputs = [ pkgs.dconf ];
+    } ''
+      mkdir -p dconf.d
+      cat << 'EOF' > dconf.d/00-theme
+      [org/gnome/desktop/interface]
+      color-scheme='prefer-dark'
+      gtk-theme='catppuccin-mocha-lavender-standard'
+      EOF
+      dconf compile $out dconf.d
+    '';
+  };
+
+  home.sessionVariables = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+    GTK_THEME = "catppuccin-mocha-lavender-standard:dark";
+  };
 }

@@ -490,8 +490,19 @@
 
 (when (and (eq system-type 'gnu/linux)
            (getenv "WSL_DISTRO_NAME"))
-  ;; WSL / WSLg 环境解决剪切板共享及中文乱码问题
-  (set-clipboard-coding-system 'gbk-dos))
+  ;; WSLg (Wayland) 统一使用 utf-8 编码及请求类型，彻底解决从 Windows 粘贴到 Emacs 乱码的问题
+  (set-clipboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (setq selection-coding-system 'utf-8)
+  (setq x-select-request-type '(text/plain\;charset=utf-8 UTF8_STRING text/plain string text))
+
+  ;; 避免划词高亮/Visual 模式实时占用并同步 selection，触发 WSLg 焦点争夺
+  (setq select-active-regions nil)
+  (setq select-enable-primary nil)
+  (setq select-enable-clipboard t)
+
+  ;; 复制使用原生 Wayland 接口 (gui-select-text)，支持完整 Unicode/Emoji
+  (setq interprogram-cut-function #'gui-select-text))
 
 (defun copy-current-buffer-file-path ()
   "当前 Buffer 的全路径复制到剪贴板."
