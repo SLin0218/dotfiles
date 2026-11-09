@@ -49,6 +49,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe wezterm-gui.exe"
 GroupAdd "TabeSwitchApp", "Brave ahk_exe brave.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe WindowsTerminal.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe emacs.exe"
+GroupAdd "TabeSwitchApp", "Emacs ahk_exe msrdc.exe"
 
 #HotIf WinActive("ahk_group TabeSwitchApp")
     ; Ctrl + ] 切换到下一个标签页
@@ -122,7 +123,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe emacs.exe"
 
 ; 输入法切换
 CapsLock & Space::{
-    if WinActive("ahk_exe emacs.exe")
+    if WinActive("ahk_exe emacs.exe") || WinActive("Emacs ahk_exe msrdc.exe")
         send("^{\}")
     else
         send("^{space}")
@@ -284,8 +285,8 @@ CapsLock & o::
 }
 CapsLock & m::
 {
-   ;; ToggleApp("Emacs ahk_exe msrdc.exe", "wsl.exe -- emacs", , "Hide")
-   ToggleApp("ahk_exe emacs.exe", "runemacs.exe", EnvGet("HOME"))
+   ToggleApp("Emacs ahk_exe msrdc.exe", "wsl.exe --cd ~ -- emacs", , "Hide")
+   ;; ToggleApp("ahk_exe emacs.exe", "runemacs.exe", EnvGet("HOME"))
 }
 CapsLock & y::
 {

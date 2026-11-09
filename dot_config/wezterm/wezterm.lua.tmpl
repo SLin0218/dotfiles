@@ -167,6 +167,65 @@ local function get_current_dir(pane)
    return dir ~= "" and dir or "/"
 end
 
+-- Windows 环境下的 Pane 归属环境持久缓存 (pane_id -> "WSL" | "BASH" | "PWSH")
+-- 解决在 WSL 中运行 powershell.exe / cmd 等 Windows 进程导致窗口标题被覆写后误判为 PWSH 的问题
+local pane_env_cache = {}
+
+local function resolve_windows_pane_env(pane)
+   local pane_id = pane.pane_id
+   local cached = pane_env_cache[pane_id]
+
+   -- 提取进程与标题特征并统一转为小写
+   local title = (pane.title or ""):lower()
+   local proc = (pane.foreground_process_name or ""):lower()
+   local combined = proc .. " " .. title
+
+   -- 1. 若之前已判定为 WSL，则该 pane 始终保持 WSL 标识
+   -- （WSL pane 即使运行 powershell.exe、cmd.exe、nvim 等，也不会改变其 WSL 会话本质）
+   if cached == "WSL" then
+      return "WSL"
+   end
+
+   -- 2. 匹配 WSL 特征：
+   -- - 包含 wsl 或 wslhost
+   -- - 包含 nixos (本配置 WSL 发行版)
+   -- - 标题包含 windowspowershell 或 powershell.exe（WSL 互操作默认调用 System32 中的 powershell.exe，而原生配置使用 pwsh.exe）
+   if combined:find("wsl")
+      or combined:find("nixos")
+      or combined:find("windowspowershell")
+      or (combined:find("powershell%.exe") and not combined:find("pwsh"))
+   then
+      pane_env_cache[pane_id] = "WSL"
+      return "WSL"
+   end
+
+   -- 3. 若之前已判定为 BASH，保持为 BASH
+   if cached == "BASH" then
+      return "BASH"
+   end
+
+   -- 4. 匹配 Git Bash 特征
+   if combined:find("bash") or combined:find("mintty") or combined:find("git%-bash") then
+      pane_env_cache[pane_id] = "BASH"
+      return "BASH"
+   end
+
+   -- 5. 匹配 PWSH (PowerShell 7)
+   if combined:find("pwsh") then
+      pane_env_cache[pane_id] = "PWSH"
+      return "PWSH"
+   end
+
+   -- 6. 若存在其它已有缓存则沿用
+   if cached then
+      return cached
+   end
+
+   -- 7. 默认兜底为原生 PWSH
+   pane_env_cache[pane_id] = "PWSH"
+   return "PWSH"
+end
+
 -- 动态格式化标签标题
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
    local pane = tab.active_pane
@@ -179,9 +238,9 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
    local icon_color = tab.is_active and palette.tab_icon_active or palette.tab_icon_inactive
 
    if is_windows then
-      local proc_and_title = (pane.foreground_process_name or "") .. (pane.title or "")
-      local is_wsl = string.match(proc_and_title, "wsl") ~= nil
-      local is_bash = string.match(proc_and_title, "bash") ~= nil
+      local env = resolve_windows_pane_env(pane)
+      local is_wsl = (env == "WSL")
+      local is_bash = (env == "BASH")
 
       icon = is_wsl and ICON_WSL or (is_bash and ICON_GIT or ICON_WIN)
       icon_color = is_wsl and (tab.is_active and nixos_color[1] or nixos_color[2]) or (is_bash and git_color or windows_color)
@@ -189,7 +248,7 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
       if tab.tab_title and #tab.tab_title > 0 then
          title_text = tab.tab_title
       else
-         title_text = is_wsl and "WSL" or (is_bash and "BASH" or "PWSH")
+         title_text = env
       end
    else
       if tab.tab_title and #tab.tab_title > 0 then
