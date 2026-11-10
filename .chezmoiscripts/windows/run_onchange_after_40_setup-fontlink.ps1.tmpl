@@ -1,0 +1,39 @@
+# vim: set ft=ps1:
+# Self-elevate the script if required
+if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator'))
+{
+    $CommandLine = "-File `"" + $MyInvocation.MyCommand.Path + "`""
+    Start-Process -Wait -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
+    Exit
+}
+
+$fontPath = "{{ .chezmoi.homeDir }}/AppData/Local/Microsoft/Windows/Fonts/LXGW975YuanSC-400W.ttf"
+$val = @(
+    "$fontPath,霞鹜975圆体SC",
+    "LXGW975YuanSC-400W.ttf,霞鹜975圆体SC",
+    "MSYH.TTC,Microsoft YaHei UI",
+    "SIMSUN.TTC,SimSun"
+)
+
+$targetFonts = @(
+    "JetBrainsMono Nerd Font Mono",
+    "JetBrainsMono Nerd Font",
+    "JetBrainsMono NF",
+    "JetBrains Mono"
+)
+
+$roots = @(
+    "HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink",
+    "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink"
+)
+
+foreach ($root in $roots) {
+    if (!(Test-Path $root)) {
+        New-Item -Path (Split-Path $root) -Name "SystemLink" -Force -ErrorAction SilentlyContinue | Out-Null
+    }
+    foreach ($font in $targetFonts) {
+        Set-ItemProperty -Path $root -Name $font -Value $val -Type MultiString -ErrorAction SilentlyContinue
+    }
+}
+
+Write-Host "已成功配置 霞鹜975圆体SC 为 JetBrainsMono 的 FontLink 中文回退字体！" -ForegroundColor Green
