@@ -1,8 +1,0 @@
-{{- if ne .chezmoi.os "windows" -}}
-#!/bin/sh
-# fonts.conf hash: {{ include "dot_config/fontconfig/fonts.conf" | sha256sum }}
-if command -v fc-cache >/dev/null 2>&1; then
-    echo "Updating Fontconfig cache..."
-    fc-cache -f
-fi
-{{- end }}
