@@ -7,10 +7,14 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     Exit
 }
 
+# Decode Chinese font name cleanly from UTF-8 byte array to avoid codepage issues
+$chineseFontName = [System.Text.Encoding]::UTF8.GetString([byte[]]@(0xE9,0x9C,0x9E, 0xE9,0xB9,0x9C, 0x39,0x37,0x35, 0xE5,0x9C,0x86, 0xE4,0xBD,0x93, 0x53,0x43))
+
 $fontPath = "{{ .chezmoi.homeDir }}/AppData/Local/Microsoft/Windows/Fonts/LXGW975YuanSC-400W.ttf"
 $val = @(
-    "$fontPath,霞鹜975圆体SC",
-    "LXGW975YuanSC-400W.ttf,霞鹜975圆体SC",
+    "$fontPath,$chineseFontName",
+    "LXGW975YuanSC-400W.ttf,$chineseFontName",
+    "LXGW975YuanSC-400W.ttf,LXGW 975 Yuan SC",
     "MSYH.TTC,Microsoft YaHei UI",
     "SIMSUN.TTC,SimSun"
 )
@@ -36,4 +40,4 @@ foreach ($root in $roots) {
     }
 }
 
-Write-Host "已成功配置 霞鹜975圆体SC 为 JetBrainsMono 的 FontLink 中文回退字体！" -ForegroundColor Green
+Write-Host "Successfully configured FontLink: LXGW 975 Yuan SC -> JetBrainsMono" -ForegroundColor Green
