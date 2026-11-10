@@ -50,6 +50,7 @@ GroupAdd "TabeSwitchApp", "Brave ahk_exe brave.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe WindowsTerminal.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe emacs.exe"
 GroupAdd "TabeSwitchApp", "Emacs ahk_exe msrdc.exe"
+GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
 
 #HotIf WinActive("ahk_group TabeSwitchApp")
     ; Ctrl + ] 切换到下一个标签页
@@ -248,21 +249,22 @@ ToggleApp(winTitle, exeName, workingDir?, Options?)
 
 CapsLock & i::
 {
-    ToggleApp("ahk_exe wezterm-gui.exe ahk_class org.wezfurlong.wezterm", "wezterm-gui.exe")
+    ; ToggleApp("ahk_exe wezterm-gui.exe ahk_class org.wezfurlong.wezterm", "wezterm-gui.exe")
+    ToggleApp("ahk_exe alacritty.exe", "alacritty.exe")
 }
 CapsLock & g::
 {
     ToggleApp("Brave ahk_exe brave.exe", "brave.exe")
 }
-CapsLock & n::
-{
-    patternPath := A_ProgramsCommon . "\JetBrains\IntelliJ IDEA*.lnk"
-    actualPath := ""
-    Loop Files, patternPath {
-        actualPath := A_LoopFileFullPath
-    }
-    ToggleApp("\s-\s ahk_exe idea64.exe", actualPath)
-}
+; CapsLock & n::
+; {
+;     patternPath := A_ProgramsCommon . "\JetBrains\IntelliJ IDEA*.lnk"
+;     actualPath := ""
+;     Loop Files, patternPath {
+;         actualPath := A_LoopFileFullPath
+;     }
+;     ToggleApp("\s-\s ahk_exe idea64.exe", actualPath)
+; }
 CapsLock & u::
 {
     ToggleApp("飞书 ahk_exe Feishu.exe", A_Programs . "\飞书.lnk")

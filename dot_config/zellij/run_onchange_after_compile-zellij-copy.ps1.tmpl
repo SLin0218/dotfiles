@@ -1,0 +1,4 @@
+{{- if eq .chezmoi.os "windows" -}}
+# zellij-copy.c hash: {{ include "dot_config/zellij/zellij-copy.c" | sha256sum }}
+gcc -O2 -s -o "{{ .chezmoi.homeDir }}/.config/zellij/zellij-copy.exe" "{{ .chezmoi.homeDir }}/.config/zellij/zellij-copy.c"
+{{- end }}

@@ -1,0 +1,53 @@
+layout {
+    default_tab_template {
+        // 顶部一体化状态栏（包含：模式、会话名、矩形标签、Git 分支、时间）
+        pane size=1 borderless=true {
+            plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
+                format_left   "{tabs}"
+                format_right  "{command_git_branch} {datetime}#[bg=#89B4FA,fg=#11111B,bold]  {session} #[bg=default] {mode}"
+                format_space  ""
+
+                border_enabled "false"
+
+                // --- 模式样式 (Catppuccin Mocha 配色) ---
+                mode_normal  "#[bg=#A6E3A1,fg=#1E1E2E,bold] NORMAL "
+                mode_tmux    "#[bg=#F5C2E7,fg=#1E1E2E,bold] TMUX "
+                mode_locked  "#[bg=#F38BA8,fg=#1E1E2E,bold] LOCKED "
+                mode_pane    "#[bg=#89B4FA,fg=#1E1E2E,bold] PANE "
+                mode_tab     "#[bg=#CBA6F7,fg=#1E1E2E,bold] TAB "
+                mode_resize  "#[bg=#FAB387,fg=#1E1E2E,bold] RESIZE "
+                mode_scroll  "#[bg=#F9E2AF,fg=#1E1E2E,bold] SCROLL "
+                mode_session "#[bg=#94E2D5,fg=#1E1E2E,bold] SESSION "
+                mode_move    "#[bg=#89DCEB,fg=#1E1E2E,bold] MOVE "
+
+                // --- 矩形标签样式 (独立卡片色块，激活高亮) ---
+                tab_normal              "#[bg=#313244,fg=#CDD6F4]  {index} {name}  #[bg=default] "
+                tab_normal_fullscreen   "#[bg=#313244,fg=#CDD6F4]  {index} {name} []  #[bg=default] "
+                tab_normal_sync         "#[bg=#313244,fg=#CDD6F4]  {index} {name} <>  #[bg=default] "
+                tab_active              "#[bg=#89B4FA,fg=#11111B,bold]  {index} {name}  #[bg=default] "
+                tab_active_fullscreen   "#[bg=#89B4FA,fg=#11111B,bold]  {index} {name} []  #[bg=default] "
+                tab_active_sync         "#[bg=#89B4FA,fg=#11111B,bold]  {index} {name} <>  #[bg=default] "
+
+                // --- Git 分支信息 (跟随当前聚焦窗格的目录) ---
+                command_git_branch_command     "git rev-parse --abbrev-ref HEAD"
+                command_git_branch_format      "#[fg=#A6E3A1]  {stdout} "
+                command_git_branch_interval    "10"
+                command_git_branch_rendermode  "static"
+                command_git_branch_cwd         "{focused_pane_cwd}"
+
+                // --- 日期与时间 (北京时区 UTC+8) ---
+                datetime          "#[fg=#BAC2DE,bold] {format} "
+                datetime_format   "%Y-%m-%d %H:%M"
+                datetime_timezone "Asia/Shanghai"
+            }
+        }
+
+        // 终端工作区占据剩余的所有垂直空间（底部不再留横栏）
+        children
+    }
+{{- if eq .chezmoi.os "windows" }}
+    tab name="wsl"
+{{- else }}
+    tab name="zsh"
+{{- end }}
+}
