@@ -24,7 +24,7 @@
 
 (cond
  ((eq system-type 'darwin) (setq slin/font-size 16))
- (sys/wsl-p (setq slin/font-size 15))
+ (sys/wsl-p (setq slin/font-size 13))
  ((eq system-type 'windows-nt) (setq slin/font-size 11)))
 
 (defun load-font-setup (&optional frame)
@@ -86,16 +86,20 @@
 
 ;; Catppuccin 主题
 (use-package catppuccin-theme
+  :init
+  (setq catppuccin-flavor 'mocha)
   :config
   (defvar slin/theme-loaded nil)
   (defun slin/load-theme-once (frame)
     (with-selected-frame frame
       (when (and (display-graphic-p frame)
                  (not slin/theme-loaded))
+        (setq catppuccin-flavor 'mocha)
         (load-theme 'catppuccin :no-confirm)
         (setq slin/theme-loaded t))))
   (if (daemonp)
       (add-hook 'after-make-frame-functions #'slin/load-theme-once)
+    (setq catppuccin-flavor 'mocha)
     (load-theme 'catppuccin :no-confirm)))
 
 ;; 顶栏标签页 (Tab-bar 顶栏工作区/窗口布局管理，参考 doom-modeline 设计风格与 Catppuccin 色彩)
@@ -118,6 +122,13 @@
   ;; 每个 Tab 最小字符宽度，确保短文件名时关闭按钮依然稳定右对齐
   (defvar slin/tab-bar-tab-min-width 18
     "Minimum character width for each tab.")
+
+  ;; 兼容 Emacs 30 及以下版本 (tab-bar-tab-highlight 是 Emacs 31+ 新增的内置 Face)
+  (unless (facep 'tab-bar-tab-highlight)
+    (defface tab-bar-tab-highlight
+      '((t :inherit highlight))
+      "Face for mouse hover highlight in tab-bar."
+      :group 'tab-bar))
 
   ;; 新建按钮悬停高亮
   (setq tab-bar-new-button (propertize " + "
@@ -146,6 +157,84 @@
           (concat icon-str " ")
         "")))
 
+  (defvar slin/tab-bar--in-tab-name nil
+    "Internal flag to avoid recursive calls in `slin/tab-bar-tab-name'.")
+
+  ;; 获取 Buffer 真实所属的项目（严格排除 *scratch* 等未关联实际文件的辅助/临时 Buffer）
+  (defun slin/buffer-project (&optional buffer)
+    "Return project for BUFFER if BUFFER genuinely belongs to a project.
+Buffers without an actual file on disk (like *scratch*, *Messages*, *Help*)
+do not establish a project on their own."
+    (let ((buf (or buffer (current-buffer))))
+      (when (and buf (buffer-live-p buf))
+        (with-current-buffer buf
+          (cond
+           ;; 1. 实际访问磁盘文件的 Buffer
+           (buffer-file-name
+            (project-current nil (file-name-directory buffer-file-name)))
+           ;; 2. Dired 目录树 Buffer
+           ((derived-mode-p 'dired-mode)
+            (let ((dir (or (and (boundp 'dired-directory)
+                                (if (consp dired-directory) (car dired-directory) dired-directory))
+                           default-directory)))
+              (when (and dir (file-directory-p dir))
+                (project-current nil dir))))
+           ;; 3. 访问 Git 仓库的 Magit Buffer
+           ((and (derived-mode-p 'magit-mode 'magit-status-mode)
+                 default-directory)
+            (project-current nil default-directory))
+           ;; 4. 其他临时或辅助 Buffer（如 *scratch* 等）不作为项目判断依据
+           (t nil))))))
+
+  ;; 确保 Tab 名称在当前 Frame 中全局唯一，杜绝重复与复用冲突
+  (defun slin/tab-bar-unique-tab-name (base-name other-names)
+    "Return BASE-NAME, or BASE-NAME<N> if BASE-NAME collides with OTHER-NAMES."
+    (if (not (member base-name other-names))
+        base-name
+      (let ((counter 2)
+            (new-name (format "%s<2>" base-name)))
+        (while (member new-name other-names)
+          (setq counter (1+ counter)
+                new-name (format "%s<%d>" base-name counter)))
+        new-name)))
+
+  ;; 自动保持 Tab 名称与当前关联的项目名称一致；未关联项目时使用当前 Buffer 名；杜绝复用既有 Tab 名
+  (defun slin/tab-bar-tab-name ()
+    "Return unique project name if current tab belongs to a project,
+otherwise fall back to unique buffer name."
+    (if slin/tab-bar--in-tab-name
+        (tab-bar-tab-name-current)
+      (let* ((slin/tab-bar--in-tab-name t)
+             (raw-tabs (or (frame-parameter nil 'tabs) (tab-bar-tabs)))
+             (cur-tab (assq 'current-tab raw-tabs))
+             (other-tabs (remq cur-tab raw-tabs))
+             (other-names (delq nil (mapcar (lambda (tab) (alist-get 'name tab)) other-tabs)))
+             (project (or (slin/buffer-project (current-buffer))
+                          (cl-some (lambda (w)
+                                     (slin/buffer-project (window-buffer w)))
+                                   (window-list))
+                          (and (bound-and-true-p tabspaces-mode)
+                               (fboundp 'tabspaces-local-buffer-list)
+                               (cl-some #'slin/buffer-project
+                                        (tabspaces-local-buffer-list)))))
+             (proj-name (when project (project-name project)))
+             (base-name
+              (cond
+               ;; 若识别到真实项目，将项目名持久化绑定至当前 Tab
+               (proj-name
+                (when cur-tab
+                  (setf (alist-get 'project-name (cdr cur-tab)) proj-name))
+                proj-name)
+               ;; 若本 Tab 历史已关联项目（如全屏查看 *Help* 或 *compilation* 等辅助窗口）
+               ((and cur-tab (alist-get 'project-name (cdr cur-tab)))
+                (alist-get 'project-name (cdr cur-tab)))
+               ;; 全新 Tab 或未处于项目的工作区，降级为当前 Buffer 名 (如 *scratch*)
+               (t
+                (tab-bar-tab-name-current)))))
+        (slin/tab-bar-unique-tab-name base-name other-names))))
+
+  (setq tab-bar-tab-name-function #'slin/tab-bar-tab-name)
+
   ;; 格式化 Tab 项：内边距、文件图标、未保存指示器与关闭按钮右对齐 (doom-modeline 风格)
   (defun slin/tab-bar-tab-name-format (tab _i)
     "Format TAB in doom-modeline style with icon, modified indicator and right-aligned close button."
@@ -159,8 +248,21 @@
                       (let ((bl (alist-get 'wc-bl tab)))
                         (when (and (listp bl) (buffer-live-p (car bl)))
                           (car bl)))))))
-           (icon (slin/tab-bar-buffer-icon buf))
-           (modified (and buf (buffer-file-name buf) (buffer-modified-p buf)))
+           (is-project (or (alist-get 'project-name (cdr tab))
+                           (and buf (slin/buffer-project buf))
+                           (let ((base-name (replace-regexp-in-string "<[0-9]+>\\'" "" tab-name)))
+                             (and (fboundp 'project-known-project-roots)
+                                  (member (file-name-as-directory (expand-file-name base-name default-directory))
+                                          (project-known-project-roots))))))
+           (icon (or (let ((ic (slin/tab-bar-buffer-icon buf)))
+                       (and (not (string-empty-p ic)) ic))
+                     (if (and is-project (fboundp 'nerd-icons-octicon))
+                         (concat (nerd-icons-octicon "nf-oct-repo") " ")
+                       "")))
+           (modified (or (and buf (buffer-file-name buf) (buffer-modified-p buf))
+                         (let ((bl (alist-get 'wc-bl tab)))
+                           (and (listp bl)
+                                (cl-some (lambda (b) (and (buffer-live-p b) (buffer-file-name b) (buffer-modified-p b))) bl)))))
            (face (if current-p 'tab-bar-tab 'tab-bar-tab-inactive))
            (label (format " %s%s" icon tab-name))
            (mod-icon (if modified
@@ -200,15 +302,14 @@
              (modified-fg (catppuccin-color 'yellow))
              (sep-color   bg-surface0)
              (box-spec    `(:line-width (1 . 1) :color ,sep-color :style flat-button))
-             ;; 高度与状态栏 mode-line 统一保持 1.0 等高
-             (ml-height   (let ((h (face-attribute 'mode-line :height nil t)))
-                            (if (numberp h) h 1.0))))
+             ;; 恢复原本高度：通过 :height 1.15 自然撑高，与原 init-tab 设计保持一致
+             (tab-height  1.15))
 
-        ;; 整个 Tab-bar 顶栏背景底色（mantle 底色 + 下划线，高度与状态栏一致）
+        ;; 整个 Tab-bar 顶栏背景底色（mantle 底色 + 下划线，高度通过 :height 1.15 自然撑高）
         (set-face-attribute 'tab-bar nil
                             :background bg-mantle
                             :foreground inactive-fg
-                            :height ml-height
+                            :height tab-height
                             :underline (list :color sep-color :style 'line :position t)
                             :box box-spec)
 
@@ -228,10 +329,11 @@
                             :box box-spec)
 
         ;; 鼠标悬浮预览 (Hover)
-        (set-face-attribute 'tab-bar-tab-highlight nil
-                            :background bg-surface1
-                            :foreground (catppuccin-color 'text)
-                            :box nil)
+        (when (facep 'tab-bar-tab-highlight)
+          (set-face-attribute 'tab-bar-tab-highlight nil
+                              :background bg-surface1
+                              :foreground (catppuccin-color 'text)
+                              :box nil))
 
         ;; 未保存状态指示图标
         (set-face-attribute 'slin/tab-bar-modified-face nil
@@ -261,6 +363,7 @@
   :custom
   (tabspaces-use-filtered-buffers-as-default t)
   (tabspaces-default-tab "Default")
+  (tabspaces-project-switch-opens-workspace t)
   (tabspaces-remove-to-default t)
   (tabspaces-include-buffers '("*scratch*" "*Messages*"))
   (tabspaces-initialize-project-with-todo nil)

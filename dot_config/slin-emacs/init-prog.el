@@ -10,6 +10,8 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
 ;; ---------------------------------------------------------------------------
 ;; 1. 项目管理 Project.el
 ;; ---------------------------------------------------------------------------
@@ -20,7 +22,8 @@
   :config
   ;; 自定义项目根目录的识别标志 (.dir-locals.el 已由原生 project-vc-extra-root-markers 完美支持)
   (setq project-vc-extra-root-markers
-        '("Makefile" "package.json" "go.mod" "Cargo.toml" "pyproject.toml" ".project" ".dir-locals.el"))
+        '("pom.xml" "build.gradle" "build.gradle.kts"
+          "Makefile" "package.json" "go.mod" "Cargo.toml" "pyproject.toml" ".project" ".dir-locals.el"))
 
   ;; 忽略构建与依赖缓存目录
   (setq project-vc-ignores
@@ -189,10 +192,15 @@
                            (debug-jar (my/download-java-debug-adapter-if-missing))
                            (lombok-jar (my/find-jdtls-lombok-jar))
                            ;; 自动兼容 Windows (.cmd / .bat) 与 Unix (无后缀) 的 jdtls 可执行文件
-                           (jdtls-cmd (or (executable-find "jdtls.cmd")
-                                          (executable-find "jdtls.bat")
-                                          (executable-find "jdtls")
-                                          "jdtls"))
+                           (jdtls-cmd (if (eq system-type 'windows-nt)
+                                          (or (executable-find "jdtls.cmd")
+                                              (executable-find "jdtls.bat")
+                                              (executable-find "jdtls")
+                                              "jdtls")
+                                        (or (executable-find "jdtls")
+                                            (let ((mason-bin (expand-file-name "~/.local/share/nvim/mason/bin/jdtls")))
+                                              (and (file-executable-p mason-bin) mason-bin))
+                                            "jdtls")))
                            (java-exe-name (if (eq system-type 'windows-nt) "java.exe" "java"))
                            (java-home (and (boundp 'nix-jbrsdk-path)
                                            (stringp nix-jbrsdk-path)
@@ -215,7 +223,14 @@
                                    (not (string-empty-p nix-openjdk25-path))
                                    (file-directory-p nix-openjdk25-path))
                               (expand-file-name (concat "bin/" java-exe-name) nix-openjdk25-path))
-                             ;; 优先 2: 显式指定 Java 21 路径
+                             ;; 优先 2: 自动探测系统/Nix/Windows 中的 Java 25
+                             ((cl-find-if #'file-executable-p
+                                          (append (file-expand-wildcards "/nix/store/*-openjdk-25*/bin/java")
+                                                  (file-expand-wildcards "/nix/store/*-jetbrains-jdk-25*/bin/java")
+                                                  (file-expand-wildcards "/nix/store/*-openjdk-headless-25*/bin/java")
+                                                  (file-expand-wildcards "~/.jdks/jdk-25*/bin/java*")
+                                                  '("C:/Users/USER/.jdks/jdk-25.0.5.0.2+1/bin/java.exe"))))
+                             ;; 优先 3: 显式指定 Java 21 路径
                              ((and (boundp 'nix-openjdk21-path)
                                    (stringp nix-openjdk21-path)
                                    (not (string-empty-p nix-openjdk21-path))
