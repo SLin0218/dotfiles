@@ -2,7 +2,7 @@
 {{- $zellijDir := "" -}}
 {{- $copyBin := "" -}}
 {{- if $isWindows -}}
-{{-   $zellijDir = printf "%s/AppData/Roaming/zellij" .chezmoi.homeDir -}}
+{{-   $zellijDir = printf "%s/AppData/Roaming/zellij/config" .chezmoi.homeDir -}}
 {{-   $copyBin = printf "%s/zellij-copy.exe" $zellijDir -}}
 {{- else -}}
 {{-   $zellijDir = printf "%s/.config/zellij" .chezmoi.homeDir -}}
