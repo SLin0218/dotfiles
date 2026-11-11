@@ -7,6 +7,10 @@
 }:
 
 {
+  imports = [
+    ../fonts.nix
+  ];
+
   wsl = {
     enable = true;
     defaultUser = "lin";
@@ -69,11 +73,6 @@
       gsettings-desktop-schemas
     ];
 
-    sessionVariables = {
-      # 自动解析宿主机网卡 IP
-      DISPLAY = "$(ip route list default | awk '{print $3}'):0";
-      LIBGL_ALWAYS_INDIRECT = "1";
-    };
 
     variables = {
       EDITOR = "nvim";
@@ -137,14 +136,7 @@
     ];
   };
 
-  fonts = {
-    packages = with pkgs; [
-      nerd-fonts.jetbrains-mono
-      maple-mono.NF-CN-unhinted
-      noto-fonts-color-emoji
-    ];
-    fontDir.enable = true;
-  };
+
 
   # networking.nameservers = [
   #   "223.5.5.5"

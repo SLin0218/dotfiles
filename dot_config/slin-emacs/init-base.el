@@ -43,6 +43,10 @@
 ;; GPG / EPA 设置：在 Emacs Minibuffer 中直接输入 GPG 密码 (Loopback 模式)
 (setq epa-pinentry-mode 'loopback)
 
+;; Emacs 30 安全机制：仅信任 ~/Workspace/ 目录，防止 Flymake 将其语法检查作为 "untrusted content" 静默拦截
+(setq trusted-content (list "~/Workspace/"
+                            (file-name-as-directory (expand-file-name "~/Workspace/"))))
+
 ;; 备份与自动保存策略
 (setq auto-save-default nil)    ; 关闭自动保存
 (setq create-lockfiles nil)     ; 关闭锁文件
@@ -55,9 +59,10 @@
 (setq vc-handled-backends '(Git))
 
 ;; Windows 平台禁用保存时在文件末尾自动追加换行符
-(when (eq system-type 'windows-nt)
-  (setq require-final-newline nil)
-  (setq mode-require-final-newline nil))
+;; (when (eq system-type 'windows-nt)
+(setq require-final-newline nil)
+(setq mode-require-final-newline nil)
+;; )
 
 ;; 保存前清理尾部空白 (排除当前光标行)
 (defun auto-save-delete-trailing-whitespace-except-current-line ()

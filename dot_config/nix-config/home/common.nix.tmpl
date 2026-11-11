@@ -89,16 +89,17 @@
         pinentry-gnome3
         pkgs.emacs-pgtk
     {{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-    {{- else}}
+    {{- else }}
         wezterm
-    {{- end}}
-{{- else}}
+    {{- end }}
+{{- else }}
         pinentry-curses
         wezterm
-{{- end}}
+{{- end }}
 
         # gui
         jetbrains.idea
+        alacritty
       ];
 
     sessionVariables = {

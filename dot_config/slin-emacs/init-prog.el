@@ -21,9 +21,32 @@
               ("m" . project-compile))
   :config
   ;; 自定义项目根目录的识别标志 (.dir-locals.el 已由原生 project-vc-extra-root-markers 完美支持)
+  ;; 注意：避免在此放入 pom.xml / build.gradle，否则多模块子目录会将其劫持为独立项目根
   (setq project-vc-extra-root-markers
-        '("pom.xml" "build.gradle" "build.gradle.kts"
+        '("mvnw" "mvnw.cmd" "gradlew" "gradlew.bat" "settings.gradle" "settings.gradle.kts"
           "Makefile" "package.json" "go.mod" "Cargo.toml" "pyproject.toml" ".project" ".dir-locals.el"))
+
+  ;; 多模块 Java 项目根目录探测：查找包含构建定义的最外层（最顶层）根目录，完美支持普通多模块、Monorepo 以及非 Git 目录
+  (defun my/project-try-java (dir)
+    "Detect the outermost project root for multi-module Java projects (Maven/Gradle)."
+    (let* ((build-markers '("pom.xml" "build.gradle" "build.gradle.kts" "settings.gradle" "settings.gradle.kts"))
+           (git-root (condition-case nil (vc-git-root dir) (error nil)))
+           (stop-dir (or git-root (expand-file-name "~")))
+           (highest-root nil)
+           (curr (expand-file-name dir)))
+      (while (and curr
+                  (file-directory-p curr)
+                  (not (equal curr (directory-file-name (file-name-directory curr)))))
+        (when (cl-some (lambda (m) (file-exists-p (expand-file-name m curr))) build-markers)
+          (setq highest-root curr))
+        (if (and stop-dir (file-equal-p curr stop-dir))
+            (setq curr nil)
+          (let ((parent (file-name-directory (directory-file-name curr))))
+            (setq curr (if (equal parent curr) nil parent)))))
+      (when highest-root
+        `(vc ,(if git-root 'Git nil) ,(file-name-as-directory highest-root)))))
+
+  (add-hook 'project-find-functions #'my/project-try-java)
 
   ;; 忽略构建与依赖缓存目录
   (setq project-vc-ignores
@@ -121,6 +144,35 @@
     (setq gc-cons-threshold (* 64 1024 1024)))
   (add-hook 'eglot-managed-mode-hook #'my/eglot-tune-gc)
 
+  ;; 防止 LSP 服务端握手未完成前调用 backend 抛出 jsonrpc-error 导致 Flymake 永久禁用该 backend
+  (advice-add 'eglot-flymake-backend :around
+              (lambda (orig-fn report-fn &rest args)
+                (let ((server (eglot-current-server)))
+                  (if (and server (jsonrpc-running-p server))
+                      (apply orig-fn report-fn args)
+                    (setq eglot--flymake-report-fn report-fn)
+                    (funcall report-fn nil)))))
+
+  (defun my/eglot-sync-flymake ()
+    (when (bound-and-true-p eglot--managed-mode)
+      (setq-local flymake-diagnostic-functions '(eglot-flymake-backend))
+      (unless flymake-mode
+        (flymake-mode 1))
+      (when (and (bound-and-true-p flymake--state)
+                 (gethash 'eglot-flymake-backend flymake--state))
+        (setf (flymake--state-disabled (gethash 'eglot-flymake-backend flymake--state)) nil))
+      (when (fboundp 'flymake-start)
+        (flymake-start nil t))))
+  (add-hook 'eglot-managed-mode-hook #'my/eglot-sync-flymake)
+
+  ;; 当 Eglot LSP 服务端连接成功握手后，自动触发重新核验所有已打开受管 Buffer
+  (add-hook 'eglot-connect-hook
+            (lambda (server)
+              (dolist (b (eglot--managed-buffers server))
+                (when (buffer-live-p b)
+                  (with-current-buffer b
+                    (my/eglot-sync-flymake))))))
+
   ;; 显式配置 Nix 与 Python 的 LSP 扩展
   (add-to-list 'eglot-server-programs '(nix-mode . ("nixd")))
   (add-to-list 'eglot-server-programs `((python-mode python-ts-mode) . ("pyright-langserver" "--stdio")))
@@ -130,6 +182,7 @@
                 '((:pyright . (:python (:analysis (:completeFunctionParens t))))
                   (:java . (:autobuild (:enabled t)
                                        :maxConcurrentBuilds 1
+                                       :edit (:validateAllOpenBuffersOnChanges t)
                                        :import (:resourceFilters ["node_modules" "\\.git" "build" "bin" "target" "dist" ".gradle" ".metadata" ".settings" ".project" ".classpath"]
                                                                  :maven (:offline (:enabled :json-false) :downloadSources t :downloadJavadocs t)
                                                                  :gradle (:offline (:enabled :json-false) :downloadSources t :downloadJavadocs t))
@@ -409,23 +462,31 @@
                 (or (+eglot/jdtls-path-to-uri path)
                     (apply orig-fn path args))))
 
-  ;; Windows 平台路径大小写修复：
-  ;; JDTLS 等 LSP 服务端在 Windows 下返回大写盘符 (如 "file:///C:/...")，
-  ;; 而 Emacs 的 buffer-file-name 默认使用小写盘符 (如 "c:/...")。
-  ;; Eglot 内部使用严格 equal 比较路径，导致其认为当前 buffer 未打开该文件，
-  ;; 进而把语法诊断放进全局缓存，不会派发到当前 buffer 的 Flymake 中，导致界面无语法报错波浪线。
-  (when (eq system-type 'windows-nt)
-    (advice-add 'eglot--find-buffer-visiting :around
-                (lambda (orig-fn server abspath)
-                  (or (funcall orig-fn server abspath)
-                      (cl-loop for b in (eglot--managed-buffers server)
-                               when (with-current-buffer b
-                                      (or (and buffer-file-name
-                                               (string-equal-ignore-case abspath buffer-file-name))
-                                          (and (car eglot--TextDocumentIdentifier-cache)
-                                               (string-equal-ignore-case abspath (car eglot--TextDocumentIdentifier-cache)))))
-                               return b))))
+  ;; 跨平台与大小写路径匹配修复：
+  ;; JDTLS 等 LSP 服务端在 Windows 下返回大写盘符 (如 "file:///C:/...")，且在 Linux/WSL 下可能返回解析后的绝对路径。
+  ;; 原生 Eglot 内部使用严格 equal 比较路径，若不一致会导致其认为当前 buffer 未打开该文件，
+  ;; 进而把语法诊断放进全局缓存 (flymake-list-only-diagnostics)，不会派发到当前 buffer 的 Flymake 中。
+  (advice-add 'eglot--find-buffer-visiting :around
+              (lambda (orig-fn server abspath)
+                (or (and server (ignore-errors (funcall orig-fn server abspath)))
+                    (find-buffer-visiting abspath)
+                    (and server
+                         (cl-loop for b in (ignore-errors (eglot--managed-buffers server))
+                                  when (with-current-buffer b
+                                         (or (and buffer-file-name
+                                                  (or (file-equal-p abspath buffer-file-name)
+                                                      (string-equal-ignore-case abspath buffer-file-name)))
+                                             (and (car eglot--TextDocumentIdentifier-cache)
+                                                  (or (file-equal-p abspath (car eglot--TextDocumentIdentifier-cache))
+                                                      (string-equal-ignore-case abspath (car eglot--TextDocumentIdentifier-cache))))))
+                                  return b))
+                    (cl-loop for b in (buffer-list)
+                             when (with-current-buffer b
+                                    (and buffer-file-name
+                                         (file-equal-p abspath buffer-file-name)))
+                             return b))))
 
+  (when (eq system-type 'windows-nt)
     (advice-add 'eglot-uri-to-path :filter-return
                 (lambda (path)
                   (if (and (stringp path) (string-match "\\`\\([A-Za-z]\\):" path))
@@ -556,8 +617,25 @@
     (indent-region (point-min) (point-max)))))
 
 
-;; Emacs Lisp 实时语法错误检查
-(add-hook 'emacs-lisp-mode-hook #'flymake-mode)
+;; ---------------------------------------------------------------------------
+;; 10. 代码语法检查 (Flymake 深度集成)
+;; ---------------------------------------------------------------------------
+(use-package flymake
+  :ensure nil
+  :hook (emacs-lisp-mode . flymake-mode)
+  :custom
+  (flymake-fringe-indicator-position 'left-fringe)
+  ;; Emacs 30 新特性：直接在代码行尾显示语法报错详情，无需手动悬停或移动光标
+  (flymake-show-diagnostics-at-end-of-line t)
+  (flymake-no-changes-timeout 0.3)      ; 输入停顿 0.3 秒即触发语法检查反馈
+  :config
+  ;; 增强 Catppuccin 主题下的波浪下划线与报错视觉辨识度
+  (set-face-attribute 'flymake-error nil
+                      :underline '(:style wave :color "#f38ba8"))
+  (set-face-attribute 'flymake-warning nil
+                      :underline '(:style wave :color "#f9e2af"))
+  (set-face-attribute 'flymake-note nil
+                      :underline '(:style wave :color "#89b4fa")))
 
 ;; 括号自动闭合
 (electric-pair-mode 1)

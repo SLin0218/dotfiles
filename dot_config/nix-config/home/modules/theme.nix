@@ -44,12 +44,21 @@
     #  };
     #};
 
-    cursorTheme = {
-      name = "catppuccin-mocha-lavender-cursors";
-      package = pkgs.catppuccin-cursors.mochaLavender;
-    };
+    #cursorTheme = {
+    #  name = "catppuccin-mocha-lavender-cursors";
+    #  package = pkgs.catppuccin-cursors.mochaLavender;
+    #};
     gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
     gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
+  };
+
+  home.pointerCursor = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+    enable = true;
+    name = "catppuccin-mocha-lavender-cursors";
+    package = pkgs.catppuccin-cursors.mochaLavender;
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
   };
 
   xdg.configFile."dconf/user" = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {

@@ -26,7 +26,7 @@ g.neovide_padding_left = 0
 
 o.clipboard = "unnamedplus"
 
--- WSL 环境下：复制使用 wl-copy，粘贴使用 PowerShell（避免 wl-paste 抢焦点/异常）
+-- WSL 环境下：彻底脱离 Wayland（复制用 clip.exe，粘贴用 PowerShell），避免跨应用焦点被抢夺至 WSLg 窗口
 if vim.fn.has("wsl") == 1 then
    local ps = vim.fn.executable("pwsh.exe") == 1 and "pwsh.exe" or "powershell.exe"
    local paste_cmd = {
@@ -39,8 +39,8 @@ if vim.fn.has("wsl") == 1 then
    vim.g.clipboard = {
       name = "WslClipboard",
       copy = {
-         ["+"] = { "wl-copy" },
-         ["*"] = { "wl-copy" },
+         ["+"] = { "sh", "-c", "iconv -c -t gbk | clip.exe" },
+         ["*"] = { "sh", "-c", "iconv -c -t gbk | clip.exe" },
       },
       paste = {
          ["+"] = paste_cmd,

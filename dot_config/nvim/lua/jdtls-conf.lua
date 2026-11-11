@@ -7,19 +7,51 @@ local capabilities = require("nvchad.configs.lspconfig").capabilities
 local java_cmds = vim.api.nvim_create_augroup("java_cmds", { clear = true })
 local cache_vars = {}
 
--- Here you can add files/folders that you use at
--- the root of your project. `nvim-jdtls` will use
--- these to find the path to your project source code.
-local root_files = {
-  ".git",
+-- 多模块/单模块项目根目录检测逻辑：
+-- 避免 find_root 从当前子目录向上查找时，遇到子模块的 pom.xml / build.gradle 就提前返回
+local function find_project_root()
+  local bufname = vim.api.nvim_buf_get_name(0)
+  if bufname == "" then
+    return nil
+  end
+  local file_dir = vim.fs.dirname(bufname)
+  if not file_dir then
+    return nil
+  end
 
-  --- here are more examples files that may or
-  --- may not work as root files, according to some guy on the internet
-  -- 'mvnw',
-  "gradlew",
-  "pom.xml",
-  "build.gradle",
-}
+  -- 1. 优先查找专属于项目根目录的标记文件（如 wrapper 或 Gradle 的 settings 文件）
+  local root_markers = { "mvnw", "mvnw.cmd", "gradlew", "gradlew.bat", "settings.gradle", "settings.gradle.kts" }
+  local root_with_wrapper = vim.fs.root(file_dir, root_markers)
+  if root_with_wrapper then
+    return root_with_wrapper
+  end
+
+  -- 2. 查找 git 根目录
+  local git_root = vim.fs.root(file_dir, ".git")
+
+  -- 3. 查找最外层（最顶层）的构建文件 pom.xml / build.gradle
+  --    限制在 git_root 范围内（若存在），支持 monorepo 以及多模块父 pom
+  local build_markers = { "pom.xml", "build.gradle", "build.gradle.kts" }
+  local highest_build_root = nil
+
+  for dir in vim.fs.parents(bufname) do
+    for _, marker in ipairs(build_markers) do
+      if vim.uv.fs_stat(vim.fs.joinpath(dir, marker)) then
+        highest_build_root = dir
+        break
+      end
+    end
+    if git_root and dir == git_root then
+      break
+    end
+  end
+
+  if highest_build_root then
+    return highest_build_root
+  end
+
+  return git_root or vim.fs.root(file_dir, build_markers) or vim.fn.getcwd()
+end
 
 local features = {
   -- change this to `true` to enable codelens
@@ -149,9 +181,14 @@ end
 
 local function jdtls_setup(_)
   local jdtls = require "jdtls"
+  local root_dir = find_project_root()
+  if not root_dir then
+    return
+  end
 
   local path = get_jdtls_paths()
-  local data_dir = path.data_dir .. "/" .. vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
+  local project_name = vim.fs.basename(root_dir)
+  local data_dir = path.data_dir .. "/" .. project_name
 
   if cache_vars.capabilities == nil then
     jdtls.extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
@@ -286,7 +323,7 @@ local function jdtls_setup(_)
     on_attach = jdtls_on_attach,
     on_init = on_init,
     capabilities = cache_vars.capabilities,
-    root_dir = jdtls.setup.find_root(root_files),
+    root_dir = root_dir,
     flags = {
       allow_incremental_sync = true,
     },

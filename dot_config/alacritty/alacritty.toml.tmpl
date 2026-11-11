@@ -28,8 +28,10 @@ decorations = "None"
 startup_mode = "Maximized"
 option_as_alt = "Both"
 
+{{- if eq .chezmoi.os "windows" }}
 [terminal]
 shell = "pwsh.exe"
+{{- end }}
 
 [debug]
 log_level = "OFF"

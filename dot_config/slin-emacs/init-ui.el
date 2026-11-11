@@ -198,6 +198,15 @@ do not establish a project on their own."
                 new-name (format "%s<%d>" base-name counter)))
         new-name)))
 
+  (defvar slin/tab-bar--current-tab-template nil
+    "Holds TAB template when `tab-bar--current-tab-make' is running.")
+
+  ;; 监控 tab-bar--current-tab-make：捕获当前正在构建/切换的目标 Tab 模板，区分全新创建与标签切换
+  (advice-add 'tab-bar--current-tab-make :around
+              (lambda (orig-fn &optional tab)
+                (let ((slin/tab-bar--current-tab-template tab))
+                  (funcall orig-fn tab))))
+
   ;; 自动保持 Tab 名称与当前关联的项目名称一致；未关联项目时使用当前 Buffer 名；杜绝复用既有 Tab 名
   (defun slin/tab-bar-tab-name ()
     "Return unique project name if current tab belongs to a project,
@@ -206,32 +215,46 @@ otherwise fall back to unique buffer name."
         (tab-bar-tab-name-current)
       (let* ((slin/tab-bar--in-tab-name t)
              (raw-tabs (or (frame-parameter nil 'tabs) (tab-bar-tabs)))
-             (cur-tab (assq 'current-tab raw-tabs))
-             (other-tabs (remq cur-tab raw-tabs))
+             (cur-tab (or (assq 'current-tab raw-tabs)
+                          slin/tab-bar--current-tab-template))
+             ;; 排除当前 Tab 以及正在切换的目标 Tab 模板，确保比较时只有真正的外部 Tab，杜绝自身与自身同名冲突
+             (other-tabs (remq cur-tab (if slin/tab-bar--current-tab-template
+                                           (remq slin/tab-bar--current-tab-template raw-tabs)
+                                         raw-tabs)))
              (other-names (delq nil (mapcar (lambda (tab) (alist-get 'name tab)) other-tabs)))
-             (project (or (slin/buffer-project (current-buffer))
-                          (cl-some (lambda (w)
-                                     (slin/buffer-project (window-buffer w)))
-                                   (window-list))
-                          (and (bound-and-true-p tabspaces-mode)
-                               (fboundp 'tabspaces-local-buffer-list)
-                               (cl-some #'slin/buffer-project
-                                        (tabspaces-local-buffer-list)))))
-             (proj-name (when project (project-name project)))
-             (base-name
-              (cond
-               ;; 若识别到真实项目，将项目名持久化绑定至当前 Tab
-               (proj-name
-                (when cur-tab
-                  (setf (alist-get 'project-name (cdr cur-tab)) proj-name))
-                proj-name)
-               ;; 若本 Tab 历史已关联项目（如全屏查看 *Help* 或 *compilation* 等辅助窗口）
-               ((and cur-tab (alist-get 'project-name (cdr cur-tab)))
-                (alist-get 'project-name (cdr cur-tab)))
-               ;; 全新 Tab 或未处于项目的工作区，降级为当前 Buffer 名 (如 *scratch*)
-               (t
-                (tab-bar-tab-name-current)))))
-        (slin/tab-bar-unique-tab-name base-name other-names))))
+             ;; 判断是否为新建标签页：未加入 tabs 且无历史窗口配置 (ws)
+             (is-new-tab (and (null (assq 'current-tab raw-tabs))
+                              (or (null slin/tab-bar--current-tab-template)
+                                  (not (alist-get 'ws slin/tab-bar--current-tab-template))))))
+        (if is-new-tab
+            ;; 全新创建标签页：严格依据新建目标 buffer 命名（如 *scratch*），杜绝套用前一标签页的任何残留项目
+            (slin/tab-bar-unique-tab-name (tab-bar-tab-name-current) other-names)
+          ;; 既有标签页：依据当前窗口及焦点实际所属项目命名
+          (let* ((project (or (slin/buffer-project (current-buffer))
+                              (cl-some (lambda (w)
+                                         (slin/buffer-project (window-buffer w)))
+                                       (window-list))))
+                 (proj-name (when project (project-name project)))
+                 (base-name
+                  (cond
+                   ;; 1. 当前窗口明确处于项目中：更新并持久化绑定该项目名
+                   (proj-name
+                    (when (and cur-tab (listp cur-tab))
+                      (setf (alist-get 'project-name (cdr cur-tab)) proj-name))
+                    proj-name)
+                   ;; 2. 全屏临时辅助窗口（如 *Help*、*compilation*），若此前已绑定过项目则维持该项目名
+                   ((and cur-tab
+                         (alist-get 'project-name (cdr cur-tab))
+                         (let ((buf (current-buffer)))
+                           (and buf (or (not (buffer-file-name buf))
+                                        (derived-mode-p 'special-mode 'help-mode 'compilation-mode)))))
+                    (alist-get 'project-name (cdr cur-tab)))
+                   ;; 3. 访问非项目文件或工作区：清除原项目记录，恢复当前 Buffer 名
+                   (t
+                    (when (and cur-tab (listp cur-tab))
+                      (setf (alist-get 'project-name (cdr cur-tab)) nil))
+                    (tab-bar-tab-name-current)))))
+            (slin/tab-bar-unique-tab-name base-name other-names))))))
 
   (setq tab-bar-tab-name-function #'slin/tab-bar-tab-name)
 

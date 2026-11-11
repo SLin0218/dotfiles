@@ -10,6 +10,7 @@
   imports = [
     ./modules/mihomo.nix
     ./modules/keyd.nix
+    ../fonts.nix
   ];
 
   nixpkgs.config.allowUnfree = true;
@@ -198,48 +199,7 @@
     ];
   };
 
-  fonts = {
-    packages = with pkgs; [
-      adwaita-fonts
-      sarasa-gothic
-      noto-fonts-cjk-sans
-      noto-fonts-cjk-serif
-      noto-fonts-color-emoji
-      nerd-fonts.jetbrains-mono
-      lxgw-wenkai
 
-      roboto-mono
-      vista-fonts-chs
-    ];
-
-    fontconfig = {
-      antialias = true;
-      hinting.enable = true;
-      hinting.autohint = true;
-      defaultFonts = {
-        sansSerif = [
-          "Microsoft YaHei"
-          "Noto Sans CJK SC"
-          "Source Han Sans SC"
-          "DejaVu Sans"
-        ];
-        serif = [
-          "Noto Serif CJK SC"
-          "Source Han Serif SC"
-          "DejaVu Serif"
-        ];
-        monospace = [
-          "Noto Sans Mono CJK SC"
-          "Sarasa Mono SC"
-          "DejaVu Sans Mono"
-        ];
-        emoji = [ "Noto Color Emoji" ];
-      };
-    };
-
-    # Enable font directory for system-wide access
-    fontDir.enable = true;
-  };
 
   i18n = {
     extraLocaleSettings = {
