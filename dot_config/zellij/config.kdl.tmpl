@@ -97,13 +97,14 @@ keybinds clear-defaults=true {
         bind "8" { GoToTab 8; SwitchToMode "normal"; }
         bind "9" { GoToTab 9; SwitchToMode "normal"; }
 
-        // --- 会话与滚动/复制（支持 Ctrl-b Enter 原地彩色复制模式） ---
+        // --- 会话、滚动与复制（Ctrl-b [ 进入滚动模式，Ctrl-b Enter 直接唤起 Neovim 复制） ---
         bind "d" { Detach; }
+        bind "[" { SwitchToMode "scroll"; }
         bind "enter" {
             EditScrollback {
                 ansi true
             }
-            SwitchToMode "normal"
+            SwitchToMode "locked"
         }
         bind "s" {
             LaunchOrFocusPlugin "session-manager" {
@@ -117,9 +118,13 @@ keybinds clear-defaults=true {
     scroll {
         bind "esc" { SwitchToMode "normal"; }
         bind "q" { SwitchToMode "normal"; }
-        // 按 v 或 e 直接唤起 Neovim，使用真正的 Vim 进行 v 选中、y 复制
-        bind "v" { EditScrollback; SwitchToMode "normal"; }
-        bind "e" { EditScrollback; SwitchToMode "normal"; }
+        // 按 v 或 e 直接唤起 Neovim 原地彩色复制模式，与 Ctrl-b Enter 效果完全一致
+        bind "v" "e" {
+            EditScrollback {
+                ansi true
+            }
+            SwitchToMode "locked"
+        }
         bind "Ctrl c" { ScrollToBottom; SwitchToMode "normal"; }
         bind "PageDown" { PageScrollDown; }
         bind "PageUp" { PageScrollUp; }
@@ -271,7 +276,7 @@ default_cwd "\\\\wsl.localhost\\NixOS\\home\\lin"
 // The name of the default layout to load on startup
 // Default: "default"
 //
-default_layout "default"
+default_layout "custom"
 
 // The folder in which Zellij will look for layouts
 // (Requires restart)
