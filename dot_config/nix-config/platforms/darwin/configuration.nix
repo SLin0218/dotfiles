@@ -19,7 +19,10 @@
   # Necessary for using flakes on this system.
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
       substituters = [
         "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
         "https://cache.nixos.org"
@@ -79,7 +82,7 @@
     onActivation = {
       cleanup = "none";
       autoUpdate = false;
-      upgrade = true;
+      upgrade = false;
     };
     global = {
       brewfile = true;
@@ -98,7 +101,6 @@
     ];
 
     casks = [
-      "flameshot"
       "squirrel-app"
       "hammerspoon"
       "karabiner-elements"
@@ -108,7 +110,7 @@
       "windows-app"
       "emacs-plus-app@master"
       "raycast"
-      "claude-code"
+      "capso"
     ];
   };
 

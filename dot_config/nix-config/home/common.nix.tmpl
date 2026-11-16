@@ -56,6 +56,7 @@
         fastfetch
         # 用于shell脚本加密工具
         openssl
+        zellij
 
         # rime
         librime
@@ -88,13 +89,8 @@
 {{- if eq .chezmoi.os "linux" }}
         pinentry-gnome3
         pkgs.emacs-pgtk
-    {{- if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
-    {{- else }}
-        wezterm
-    {{- end }}
 {{- else }}
         pinentry-curses
-        wezterm
 {{- end }}
 
         # gui

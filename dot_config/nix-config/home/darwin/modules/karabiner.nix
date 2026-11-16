@@ -156,7 +156,7 @@ let
           }
           {
             key = "i";
-            app = "wezterm";
+            app = "alacritty";
           }
           {
             key = "y";
@@ -204,6 +204,7 @@ let
     ];
     kitty = [ "^net\\.kovidgoyal\\.kitty$" ];
     wezterm = [ "^com\\.github\\.wez\\.wezterm$" ];
+    alacritty = [ "^org\\.alacritty$" ];
     emacs = [ "^org\\.gnu\\.Emacs$" ];
     raycast = [ "^com\\.raycast\\.macos$" ];
     welink = [ "^com\\.huawei\\.cloud\\.welink$" ];
@@ -215,25 +216,7 @@ let
   appSpecificRules = {
     description = "Only specified application settings";
     manipulators = builtins.concatLists [
-      # 1. Kitty 专用
-      (map
-        (
-          key:
-          mkHyperKey {
-            fromKey = key;
-            toModifiers = [
-              "left_control"
-              "left_shift"
-            ];
-            conditions = mkFrontmost apps.kitty;
-          }
-        )
-        [
-          "open_bracket"
-          "close_bracket"
-        ]
-      )
-
+      # 1. Termail 专用
       [
         (mkHyperKey {
           fromKey = "open_bracket";
@@ -242,13 +225,13 @@ let
             "left_control"
             "left_shift"
           ];
-          conditions = mkFrontmost apps.wezterm;
+          conditions = mkFrontmost apps.alacritty;
         })
         (mkHyperKey {
           fromKey = "close_bracket";
           toKey = "tab";
           toModifiers = [ "left_control" ];
-          conditions = mkFrontmost apps.wezterm;
+          conditions = mkFrontmost apps.alacritty;
         })
       ]
 
