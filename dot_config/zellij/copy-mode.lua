@@ -14,26 +14,41 @@ vim.opt.wrap = true
 vim.opt.cursorline = true
 vim.opt.scrolloff = 0
 
--- Normal mode keymaps: q or Esc to exit immediately back to terminal
+-- Normal mode keymaps: q or Esc to exit immediately back to terminal, yy/Y to copy current line
 vim.keymap.set("n", "q", "<cmd>qa!<CR>", { silent = true })
 vim.keymap.set("n", "<Esc>", "<cmd>qa!<CR>", { silent = true })
+vim.keymap.set("n", "yy", '"+yy<cmd>qa!<CR>', { silent = true })
+vim.keymap.set("n", "Y", '"+yy<cmd>qa!<CR>', { silent = true })
 
 -- Visual mode keymaps: y or Enter to yank to clipboard and exit immediately!
 vim.keymap.set("v", "y", '"+y<cmd>qa!<CR>', { silent = true })
 vim.keymap.set("v", "<CR>", '"+y<cmd>qa!<CR>', { silent = true })
 vim.keymap.set("v", "q", "<Esc>", { silent = true })
 
+-- 退出时确保 Zellij 状态栏切回 normal 模式
+local function restore_zellij_mode()
+    pcall(vim.fn.system, "zellij action switch-mode normal")
+end
+
+vim.api.nvim_create_autocmd({ "VimLeavePre", "VimLeave" }, {
+    callback = restore_zellij_mode,
+})
+
 -- --- Catppuccin Mocha 终端一致配色 ---
 local mocha = {
     base = "#1E1E2E",      -- Catppuccin Mocha 主背景色
-    mantle = "#181825",
+    mantle = "#181825",    -- 状态栏背景色
     crust = "#11111B",
     text = "#CDD6F4",      -- 主文本颜色
+    subtext0 = "#A6ADC8",
+    overlay0 = "#6C7086",  -- 提示辅助灰
     surface0 = "#313244",  -- 光标行高亮背景
     surface1 = "#45475A",  -- 选中区域高亮 (Visual)
     surface2 = "#585B70",
     blue = "#89B4FA",
-    subtext0 = "#A6ADC8",
+    yellow = "#F9E2AF",    -- Normal 模式金黄
+    pink = "#F5C2E7",      -- Visual 模式粉紫
+    red = "#F38BA8",       -- 只读警告红
 }
 
 -- 全局基础配色设定，确保进入复制模式时背景与终端完全融为一体
@@ -44,7 +59,7 @@ vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = mocha.base, fg = mocha.base })
 vim.api.nvim_set_hl(0, "CursorLine", { bg = mocha.surface0 })
 vim.api.nvim_set_hl(0, "Visual", { bg = mocha.surface1, fg = mocha.text, bold = true })
 vim.api.nvim_set_hl(0, "Cursor", { bg = mocha.blue, fg = mocha.crust })
-vim.api.nvim_set_hl(0, "ModeMsg", { fg = mocha.blue, bg = mocha.base, bold = true })
+vim.api.nvim_set_hl(0, "ModeMsg", { fg = mocha.yellow, bg = mocha.base, bold = true })
 vim.api.nvim_set_hl(0, "MsgArea", { bg = mocha.base, fg = mocha.text })
 
 -- --- ANSI Color Palette (Catppuccin Mocha aligned) ---
@@ -182,6 +197,9 @@ end
 -- Hook into VimEnter: Colorize and precisely restore cursor position
 vim.api.nvim_create_autocmd("VimEnter", {
     callback = function()
+        -- 确保进入复制模式时 Zellij 顶部状态栏显示 COPY (locked 模式)
+        pcall(vim.fn.system, "zellij action switch-mode locked")
+
         colorize_ansi(0)
 
         -- 1. 将窗口最底部对齐到缓冲区最后一行，保证视口与终端当前屏幕 100% 重合
@@ -204,5 +222,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
 
         -- 3. 将光标精准投放到原本终端光标所在的行列位置（不引起屏幕跳动）
         pcall(vim.api.nvim_win_set_cursor, 0, { target_row, math.max(0, target_col - 1) })
+
+        -- 4. 锁定缓冲区为只读，避免误编辑终端历史内容
+        vim.bo.modifiable = false
+        vim.bo.readonly = true
+        vim.bo.buftype = "nofile"
     end,
 })

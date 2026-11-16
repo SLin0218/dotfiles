@@ -1,24 +1,28 @@
 layout {
     default_tab_template {
-        // 顶部一体化状态栏（包含：模式、会话名、矩形标签、Git 分支、时间）
+        // 顶部一体化状态栏（最左侧：整体方块风格的会话名与模式；接着：矩形标签；右侧：Git 分支、时间）
         pane size=1 borderless=true {
             plugin location="https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm" {
-                format_left   "{tabs}"
-                format_right  "{command_git_branch} {datetime}#[bg=#89B4FA,fg=#11111B,bold]  {session} #[bg=default] {mode}"
+                format_left   "#[bg=#CBA6F7,fg=#11111B,bold]  {session}  {mode}  {tabs}"
+                format_right  "{command_git_branch} {datetime}"
                 format_space  ""
 
                 border_enabled "false"
 
-                // --- 模式样式 (Catppuccin Mocha 配色) ---
-                mode_normal  "#[bg=#A6E3A1,fg=#1E1E2E,bold] NORMAL "
-                mode_tmux    "#[bg=#F5C2E7,fg=#1E1E2E,bold] TMUX "
-                mode_locked  "#[bg=#F38BA8,fg=#1E1E2E,bold] LOCKED "
-                mode_pane    "#[bg=#89B4FA,fg=#1E1E2E,bold] PANE "
-                mode_tab     "#[bg=#CBA6F7,fg=#1E1E2E,bold] TAB "
-                mode_resize  "#[bg=#FAB387,fg=#1E1E2E,bold] RESIZE "
-                mode_scroll  "#[bg=#F9E2AF,fg=#1E1E2E,bold] SCROLL "
-                mode_session "#[bg=#94E2D5,fg=#1E1E2E,bold] SESSION "
-                mode_move    "#[bg=#89DCEB,fg=#1E1E2E,bold] MOVE "
+                // --- 模式样式 (与 Session 紧密拼接为整体方块，统一 10 字符宽度，切换无跳动) ---
+                mode_normal       "#[bg=#A6E3A1,fg=#1E1E2E,bold]  NORMAL  #[bg=default]"
+                mode_tmux         "#[bg=#F5C2E7,fg=#1E1E2E,bold]   TMUX   #[bg=default]"
+                mode_locked       "#[bg=#FAB387,fg=#1E1E2E,bold]   COPY   #[bg=default]"
+                mode_pane         "#[bg=#74C7EC,fg=#1E1E2E,bold]   PANE   #[bg=default]"
+                mode_tab          "#[bg=#CBA6F7,fg=#1E1E2E,bold]   TAB    #[bg=default]"
+                mode_resize       "#[bg=#FAB387,fg=#1E1E2E,bold]  RESIZE  #[bg=default]"
+                mode_scroll       "#[bg=#F9E2AF,fg=#1E1E2E,bold]  SCROLL  #[bg=default]"
+                mode_search       "#[bg=#FAB387,fg=#1E1E2E,bold]  SEARCH  #[bg=default]"
+                mode_enter_search "#[bg=#F9E2AF,fg=#1E1E2E,bold] ENT-SRCH #[bg=default]"
+                mode_rename_tab   "#[bg=#CBA6F7,fg=#1E1E2E,bold]  RN-TAB  #[bg=default]"
+                mode_rename_pane  "#[bg=#74C7EC,fg=#1E1E2E,bold] RN-PANE  #[bg=default]"
+                mode_session      "#[bg=#94E2D5,fg=#1E1E2E,bold]   SESS   #[bg=default]"
+                mode_move         "#[bg=#89DCEB,fg=#1E1E2E,bold]   MOVE   #[bg=default]"
 
                 // --- 矩形标签样式 (独立卡片色块，激活高亮) ---
                 tab_normal              "#[bg=#313244,fg=#CDD6F4]  {index} {name}  #[bg=default] "

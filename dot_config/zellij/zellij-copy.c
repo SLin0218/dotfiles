@@ -30,6 +30,7 @@
 #else
     #include <unistd.h>
     #include <limits.h>
+    #include <sys/wait.h>
     #define PATH_SEP '/'
     #define PATH_SEP_STR "/"
     #if defined(__APPLE__)
@@ -150,34 +151,46 @@ int main(int argc, char *argv[]) {
         GetExitCodeProcess(pi.hProcess, &exitCode);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
+        // 保证在退出复制模式后，Zellij 状态栏恢复为 normal 模式
+        system("zellij.exe action switch-mode normal");
         return (int)exitCode;
     }
 
     return 1;
 
 #else
-    // Linux / macOS / POSIX: 使用 execvp 零开销直接替换当前进程
-    // 参数列表：nvim, --clean, -u, <lua_path>, [target_file], NULL
-    int total_args = 4 + (argc > 1 ? (argc - 1) : 0) + 1;
-    char **nargs = (char **)malloc(sizeof(char *) * total_args);
-    if (!nargs) return 1;
-
-    int idx = 0;
-    nargs[idx++] = "nvim";
-    nargs[idx++] = "--clean";
-    nargs[idx++] = "-u";
-    nargs[idx++] = lua_path;
-
-    for (int i = 1; i < argc; i++) {
-        nargs[idx++] = argv[i];
+    // Linux / macOS / POSIX: fork + waitpid，退出后恢复 Zellij normal 模式
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork failed");
+        return 1;
     }
-    nargs[idx] = NULL;
 
-    execvp("nvim", nargs);
+    if (pid == 0) {
+        int total_args = 4 + (argc > 1 ? (argc - 1) : 0) + 1;
+        char **nargs = (char **)malloc(sizeof(char *) * total_args);
+        if (!nargs) exit(1);
 
-    // 如果 execvp 返回，说明执行失败（如 PATH 中找不到 nvim）
-    perror("execvp nvim failed");
-    free(nargs);
-    return 1;
+        int idx = 0;
+        nargs[idx++] = "nvim";
+        nargs[idx++] = "--clean";
+        nargs[idx++] = "-u";
+        nargs[idx++] = lua_path;
+
+        for (int i = 1; i < argc; i++) {
+            nargs[idx++] = argv[i];
+        }
+        nargs[idx] = NULL;
+
+        execvp("nvim", nargs);
+        perror("execvp nvim failed");
+        free(nargs);
+        exit(1);
+    } else {
+        int status = 0;
+        waitpid(pid, &status, 0);
+        system("zellij action switch-mode normal");
+        return WEXITSTATUS(status);
+    }
 #endif
 }
