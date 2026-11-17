@@ -170,7 +170,20 @@
            (margin-body-face . nil))))
 
   ;; 挂载底层格式化 Advice，动态注入最优先级的 Commit Face
-  (advice-add 'magit-blame--format-string-1 :around #'my/magit-blame-format-string-1))
+  (advice-add 'magit-blame--format-string-1 :around #'my/magit-blame-format-string-1)
+
+  ;; 配合 Magit 操作（切分支、commit、merge 等）即时刷新对应仓库下 buffer 的 VC 状态与 modeline 分支
+  (defun slin/magit-update-vc-state ()
+    "Update VC state for file buffers belonging to current Magit repository."
+    (when-let* ((root (magit-toplevel)))
+      (dolist (buf (buffer-list))
+        (let ((file (buffer-file-name buf)))
+          (when (and file
+                     (not (file-remote-p file))
+                     (file-in-directory-p file root))
+            (with-current-buffer buf
+              (vc-refresh-state)))))))
+  (add-hook 'magit-post-refresh-hook #'slin/magit-update-vc-state))
 
 ;; =============================================================================
 ;; 左右分屏代码对比与合并 (Ediff)

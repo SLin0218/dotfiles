@@ -6,7 +6,7 @@
       # 编程与西文字体
       nerd-fonts.jetbrains-mono
       maple-mono.NF-CN-unhinted
-      roboto-mongo
+      roboto-mono
       adwaita-fonts
 
       # 中文字体
