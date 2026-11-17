@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1 && argv[1]) {
         snprintf(target, sizeof(target), "\"%s\"", argv[1]);
     }
-    snprintf(cmd, sizeof(cmd), "nvim.exe --clean -u \"%s\" %s", lua_path, target);
+    snprintf(cmd, sizeof(cmd), "nvim.exe --clean -u \"%s\" +$ %s", lua_path, target);
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (pid == 0) {
-        int total_args = 4 + (argc > 1 ? (argc - 1) : 0) + 1;
+        int total_args = 5 + (argc > 1 ? (argc - 1) : 0) + 1;
         char **nargs = (char **)malloc(sizeof(char *) * total_args);
         if (!nargs) exit(1);
 
@@ -176,6 +176,7 @@ int main(int argc, char *argv[]) {
         nargs[idx++] = "--clean";
         nargs[idx++] = "-u";
         nargs[idx++] = lua_path;
+        nargs[idx++] = "+$";
 
         for (int i = 1; i < argc; i++) {
             nargs[idx++] = argv[i];

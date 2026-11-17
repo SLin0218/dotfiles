@@ -5,7 +5,8 @@ vim.opt.number = false
 vim.opt.relativenumber = false
 vim.opt.signcolumn = "no"
 vim.opt.laststatus = 0
-vim.opt.showmode = true
+vim.opt.showmode = false
+vim.opt.cmdheight = 0
 vim.opt.ruler = false
 vim.opt.swapfile = false
 vim.opt.backup = false
@@ -197,33 +198,37 @@ end
 -- Hook into VimEnter: Colorize and precisely restore cursor position
 vim.api.nvim_create_autocmd("VimEnter", {
     callback = function()
-        -- 确保进入复制模式时 Zellij 顶部状态栏显示 COPY (locked 模式)
-        pcall(vim.fn.system, "zellij action switch-mode locked")
-
         colorize_ansi(0)
 
-        -- 1. 将窗口最底部对齐到缓冲区最后一行，保证视口与终端当前屏幕 100% 重合
-        vim.cmd("normal! Gzb")
+        local total_lines = vim.api.nvim_buf_line_count(0)
+        local win_h = vim.api.nvim_win_get_height(0)
 
-        -- 2. 自底向上寻找最后一个有内容的行（即命令行 Prompt 或最后一行命令输出）
+        -- 精确计算当前终端视口顶部的行号（最后 win_h 行与终端当前屏幕 100% 对应）
+        local target_topline = math.max(1, total_lines - win_h + 1)
+
+        -- 寻找当前视口内最后一个有内容的行投放光标
         local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-        local target_row = #lines
+        local target_row = total_lines
         local target_col = 0
 
-        for i = #lines, 1, -1 do
+        for i = total_lines, target_topline, -1 do
             local line = lines[i]
-            if line:match("%S") then
+            if line and line:match("%S") then
                 target_row = i
                 local last_char_pos = line:match(".*()%S")
-                target_col = last_char_pos or #line
+                target_col = math.max(0, (last_char_pos or #line) - 1)
                 break
             end
         end
 
-        -- 3. 将光标精准投放到原本终端光标所在的行列位置（不引起屏幕跳动）
-        pcall(vim.api.nvim_win_set_cursor, 0, { target_row, math.max(0, target_col - 1) })
+        -- 单次原子化设置视口与光标，彻底杜绝偏上与滚动跳动
+        vim.fn.winrestview({
+            topline = target_topline,
+            lnum = target_row,
+            col = target_col,
+        })
 
-        -- 4. 锁定缓冲区为只读，避免误编辑终端历史内容
+        -- 锁定缓冲区为只读，避免误编辑终端历史内容
         vim.bo.modifiable = false
         vim.bo.readonly = true
         vim.bo.buftype = "nofile"

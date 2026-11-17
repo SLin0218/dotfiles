@@ -256,15 +256,15 @@ CapsLock & g::
 {
     ToggleApp("Brave ahk_exe brave.exe", "brave.exe")
 }
-; CapsLock & n::
-; {
-;     patternPath := A_ProgramsCommon . "\JetBrains\IntelliJ IDEA*.lnk"
-;     actualPath := ""
-;     Loop Files, patternPath {
-;         actualPath := A_LoopFileFullPath
-;     }
-;     ToggleApp("\s-\s ahk_exe idea64.exe", actualPath)
-; }
+CapsLock & n::
+{
+    patternPath := A_ProgramsCommon . "\JetBrains\IntelliJ IDEA*.lnk"
+    actualPath := ""
+    Loop Files, patternPath {
+        actualPath := A_LoopFileFullPath
+    }
+    ToggleApp("\s-\s ahk_exe idea64.exe", actualPath)
+}
 CapsLock & u::
 {
     ToggleApp("飞书 ahk_exe Feishu.exe", A_Programs . "\飞书.lnk")
