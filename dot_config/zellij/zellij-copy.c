@@ -120,6 +120,14 @@ static void get_executable_dir(char *dir_buf, size_t buf_size, const char *fallb
 }
 
 int main(int argc, char *argv[]) {
+    // 核心黑科技：彻底禁用 Neovim 的 Alternate Screen Buffer 切换与清屏码（1049h / 1049l）
+    // 使得 Neovim 原地绘制在当前画布上，绝不发送清屏指令，彻底消灭进程交接时的空白闪烁！
+#if defined(_WIN32)
+    SetEnvironmentVariableA("NVIM_TERMDEFS", "{\"enter_ca_mode\":\"\",\"exit_ca_mode\":\"\"}");
+#else
+    setenv("NVIM_TERMDEFS", "{\"enter_ca_mode\":\"\",\"exit_ca_mode\":\"\"}", 1);
+#endif
+
     char dir[PATH_MAX];
     get_executable_dir(dir, sizeof(dir), (argc > 0) ? argv[0] : NULL);
 
@@ -133,7 +141,8 @@ int main(int argc, char *argv[]) {
     if (argc > 1 && argv[1]) {
         snprintf(target, sizeof(target), "\"%s\"", argv[1]);
     }
-    snprintf(cmd, sizeof(cmd), "nvim.exe --clean -u \"%s\" +$ %s", lua_path, target);
+    // 移除 +$，完全交由 Lua 脚本内部原子控制视口与光标
+    snprintf(cmd, sizeof(cmd), "nvim.exe --clean -u \"%s\" %s", lua_path, target);
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -151,15 +160,28 @@ int main(int argc, char *argv[]) {
         GetExitCodeProcess(pi.hProcess, &exitCode);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
+
         // 保证在退出复制模式后，Zellij 状态栏恢复为 normal 模式
-        system("zellij.exe action switch-mode normal");
+        // 使用 CREATE_NO_WINDOW 无黑框静默执行，杜绝控制台闪烁
+        STARTUPINFOA si_sw;
+        PROCESS_INFORMATION pi_sw;
+        ZeroMemory(&si_sw, sizeof(si_sw));
+        si_sw.cb = sizeof(si_sw);
+        ZeroMemory(&pi_sw, sizeof(pi_sw));
+        char switch_cmd[] = "zellij.exe action switch-mode normal";
+        if (CreateProcessA(NULL, switch_cmd, NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si_sw, &pi_sw)) {
+            WaitForSingleObject(pi_sw.hProcess, 1000);
+            CloseHandle(pi_sw.hProcess);
+            CloseHandle(pi_sw.hThread);
+        }
+
         return (int)exitCode;
     }
 
     return 1;
 
 #else
-    // Linux / macOS / POSIX: fork + waitpid，退出后恢复 Zellij normal 模式
+    // Linux / macOS / POSIX: fork + waitpid 零开销运行
     pid_t pid = fork();
     if (pid < 0) {
         perror("fork failed");
@@ -167,7 +189,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (pid == 0) {
-        int total_args = 5 + (argc > 1 ? (argc - 1) : 0) + 1;
+        int total_args = 4 + (argc > 1 ? (argc - 1) : 0) + 1;
         char **nargs = (char **)malloc(sizeof(char *) * total_args);
         if (!nargs) exit(1);
 
@@ -176,7 +198,6 @@ int main(int argc, char *argv[]) {
         nargs[idx++] = "--clean";
         nargs[idx++] = "-u";
         nargs[idx++] = lua_path;
-        nargs[idx++] = "+$";
 
         for (int i = 1; i < argc; i++) {
             nargs[idx++] = argv[i];
@@ -190,7 +211,17 @@ int main(int argc, char *argv[]) {
     } else {
         int status = 0;
         waitpid(pid, &status, 0);
-        system("zellij action switch-mode normal");
+
+        // 退出后恢复 Zellij normal 模式
+        pid_t p_sw = fork();
+        if (p_sw == 0) {
+            char *sw_args[] = {"zellij", "action", "switch-mode", "normal", NULL};
+            execvp("zellij", sw_args);
+            _exit(0);
+        } else if (p_sw > 0) {
+            waitpid(p_sw, NULL, 0);
+        }
+
         return WEXITSTATUS(status);
     }
 #endif

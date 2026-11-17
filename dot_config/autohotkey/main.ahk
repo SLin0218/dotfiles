@@ -74,7 +74,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
     !9::Send("^{9}")
 #HotIf
 
-#HotIf WinActive("ahk_exe idea64.exe")
+#HotIf WinActive("intellij-idea ahk_exe msrdc.exe")
     CapsLock & [::Send("^!+{[}")
     CapsLock & ]::Send("^!+{]}")
     CapsLock & 1::Send("^!{1}")
@@ -99,7 +99,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
     !w::Send("^{f4}")
 #HotIf
 
-#HotIf !WinActive("ahk_exe idea64.exe")
+#HotIf !WinActive("intellij-idea ahk_exe msrdc.exe")
     !w::Send("^{w}")
 #HotIf
 
@@ -258,20 +258,7 @@ CapsLock & g::
 }
 CapsLock & n::
 {
-    hwnd := FindWSLgWindowByAUMID("idea")
-    if (hwnd) {
-        if WinActive("ahk_id " hwnd) {
-            WinMinimize("ahk_id " hwnd)
-        } else {
-            if (WinGetMinMax("ahk_id " hwnd) == -1) {
-                WinRestore("ahk_id " hwnd)
-            }
-            WinActivate("ahk_id " hwnd)
-        }
-    } else {
-        ToolTip("未找到 WSLg 中的 IntelliJ IDEA 窗口")
-        SetTimer(() => ToolTip(), -1500)
-    }
+    ToggleApp("intellij-idea ahk_exe msrdc.exe", "wsl.exe --cd ~ -- intellij-idea", , "Hide")
 }
 CapsLock & u::
 {
@@ -384,51 +371,4 @@ DmGetWindowCloaked(hwnd) {
     ; DWMWA_CLOAKED = 14
     res := DllCall("dwmapi\DwmGetWindowAttribute", "Ptr", hwnd, "UInt", 14, "Ptr*", &cloaked, "UInt", 4)
     return (res == 0) ? cloaked : 0
-}
-
-; 辅助函数：通过 AppUserModelID 定位 WSLg 窗口
-FindWSLgWindowByAUMID(searchKeyword) {
-    hwnds := WinGetList("ahk_class RAIL_WINDOW ahk_exe msrdc.exe")
-    for hwnd in hwnds {
-        aumid := GetAppUserModelId(hwnd)
-        if InStr(aumid, searchKeyword) {
-            return hwnd
-        }
-    }
-    return 0
-}
-
-; 辅助函数：读取窗口的 System.AppUserModel.ID
-GetAppUserModelId(hwnd) {
-    static pIID := ""
-    static pKey := ""
-    if (!pIID) {
-        ; IID_IPropertyStore := "{886d8eeb-8cf2-4446-8d02-cdba1dbdcf99}"
-        pIID := Buffer(16, 0)
-        DllCall("ole32\CLSIDFromString", "wstr", "{886d8eeb-8cf2-4446-8d02-cdba1dbdcf99}", "ptr", pIID)
-
-        ; PKEY_AppUserModel_ID := "{9F4C2855-9F79-48DE-B806-3E60A35CF535} 5"
-        pKey := Buffer(20, 0)
-        DllCall("ole32\CLSIDFromString", "wstr", "{9F4C2855-9F79-48DE-B806-3E60A35CF535}", "ptr", pKey)
-        NumPut("uint", 5, pKey, 16)
-    }
-
-    hr := DllCall("shell32\SHGetPropertyStoreForWindow", "ptr", hwnd, "ptr", pIID, "ptr*", &pPropStore := 0)
-    if (hr != 0 || !pPropStore)
-        return ""
-
-    ; IPropertyStore::GetValue (虚函数索引为 5)
-    propVariant := Buffer(24, 0)
-    hr := ComCall(5, pPropStore, "ptr", pKey, "ptr", propVariant)
-    
-    aumid := ""
-    if (hr == 0 && NumGet(propVariant, 0, "ushort") == 31) { ; VT_LPWSTR = 31
-        pStr := NumGet(propVariant, 8, "ptr")
-        if (pStr)
-            aumid := StrGet(pStr, "UTF-16")
-    }
-    
-    DllCall("ole32\PropVariantClear", "ptr", propVariant)
-    ObjRelease(pPropStore)
-    return aumid
 }

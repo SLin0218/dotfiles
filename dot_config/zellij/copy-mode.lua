@@ -1,6 +1,26 @@
 -- copy-mode.lua: tmux-like in-place copy mode with full ANSI color support for Zellij
+-- 极速无感启动：禁用一切无关内置插件
+vim.g.loaded_gzip = 1
+vim.g.loaded_tar = 1
+vim.g.loaded_tarPlugin = 1
+vim.g.loaded_zip = 1
+vim.g.loaded_zipPlugin = 1
+vim.g.loaded_getscript = 1
+vim.g.loaded_getscriptPlugin = 1
+vim.g.loaded_vimball = 1
+vim.g.loaded_vimballPlugin = 1
+vim.g.loaded_matchit = 1
+vim.g.loaded_matchparen = 1
+vim.g.loaded_2html_plugin = 1
+vim.g.loaded_logiPat = 1
+vim.g.loaded_rrhelper = 1
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrwSettings = 1
+
 vim.opt.clipboard = "unnamedplus"
 vim.opt.termguicolors = true
+vim.opt.lazyredraw = true          -- 关键：渲染就绪前不重绘，彻底杜绝启动跳动与闪烁
 vim.opt.number = false
 vim.opt.relativenumber = false
 vim.opt.signcolumn = "no"
@@ -14,26 +34,19 @@ vim.opt.undofile = false
 vim.opt.wrap = true
 vim.opt.cursorline = true
 vim.opt.scrolloff = 0
+vim.opt.title = false              -- 禁用终端标题修改，避免触发终端重绘
 
--- Normal mode keymaps: q or Esc to exit immediately back to terminal, yy/Y to copy current line
+-- Normal 模式按键：q 或 Esc 毫秒级直接退回终端，yy / Y 快速复制当前行并退出
 vim.keymap.set("n", "q", "<cmd>qa!<CR>", { silent = true })
 vim.keymap.set("n", "<Esc>", "<cmd>qa!<CR>", { silent = true })
 vim.keymap.set("n", "yy", '"+yy<cmd>qa!<CR>', { silent = true })
 vim.keymap.set("n", "Y", '"+yy<cmd>qa!<CR>', { silent = true })
 
--- Visual mode keymaps: y or Enter to yank to clipboard and exit immediately!
+-- Visual 模式按键：y 或 Enter 复制到系统剪贴板并立即秒退回终端！q 或 Esc 取消选区
 vim.keymap.set("v", "y", '"+y<cmd>qa!<CR>', { silent = true })
 vim.keymap.set("v", "<CR>", '"+y<cmd>qa!<CR>', { silent = true })
 vim.keymap.set("v", "q", "<Esc>", { silent = true })
-
--- 退出时确保 Zellij 状态栏切回 normal 模式
-local function restore_zellij_mode()
-    pcall(vim.fn.system, "zellij action switch-mode normal")
-end
-
-vim.api.nvim_create_autocmd({ "VimLeavePre", "VimLeave" }, {
-    callback = restore_zellij_mode,
-})
+vim.keymap.set("v", "<Esc>", "<Esc>", { silent = true })
 
 -- --- Catppuccin Mocha 终端一致配色 ---
 local mocha = {
@@ -52,16 +65,16 @@ local mocha = {
     red = "#F38BA8",       -- 只读警告红
 }
 
--- 全局基础配色设定，确保进入复制模式时背景与终端完全融为一体
-vim.api.nvim_set_hl(0, "Normal", { bg = mocha.base, fg = mocha.text })
-vim.api.nvim_set_hl(0, "NormalNC", { bg = mocha.base, fg = mocha.text })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = mocha.base, fg = mocha.text })
-vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = mocha.base, fg = mocha.base })
+-- 全局基础配色设定：背景设为 NONE 原生透明，完美透出终端底色，杜绝背景色差闪烁
+vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", fg = mocha.text })
+vim.api.nvim_set_hl(0, "NormalNC", { bg = "NONE", fg = mocha.text })
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", fg = mocha.text })
+vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "NONE", fg = mocha.base })
 vim.api.nvim_set_hl(0, "CursorLine", { bg = mocha.surface0 })
 vim.api.nvim_set_hl(0, "Visual", { bg = mocha.surface1, fg = mocha.text, bold = true })
 vim.api.nvim_set_hl(0, "Cursor", { bg = mocha.blue, fg = mocha.crust })
-vim.api.nvim_set_hl(0, "ModeMsg", { fg = mocha.yellow, bg = mocha.base, bold = true })
-vim.api.nvim_set_hl(0, "MsgArea", { bg = mocha.base, fg = mocha.text })
+vim.api.nvim_set_hl(0, "ModeMsg", { fg = mocha.yellow, bg = "NONE", bold = true })
+vim.api.nvim_set_hl(0, "MsgArea", { bg = "NONE", fg = mocha.text })
 
 -- --- ANSI Color Palette (Catppuccin Mocha aligned) ---
 local ansi_colors = {
@@ -232,5 +245,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
         vim.bo.modifiable = false
         vim.bo.readonly = true
         vim.bo.buftype = "nofile"
+
+        -- 处理就绪，一次性原子刷新画面
+        vim.opt.lazyredraw = false
+        vim.cmd("redraw")
     end,
 })
