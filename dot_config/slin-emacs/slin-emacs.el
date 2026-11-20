@@ -45,15 +45,15 @@
                            (getenv "PATH")))
     (setq exec-path (append expanded-paths exec-path))))
 
-;; 注入 Nix / MSYS2 安装的 librime 路径供编译与动态加载使用
-(when (bound-and-true-p nix-librime-path)
-  (let ((sep (if (eq system-type 'windows-nt) ";" ":"))
-        (bin-dir (expand-file-name "bin" nix-librime-path)))
-    (when (file-directory-p bin-dir)
-      (add-to-list 'exec-path bin-dir)
-      (setenv "PATH" (concat bin-dir path-separator (getenv "PATH"))))
-    (setenv "LIBRARY_PATH" (concat (expand-file-name "lib" nix-librime-path) sep (getenv "LIBRARY_PATH")))
-    (setenv "CPATH" (concat (expand-file-name "include" nix-librime-path) (if (getenv "CPATH") (concat sep (getenv "CPATH")) "")))))
+;; 注入 Nix / MSYS2 安装的 librime 路径供编译与动态加载使用 (内置输入法已禁用)
+;; (when (bound-and-true-p nix-librime-path)
+;;   (let ((sep (if (eq system-type 'windows-nt) ";" ":"))
+;;         (bin-dir (expand-file-name "bin" nix-librime-path)))
+;;     (when (file-directory-p bin-dir)
+;;       (add-to-list 'exec-path bin-dir)
+;;       (setenv "PATH" (concat bin-dir path-separator (getenv "PATH"))))
+;;     (setenv "LIBRARY_PATH" (concat (expand-file-name "lib" nix-librime-path) sep (getenv "LIBRARY_PATH")))
+;;     (setenv "CPATH" (concat (expand-file-name "include" nix-librime-path) (if (getenv "CPATH") (concat sep (getenv "CPATH")) "")))))
 
 ;; 基础缩进风格
 (setq-default indent-tabs-mode nil)
@@ -70,7 +70,9 @@
     (load secret-file nil t)))
 (require 'init-base)         ; 基础编辑策略 (Session, Undo-fu, Magit, Recentf)
 (require 'init-ui)           ; 外观界面美化 (Theme, Font, Modeline, Dimmer, Tab-bar)
-(require 'init-input)        ; 中文输入法 (emacs-rime/Rime) 与按键修饰符
+;; 禁用 Emacs 内置输入法（使用系统外部输入法）
+(setq default-input-method nil)
+;; (require 'init-input)        ; 中文输入法 (emacs-rime/Rime) 与按键修饰符
 
 (require 'init-completion)   ; Minibuffer & In-buffer 补全检索 (Vertico, Consult, Corfu, Xref)
 (require 'init-keybinding)   ; Evil 框架与全局 Leader 快捷键映射

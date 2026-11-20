@@ -102,12 +102,27 @@
     (setq catppuccin-flavor 'mocha)
     (load-theme 'catppuccin :no-confirm)))
 
+(defun slin/workspace-scratch-buffer ()
+  "为当前工作区/Tab 创建并返回专属的 Scratch Buffer。"
+  (let* ((tab (tab-bar--current-tab))
+         (tab-name (alist-get 'name tab))
+         (buf-name (if (or (null tab-name)
+                           (string= tab-name "Default")
+                           (string= tab-name "*scratch*"))
+                       (generate-new-buffer-name "*scratch*")
+                     (format "*scratch (%s)*" tab-name)))
+         (buf (get-buffer-create buf-name)))
+    (with-current-buffer buf
+      (unless (derived-mode-p 'emacs-lisp-mode)
+        (emacs-lisp-mode)))
+    buf))
+
 ;; 顶栏标签页 (Tab-bar 顶栏工作区/窗口布局管理，参考 doom-modeline 设计风格与 Catppuccin 色彩)
 (use-package tab-bar
   :hook (after-init . tab-bar-mode)
   :custom
   (tab-bar-show t)                      ; 始终显示标签栏
-  (tab-bar-new-tab-choice "*scratch*")  ; 新建标签页默认打开独立 scratch，避免继承当前 buffer
+  (tab-bar-new-tab-choice #'slin/workspace-scratch-buffer)  ; 新建标签页默认打开当前工作区专属 scratch
   (tab-bar-close-button-show t)         ; 保留原生关闭按钮
   (tab-bar-new-button-show t)           ; 保留原生新建按钮
   (tab-bar-separator "")                ; 移除原生 "|" 分隔符
@@ -207,6 +222,39 @@ do not establish a project on their own."
                 (let ((slin/tab-bar--current-tab-template tab))
                   (funcall orig-fn tab))))
 
+  ;; 获取 Clutch 数据库 Buffer 对应的配置名称
+  (defun slin/clutch-buffer-connection-name (&optional buffer)
+    "如果 BUFFER 属于 Clutch 数据库会话，返回其配置名称（例如 tw-dev-yg、pg-dev-rx-plm）。"
+    (let ((buf (or buffer (current-buffer))))
+      (when (and buf (buffer-live-p buf))
+        (with-current-buffer buf
+          (or
+           ;; 1. 从 buffer 局部变量 clutch--console-name 获取
+           (and (boundp 'clutch--console-name)
+                (stringp clutch--console-name)
+                clutch--console-name)
+           ;; 2. 从 buffer 名称正则提取：*clutch: <name>*
+           (let ((bname (buffer-name buf)))
+             (when (string-match "\\`\\*clutch: \\([^*]+\\)\\*" bname)
+               (match-string 1 bname)))
+           ;; 3. 从连接参数中逆查或提取配置名
+           (when (bound-and-true-p clutch--connection-params)
+             (or (cl-loop for (name . p) in (bound-and-true-p clutch-connection-alist)
+                          when (or (equal p clutch--connection-params)
+                                   (and (plist-get p :profile-entry)
+                                        (equal (plist-get p :profile-entry)
+                                               (plist-get clutch--connection-params :profile-entry))))
+                          return name)
+                 (plist-get clutch--connection-params :profile-entry)
+                 (plist-get clutch--connection-params :pass-entry))))))))
+
+  (defun slin/tab-clutch-name ()
+    "如果当前 Tab 包含 Clutch 数据库会话，返回其连接配置名称。"
+    (or (slin/clutch-buffer-connection-name (current-buffer))
+        (cl-some (lambda (w)
+                   (slin/clutch-buffer-connection-name (window-buffer w)))
+                 (window-list))))
+
   ;; 自动保持 Tab 名称与当前关联的项目名称一致；未关联项目时使用当前 Buffer 名；杜绝复用既有 Tab 名
   (defun slin/tab-bar-tab-name ()
     "Return unique project name if current tab belongs to a project,
@@ -229,15 +277,17 @@ otherwise fall back to unique buffer name."
         (if is-new-tab
             ;; 全新创建标签页：严格依据新建目标 buffer 命名（如 *scratch*），杜绝套用前一标签页的任何残留项目
             (slin/tab-bar-unique-tab-name (tab-bar-tab-name-current) other-names)
-          ;; 既有标签页：依据当前窗口及焦点实际所属项目命名
-          (let* ((project (or (slin/buffer-project (current-buffer))
-                              (cl-some (lambda (w)
-                                         (slin/buffer-project (window-buffer w)))
-                                       (window-list))))
-                 (proj-name (when project (project-name project)))
+          ;; 既有标签页：依据当前窗口及焦点实际所属项目或 Clutch 数据库会话命名
+          (let* ((clutch-name (slin/tab-clutch-name))
+                 (project (unless clutch-name
+                            (or (slin/buffer-project (current-buffer))
+                                (cl-some (lambda (w)
+                                           (slin/buffer-project (window-buffer w)))
+                                         (window-list)))))
+                 (proj-name (or clutch-name (when project (project-name project))))
                  (base-name
                   (cond
-                   ;; 1. 当前窗口明确处于项目中：更新并持久化绑定该项目名
+                   ;; 1. 当前窗口明确处于项目或 Clutch 数据库会话中：更新并持久化绑定该名称
                    (proj-name
                     (when (and cur-tab (listp cur-tab))
                       (setf (alist-get 'project-name (cdr cur-tab)) proj-name))
@@ -388,66 +438,76 @@ otherwise fall back to unique buffer name."
   (tabspaces-default-tab "Default")
   (tabspaces-project-switch-opens-workspace t)
   (tabspaces-remove-to-default t)
-  (tabspaces-include-buffers '("*scratch*" "*Messages*"))
+  (tabspaces-include-buffers nil)        ; 完全清空全局共享 buffer，实现彻底隔离
   (tabspaces-initialize-project-with-todo nil)
   (tabspaces-initialize-project-with-vc nil)
   (tabspaces-session nil)
   (tabspaces-session-auto-restore nil)
   :config
-  ;; 允许在所有标签页访问的共享 Buffer 正则列表 (解决 Eglot 日志、调试日志、编译器输出等后台 Buffer 无法访问的问题)
-  (defcustom tabspaces-include-buffer-regexps
-    '("^\\*EGLOT"
-      "^\\*dape-"
-      "^\\*Flymake"
-      "^\\*compilation"
-      "^\\*Async-native-compile-log"
-      "^\\*Help"
-      "^\\*Warnings")
-    "Buffer 名称匹配这些正则时，视为在所有 Tab 工作区中均可访问的全局/共享 Buffer."
-    :type '(repeat string)
-    :group 'tabspaces)
+  ;; 获取当前 Tab 安全绑定的项目名称（安全读取 frame parameter，避免触发任何动态递归）
+  (defun slin/current-tab-project-name (&optional frame)
+    "安全获取当前 Tab 关联的项目名称，避免触发任何动态求值循环。"
+    (let* ((tabs (or (frame-parameter frame 'tabs) (tab-bar-tabs frame)))
+           (cur-tab (assq 'current-tab tabs)))
+      (or (alist-get 'project-name (cdr cur-tab))
+          (when-let* ((name (alist-get 'name cur-tab)))
+            (unless (member name '("Default" "*scratch*"))
+              (if (string-match "\\`\\(.+\\)<[0-9]+>\\'" name)
+                  (match-string 1 name)
+                name))))))
 
-  (defun slin/tabspaces-buffer-included-p (buffer)
-    "判断 BUFFER 是否应该被当前 Tabspace 视为合法包含的 Buffer."
-    (let ((name (if (stringp buffer) buffer (buffer-name buffer))))
-      (when name
-        (or (member name tabspaces-include-buffers)
-            (cl-some (lambda (rx) (string-match-p rx name))
-                     tabspaces-include-buffer-regexps)))))
+  ;; 判断 Buffer 是否为当前 Tab 项目专属的 Eglot 日志或编译 buffer（严格 Fast-Guard）
+  (defun slin/tabspaces-project-tool-buffer-p (buf &optional frame)
+    "快速判定 BUF 是否属于当前 Tab 项目的工具 Buffer。"
+    (when (and buf (buffer-live-p buf))
+      (let ((name (buffer-name buf)))
+        ;; 快速守卫：非特定前缀的普通 Buffer 立即返回 nil，零开销零递归
+        (when (and name (or (string-prefix-p "*EGLOT (" name)
+                            (string-prefix-p "*compilation*" name)
+                            (string-prefix-p "*dape-" name)))
+          (when-let* ((proj-name (slin/current-tab-project-name frame)))
+            (cond
+             ;; Eglot Buffer: 严格匹配 "*EGLOT (项目名/"
+             ((string-prefix-p "*EGLOT (" name)
+              (string-prefix-p (format "*EGLOT (%s/" proj-name) name))
+             ;; 编译 / 调试 Buffer: 判断 default-directory 是否包含该项目名
+             (t
+              (with-current-buffer buf
+                (and default-directory
+                     (string-match-p (regexp-quote (concat "/" proj-name "/"))
+                                     (expand-file-name default-directory)))))))))))
 
-  ;; 1. 扩展 local-buffer-p 判断：使得 buffer-predicate 允许访问 Eglot 等特殊 Buffer
-  (advice-add 'tabspaces--local-buffer-p :around
-              (lambda (orig-fn buffer)
-                (or (slin/tabspaces-buffer-included-p buffer)
-                    (funcall orig-fn buffer))))
-
-  ;; 2. 扩展 local-buffer-list：使得 consult-buffer (SPC b b) 候选中包含 Eglot 等日志与工具 Buffer
+  ;; 仅在 local-buffer-list 层面为 SPC b b / SPC b k 追加当前项目的工具 Buffer
+  ;; (绝不 advice 底层 buffer-predicate / tabspaces--local-buffer-p，杜绝递归与性能损耗)
   (advice-add 'tabspaces-local-buffer-list :around
               (lambda (orig-fn &optional frame)
-                (let ((buffers (funcall orig-fn frame))
-                      (all-buffers (buffer-list frame)))
-                  (dolist (buf all-buffers)
+                (let ((buffers (funcall orig-fn frame)))
+                  (dolist (buf (buffer-list frame))
                     (when (and (buffer-live-p buf)
-                               (slin/tabspaces-buffer-included-p buf)
-                               (not (memq buf buffers))
-                               (not (member (buffer-name buf) tabspaces-exclude-buffers)))
+                               (slin/tabspaces-project-tool-buffer-p buf frame)
+                               (not (memq buf buffers)))
                       (push buf buffers)))
                   buffers)))
 
-  ;; 3. 增强 tabspaces-switch-to-buffer (C-x b)：交互候选中不仅包含本地文件，也包含动态/共享 Buffer
-  (defun slin/tabspaces-switch-to-buffer-advice (orig-fn buffer &optional norecord force-same-window)
-    (interactive
-     (list
-      (let ((blst (cl-remove (buffer-name) (mapcar #'buffer-name (tabspaces-local-buffer-list)))))
-        (read-buffer
-         "Switch to local buffer: " blst nil
-         (lambda (b) (member (if (stringp b) b (car b)) blst))))))
-    (funcall orig-fn buffer norecord force-same-window))
-  (advice-add 'tabspaces-switch-to-buffer :around #'slin/tabspaces-switch-to-buffer-advice)
-
-  ;; 4. 整合 Consult：使 consult-buffer (SPC b b) 默认只列出当前 Tab/工作区隔离的 Buffer
+  ;; 整合 Consult：使 consult-buffer (SPC b b) 默认只列出当前 Tab/工作区隔离的 Buffer
   (with-eval-after-load 'consult
-    (setq consult-buffer-list-function #'tabspaces-local-buffer-list)))
+    (setq consult-buffer-list-function #'tabspaces-local-buffer-list))
+
+  ;; 仅列出并关闭当前工作区（Tabspace）中的 Buffer (SPC b k)
+  (defun slin/kill-buffer-local (&optional buffer-or-name)
+    "仅列出并关闭当前工作区（Tabspace）中的 Buffer。"
+    (interactive
+     (let* ((local-bufs (mapcar #'buffer-name (tabspaces-local-buffer-list)))
+            (current (buffer-name (current-buffer)))
+            (prompt (if (and current (member current local-bufs))
+                        (format "Kill local buffer (default %s): " current)
+                      "Kill local buffer: ")))
+       (list (read-buffer prompt
+                          current
+                          t
+                          (lambda (b)
+                            (member (if (consp b) (car b) b) local-bufs))))))
+    (kill-buffer (or buffer-or-name (current-buffer)))))
 
 ;; 层级缩进线
 (use-package indent-bars

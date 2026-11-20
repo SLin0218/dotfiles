@@ -1,4 +1,4 @@
-{pkgs, ...}:
+{ pkgs, ... }:
 
 {
   i18n.inputMethod = {
@@ -10,6 +10,8 @@
       addons = with pkgs; [
         fcitx5-rime
         fcitx5-gtk
+        kdePackages.fcitx5-chinese-addons
+        kdePackages.fcitx5-configtool
         rime-data
       ];
       settings = {
@@ -50,9 +52,9 @@
             ShowFirstInputMethodInformation = true;
             DefaultPageSize = 5;
             OverrideXkbOption = false;
-            CustomXkbOptio = "n";
-            EnabledAddon = "s";
-            DisabledAddon = "s";
+            CustomXkbOption = "";
+            EnabledAddons = "";
+            DisabledAddons = "";
             PreloadInputMethod = true;
             AllowInputMethodForPassword = false;
             ShowPreeditForPassword = false;
@@ -61,5 +63,15 @@
         };
       };
     };
+  };
+
+  # 原生 NixOS (Hyprland Wayland) 环境变量：
+  # 不设置 GTK_IM_MODULE 让 GTK 应用直接走原生 text-input，统一皮肤并防止闪烁
+  home.sessionVariables = {
+    QT_IM_MODULE = "fcitx";
+    XMODIFIERS = "@im=fcitx";
+    GLFW_IM_MODULE = "ibus";
+    SDL_IM_MODULE = "fcitx";
+    LC_CTYPE = "zh_CN.UTF-8";
   };
 }

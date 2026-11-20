@@ -41,7 +41,8 @@
                                                         (let ((consult-buffer-list-function #'buffer-list))
                                                           (consult-buffer))))
   (evil-define-key 'normal 'global (kbd "<leader>ba") 'tabspaces-switch-buffer-and-tab)
-  (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>bk") 'slin/kill-buffer-local)
+  (evil-define-key 'normal 'global (kbd "<leader>bK") 'kill-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bx") 'kill-current-buffer)
   (evil-define-key 'normal 'global (kbd "<leader>bs") 'save-buffer)
 

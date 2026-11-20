@@ -71,6 +71,7 @@
       xclock
       xeyes
       gsettings-desktop-schemas
+      fcitx5-gtk
     ];
 
 
@@ -82,6 +83,11 @@
       GDK_DPI_SCALE = "1.0";
       QT_SCALE_FACTOR = "2";
       GTK_THEME = "catppuccin-mocha-lavender-standard:dark";
+      # GTK_IM_MODULE 不在 Wayland 环境下设置，让 GTK 应用原生走 Wayland text-input-v3 以统一 Fcitx5 皮肤
+      QT_IM_MODULE = "fcitx";
+      XMODIFIERS = "@im=fcitx";
+      _JAVA_AWT_WM_NONREPARENTING = "1";
+      LC_CTYPE = "zh_CN.UTF-8";
     };
   };
 
@@ -129,6 +135,7 @@
   i18n = {
     extraLocaleSettings = {
       LC_TIME = "en_US.UTF-8";
+      LC_CTYPE = "zh_CN.UTF-8";
     };
     supportedLocales = [
       "zh_CN.UTF-8/UTF-8"

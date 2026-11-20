@@ -74,6 +74,8 @@ map <leader>rn <Action>(RenameElement)
 
 " 关闭未修改 tab
 map <leader>cu <Action>(CloseAllUnmodifiedEditors)
+" 复制绝对路径
+map <leader>cc <Action>(CopyAbsolutePath)
 
 " 切换分屏窗口
 map <C-h> <Action>(PrevSplitter)
@@ -118,3 +120,4 @@ map @ <Action>(PlaySavedMacrosAction)
 map @@ <Action>(PlaybackLastMacro)
 map <leader>qe <Action>(EditMacros)
 map <leader>fm <Action>(ReformatCode)
+set ideajoin
