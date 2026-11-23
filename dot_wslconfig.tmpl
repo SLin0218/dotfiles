@@ -8,8 +8,8 @@ networkingMode = Nat
 dnsProxy = true
 memory = 24GB
 swap = 8GB
-swapFile = C:\\Users\\USER\\wsl\\wsl-swap.vhdx
-systemDistro = C:\\Users\\USER\\wsl\\system_x64.vhd
+swapFile = {{ .chezmoi.homeDir }}/wsl/wsl-swap.vhdx
+systemDistro = {{ .chezmoi.homeDir }}/wsl/system_x64.vhd
 guiApplications = true
 
 [experimental]

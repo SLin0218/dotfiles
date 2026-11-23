@@ -47,6 +47,7 @@ ShellMessage(wParam, lParam, *) {
 ; ==========================================
 GroupAdd "TabeSwitchApp", "ahk_exe wezterm-gui.exe"
 GroupAdd "TabeSwitchApp", "Brave ahk_exe brave.exe"
+GroupAdd "TabeSwitchApp", "Brave ahk_exe msrdc.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe WindowsTerminal.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe emacs.exe"
 GroupAdd "TabeSwitchApp", "Emacs ahk_exe msrdc.exe"
@@ -60,7 +61,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
 #HotIf
 
 ; 在 Brave 浏览器中 Win+][ => Alt+][ 前进/后退
-#HotIf WinActive("Brave ahk_exe brave.exe")
+#HotIf WinActive("Brave ahk_exe brave.exe") || WinActive("Brave ahk_exe msrdc.exe")
     ![::Send("!{Left}")
     !]::Send("!{Right}")
     !1::Send("^{1}")
@@ -74,7 +75,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
     !9::Send("^{9}")
 #HotIf
 
-#HotIf WinActive("intellij-idea ahk_exe msrdc.exe")
+#HotIf WinActive("idea ahk_exe msrdc.exe")
     CapsLock & [::Send("^!+{[}")
     CapsLock & ]::Send("^!+{]}")
     CapsLock & 1::Send("^!{1}")
@@ -99,7 +100,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
     !w::Send("^{f4}")
 #HotIf
 
-#HotIf !WinActive("intellij-idea ahk_exe msrdc.exe")
+#HotIf !WinActive("idea ahk_exe msrdc.exe")
     !w::Send("^{w}")
 #HotIf
 
@@ -124,7 +125,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
 
 ; 输入法切换
 CapsLock & Space::{
-    if WinActive("ahk_exe emacs.exe") || WinActive("Emacs ahk_exe msrdc.exe")
+    if WinActive("ahk_exe emacs.exe") || WinActive("ahk_exe msrdc.exe")
         send("^{\}")
     else
         send("^{space}")
@@ -229,6 +230,8 @@ CapsLock & a::Send("^{a}")
 ; 触发 app
 ToggleApp(winTitle, exeName, workingDir?, Options?)
 {
+    global activeWindows
+    activeWindows := [] ; 主动切换应用时清空 Alt+` 的窗口缓存
     DetectHiddenWindows(False)
     if WinActive(winTitle)
     {
@@ -254,11 +257,12 @@ CapsLock & i::
 }
 CapsLock & g::
 {
-    ToggleApp("Brave ahk_exe brave.exe", "brave.exe")
+    ; ToggleApp("Brave ahk_exe brave.exe", "brave.exe")
+    ToggleApp("Brave ahk_exe msrdc.exe", "wsl.exe --cd ~ -- brave", , "Hide")
 }
 CapsLock & n::
 {
-    ToggleApp("intellij-idea ahk_exe msrdc.exe", "wsl.exe --cd ~ -- intellij-idea", , "Hide")
+    ToggleApp("idea ahk_exe msrdc.exe", "wsl.exe --cd ~ -- intellij-idea", , "Hide")
 }
 CapsLock & u::
 {
@@ -309,17 +313,33 @@ global timeoutThreshold := 1500  ; 1.5秒超时
     global activeWindows, currentIndex, lastPressTime, timeoutThreshold
     currentTime := A_TickCount
     timeElapsed := currentTime - lastPressTime
-    ; 1. 如果超时或首次按下，重新获取并进行【深度过滤】
-    if (timeElapsed > timeoutThreshold || activeWindows.Length == 0) {
+    currentHwnd := WinExist("A")
+
+    ; 判定是否发生外部切换（如通过 CapsLock+g、鼠标点击、Alt+Tab 切换了窗口）
+    isExternalSwitch := (activeWindows.Length == 0
+                     || currentIndex < 1
+                     || currentIndex > activeWindows.Length
+                     || currentHwnd != activeWindows[currentIndex])
+
+    ; 1. 如果超时、首次按下、或检测到外部切换，重新获取并进行【深度过滤】
+    if (timeElapsed > timeoutThreshold || isExternalSwitch) {
         try {
-            activeProcess := WinGetProcessName("A")
+            currentAppId := GetAppId(currentHwnd)
+            activeProcess := WinGetProcessName(currentHwnd)
         } catch {
             return
         }
-        ; 获取当前进程的所有窗口
+        if (currentAppId == "" || currentAppId == "msrdc:unknown")
+            return
+
+        ; 获取当前进程的所有候选窗口
         allWindows := WinGetList("ahk_exe " activeProcess)
         activeWindows := []
         for id in allWindows {
+            ; 【关键过滤】排除虽同属 msrdc 但属于不同 Linux 应用的窗口
+            if (GetAppId(id) != currentAppId)
+                continue
+
             ; --- 核心过滤逻辑：必须同时满足以下 4 个条件才是肉眼可见的正常窗口 ---
             title := WinGetTitle("ahk_id " id)
             style := WinGetStyle("ahk_id " id)
@@ -363,6 +383,37 @@ global timeoutThreshold := 1500  ; 1.5秒超时
         activeWindows := [] ; 防错重置
     }
     lastPressTime := A_TickCount
+}
+
+; 获取窗口的唯一应用分类标识（支持区分 WSLg/msrdc 下的各类子应用）
+GetAppId(winTitle := "A") {
+    try {
+        proc := WinGetProcessName(winTitle)
+    } catch {
+        return ""
+    }
+
+    ; 普通 Windows 原生进程，直接返回进程名
+    if (proc != "msrdc.exe") {
+        return proc
+    }
+
+    ; 针对 WSLg (msrdc.exe) 窗口，通过标题特征进行精确归类
+    title := WinGetTitle(winTitle)
+
+    ; 1. 优先匹配 Brave（避免 Brave 网页内容包含 idea 时被误判）
+    if InStr(title, "Brave") || InStr(title, "DevTool")
+        return "msrdc:brave"
+
+    ; 2. 匹配 IntelliJ IDEA (包含 "idea" )
+    if InStr(title, "idea")
+        return "msrdc:idea"
+
+    ; 3. 匹配 Emacs
+    if InStr(title, "Emacs")
+        return "msrdc:emacs"
+
+    return "msrdc:unknown"
 }
 
 ; 辅助函数：检测窗口是否被 Windows 隐藏（针对 UWP 应用如应用商店、设置等）
