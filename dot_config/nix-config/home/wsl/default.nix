@@ -16,6 +16,7 @@
 
     # 命令行启动参数
     commandLineArgs = [
+      "--ozone-platform=wayland"
       "--enable-features=TouchpadMemoryPressureMonitor" # 内存优化
       "--force-dark-mode" # 启用深色模式
     ];

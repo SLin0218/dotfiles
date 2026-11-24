@@ -14,6 +14,7 @@
       noto-fonts-cjk-sans
       noto-fonts-cjk-serif
       lxgw-wenkai
+      lxgw-975-yuan
       vista-fonts-chs
 
       # Emoji

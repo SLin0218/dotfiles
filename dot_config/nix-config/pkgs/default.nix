@@ -7,4 +7,5 @@ pkgs: {
   apifox-cli = import ./apifox-cli { inherit pkgs; };
   jbrsdk-17 = import ./jbrsdk-17.nix { inherit pkgs; };
   mvn-springboot-debug = import ./mvn-springboot-debug.nix { inherit pkgs; };
+  lxgw-975-yuan = import ./lxgw-975-yuan.nix { inherit pkgs; };
 }
