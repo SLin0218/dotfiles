@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   programs.fzf = {
     enable = true;
@@ -16,6 +16,7 @@
   };
 
   programs.zsh = {
+    dotDir = "${config.xdg.configHome}/zsh";
 
     initContent = ''
       if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then

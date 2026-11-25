@@ -22,13 +22,15 @@ if [ -n "${PINENTRY_USER_DATA:-}" ]; then
   esac
 fi
 
-# --- 2. macOS 原生 GUI 弹窗 ---
+# --- 2. macOS 原生 GUI 弹窗（优先 Touch ID，次选 pinentry-mac） ---
 if [ "$(uname)" = "Darwin" ]; then
   for candidate in \
+    "$(command -v pinentry-touchid 2>/dev/null)" \
+    "${HOMEBREW_PREFIX:-/opt/homebrew}/bin/pinentry-touchid" \
+    "/usr/local/bin/pinentry-touchid" \
     "$(command -v pinentry-mac 2>/dev/null)" \
     "${HOMEBREW_PREFIX:-/opt/homebrew}/bin/pinentry-mac" \
-    "/usr/local/bin/pinentry-mac" \
-    "$(command -v pinentry-touchid 2>/dev/null)"; do
+    "/usr/local/bin/pinentry-mac"; do
     if [ -n "$candidate" ] && [ -x "$candidate" ]; then
       exec "$candidate" "$@"
     fi

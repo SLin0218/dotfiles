@@ -14,6 +14,8 @@
     ./modules/theme.nix
   ];
 
+  xdg.enable = true;
+
   xdg.configFile."emacs/init.el".text = ''
     ;; -*- lexical-binding: t; -*-
     (setq nix-librime-path "${pkgs.librime}")

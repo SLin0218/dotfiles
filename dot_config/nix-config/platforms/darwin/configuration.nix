@@ -91,6 +91,7 @@
     brews = [
       "container"
       "pinentry-mac"
+      "pinentry-touchid"
       "openvpn"
       "colima"
       "docker"
@@ -98,6 +99,7 @@
 
     taps = [
       "d12frosted/emacs-plus"
+      "jorgelbg/tap"
     ];
 
     casks = [
