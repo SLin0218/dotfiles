@@ -43,17 +43,23 @@ ShellMessage(wParam, lParam, *) {
 ; ~LWin::Send("{Blind}{vkE8}")
 
 ; ==========================================
+; WSLg 应用的 AUMID 唯一特征常量
+; ==========================================
+global WSL_ALACRITTY := "Microsoft.RemoteApp.Ku6dRE3tq348GP4jeDgI31VkoKJWfObBXFWif6nZkCA="
+global WSL_BRAVE     := "Microsoft.RemoteApp.DE5h9On/NmGZ34GGwQxZzMB8wUT8DZ/CpipCPAxF5+k="
+global WSL_IDEA      := "Microsoft.RemoteApp.SR67TpuXk3JAGcUT8rOJInfJvgAr5Q/UpG7Lu3fD8iI="
+global WSL_EMACS     := "Microsoft.RemoteApp.pOnqGn518sswxVIvIpBzRGlDUs9VDX85oMQOWuhYLik="
+
+; ==========================================
 ; 仅在指定 app 中生效的快捷键
 ; ==========================================
 GroupAdd "TabeSwitchApp", "ahk_exe wezterm-gui.exe"
 GroupAdd "TabeSwitchApp", "Brave ahk_exe brave.exe"
-GroupAdd "TabeSwitchApp", "Brave ahk_exe msrdc.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe WindowsTerminal.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe emacs.exe"
-GroupAdd "TabeSwitchApp", "Emacs ahk_exe msrdc.exe"
 GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
 
-#HotIf WinActive("ahk_group TabeSwitchApp")
+#HotIf WinActive("ahk_group TabeSwitchApp") || IsAnyWSLAppActive(WSL_ALACRITTY, WSL_BRAVE, WSL_EMACS)
     ; Ctrl + ] 切换到下一个标签页
     CapsLock & ]::Send("^{Tab}")
     ; Ctrl + [ 切换到上一个标签页
@@ -61,7 +67,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
 #HotIf
 
 ; 在 Brave 浏览器中 Win+][ => Alt+][ 前进/后退
-#HotIf WinActive("Brave ahk_exe brave.exe") || WinActive("Brave ahk_exe msrdc.exe")
+#HotIf WinActive("Brave ahk_exe brave.exe") || IsWSLAppActive(WSL_BRAVE)
     ![::Send("!{Left}")
     !]::Send("!{Right}")
     !1::Send("^{1}")
@@ -75,7 +81,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
     !9::Send("^{9}")
 #HotIf
 
-#HotIf WinActive("idea ahk_exe msrdc.exe")
+#HotIf IsWSLAppActive(WSL_IDEA)
     CapsLock & [::Send("^!+{[}")
     CapsLock & ]::Send("^!+{]}")
     CapsLock & 1::Send("^!{1}")
@@ -100,7 +106,7 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
     !w::Send("^{f4}")
 #HotIf
 
-#HotIf !WinActive("idea ahk_exe msrdc.exe")
+#HotIf !IsWSLAppActive(WSL_IDEA)
     !w::Send("^{w}")
 #HotIf
 
@@ -114,14 +120,6 @@ GroupAdd "TabeSwitchApp", "ahk_exe alacritty.exe"
     !v::Send("^{v}")
 #HotIf
 
-
-; #HotIf WinActive("Emacs ahk_exe msrdc.exe")
-;     CapsLock & Space::Send("^{\}")
-; #HotIf
-
-; #HotIf !WinActive("Emacs ahk_exe msrdc.exe")
-;     CapsLock & Space::Send("{LAlt down}{LShift down}{LShift up}{LAlt up}")
-; #HotIf
 
 ; 输入法切换
 CapsLock & Space::{
@@ -250,19 +248,47 @@ ToggleApp(winTitle, exeName, workingDir?, Options?)
     DetectHiddenWindows(True)
 }
 
+; 触发 WSLg 窗口（完全通过 AUMID 匹配，不依赖任何 Title）
+ToggleWSLApp(aumidPattern, exeName, workingDir?, Options?)
+{
+    global activeWindows
+    activeWindows := [] ; 主动切换应用时清空 Alt+` 的窗口缓存
+    DetectHiddenWindows(False)
+
+    targetHwnd := 0
+    for hwnd in WinGetList("ahk_class RAIL_WINDOW") {
+        appId := GetWindowAUMID(hwnd)
+        if (appId != "" && InStr(appId, aumidPattern)) {
+            targetHwnd := hwnd
+            break
+        }
+    }
+
+    if (targetHwnd)
+    {
+        WinActivate(targetHwnd)
+    }
+    else
+    {
+        Run(exeName, workingDir?, Options?)
+    }
+    DetectHiddenWindows(True)
+}
+
 CapsLock & i::
 {
     ; ToggleApp("ahk_exe wezterm-gui.exe ahk_class org.wezfurlong.wezterm", "wezterm-gui.exe")
-    ToggleApp("ahk_exe alacritty.exe", "alacritty.exe")
+    ; ToggleApp("ahk_exe alacritty.exe", "alacritty.exe")
+    ToggleWSLApp(WSL_ALACRITTY, "wsl.exe --cd ~ -- alacritty", , "Hide")
 }
 CapsLock & g::
 {
     ; ToggleApp("Brave ahk_exe brave.exe", "brave.exe")
-    ToggleApp("Brave ahk_exe msrdc.exe", "wsl.exe --cd ~ -- brave", , "Hide")
+    ToggleWSLApp(WSL_BRAVE, "wsl.exe --cd ~ -- brave", , "Hide")
 }
 CapsLock & n::
 {
-    ToggleApp("idea ahk_exe msrdc.exe", "wsl.exe --cd ~ -- intellij-idea", , "Hide")
+    ToggleWSLApp(WSL_IDEA, "wsl.exe --cd ~ -- intellij-idea", , "Hide")
 }
 CapsLock & u::
 {
@@ -286,7 +312,7 @@ CapsLock & o::
 }
 CapsLock & m::
 {
-   ToggleApp("Emacs ahk_exe msrdc.exe", "wsl.exe --cd ~ -- emacs", , "Hide")
+   ToggleWSLApp(WSL_EMACS, "wsl.exe --cd ~ -- emacs", , "Hide")
    ;; ToggleApp("ahk_exe emacs.exe", "runemacs.exe", EnvGet("HOME"))
 }
 CapsLock & y::
@@ -299,6 +325,17 @@ CapsLock & y::
     TrayTip "AHK 脚本正在重新加载...", "系统提示", 4
     Sleep 500
     Reload()
+}
+
+; 按 F10 查看当前活动窗口信息并将 AUMID 拷入剪贴板
+F10:: {
+    hwnd := WinExist("A")
+    aumid := GetWindowAUMID(hwnd)
+    winClass := WinGetClass(hwnd)
+    winTitle := WinGetTitle(hwnd)
+    winProc := WinGetProcessName(hwnd)
+    A_Clipboard := aumid
+    MsgBox("AUMID 已复制到剪贴板！`n`n进程: " winProc "`n类名: " winClass "`n标题: " winTitle "`nAUMID: [" aumid "]")
 }
 
 
@@ -388,7 +425,10 @@ global timeoutThreshold := 1500  ; 1.5秒超时
 ; 获取窗口的唯一应用分类标识（支持区分 WSLg/msrdc 下的各类子应用）
 GetAppId(winTitle := "A") {
     try {
-        proc := WinGetProcessName(winTitle)
+        hwnd := WinExist(winTitle)
+        if !hwnd
+            return ""
+        proc := WinGetProcessName(hwnd)
     } catch {
         return ""
     }
@@ -398,22 +438,58 @@ GetAppId(winTitle := "A") {
         return proc
     }
 
-    ; 针对 WSLg (msrdc.exe) 窗口，通过标题特征进行精确归类
-    title := WinGetTitle(winTitle)
+    ; 针对 WSLg (msrdc.exe) 窗口，完全使用 Windows 分配的唯一 AUMID 区分，彻底不依赖任何窗口标题
+    aumid := GetWindowAUMID(hwnd)
+    return (aumid != "") ? aumid : "msrdc:unknown"
+}
 
-    ; 1. 优先匹配 Brave（避免 Brave 网页内容包含 idea 时被误判）
-    if InStr(title, "Brave") || InStr(title, "DevTool")
-        return "msrdc:brave"
+; 辅助函数：判断当前激活窗口是否为指定的 WSLg 应用 (通过 AUMID 匹配，不看 Title)
+IsWSLAppActive(aumidPattern) {
+    hwnd := WinActive("ahk_class RAIL_WINDOW")
+    return hwnd ? InStr(GetWindowAUMID(hwnd), aumidPattern) : false
+}
 
-    ; 2. 匹配 IntelliJ IDEA (包含 "idea" )
-    if InStr(title, "idea")
-        return "msrdc:idea"
+; 辅助函数：判断当前窗口是否是指定的任意一个 WSLg 应用 (传入一个或多个 AUMID)
+IsAnyWSLAppActive(patterns*) {
+    hwnd := WinActive("ahk_class RAIL_WINDOW")
+    if !hwnd
+        return false
+    aumid := GetWindowAUMID(hwnd)
+    if (aumid == "")
+        return false
+    for pat in patterns {
+        if InStr(aumid, pat)
+            return true
+    }
+    return false
+}
 
-    ; 3. 匹配 Emacs
-    if InStr(title, "Emacs")
-        return "msrdc:emacs"
+; 读取任意窗口的 AppUserModelID (AUMID)
+GetWindowAUMID(hwnd) {
+    static IID_IPropertyStore := Buffer(16)
+    static PKEY_AppUserModel_ID := Buffer(20)
+    static init := false
 
-    return "msrdc:unknown"
+    if !init {
+        DllCall("ole32\CLSIDFromString", "Str", "{886d8eeb-8cf2-4446-8d02-cdba1dbdcf99}", "Ptr", IID_IPropertyStore)
+        DllCall("ole32\CLSIDFromString", "Str", "{9F4C2855-9F79-4B39-A8D0-E1D42DE1D5F3}", "Ptr", PKEY_AppUserModel_ID)
+        NumPut("UInt", 5, PKEY_AppUserModel_ID, 16)
+        init := true
+    }
+
+    pPropStore := 0
+    if DllCall("shell32\SHGetPropertyStoreForWindow", "Ptr", hwnd, "Ptr", IID_IPropertyStore, "Ptr*", &pPropStore) != 0
+        return ""
+
+    propVar := Buffer(24, 0)
+    ; IPropertyStore::GetValue (vtable index 5)
+    ComCall(5, pPropStore, "Ptr", PKEY_AppUserModel_ID, "Ptr", propVar)
+
+    ptrStr := NumGet(propVar, 8, "Ptr")
+    aumid := ptrStr ? StrGet(ptrStr, "UTF-16") : ""
+    DllCall("ole32\PropVariantClear", "Ptr", propVar)
+    ObjRelease(pPropStore)
+    return aumid
 }
 
 ; 辅助函数：检测窗口是否被 Windows 隐藏（针对 UWP 应用如应用商店、设置等）

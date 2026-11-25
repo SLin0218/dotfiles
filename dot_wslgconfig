@@ -1,0 +1,2 @@
+[system-distro-env]
+WESTON_RDP_DISABLE_FRACTIONAL_HI_DPI_SCALING=false
