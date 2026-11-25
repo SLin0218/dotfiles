@@ -19,6 +19,16 @@
         rime-data
       ];
       settings = {
+        addons = {
+          classicui = {
+            globalSection = {
+              Font = "LXGW 975 Yuan SC 12";
+              MenuFont = "LXGW 975 Yuan SC 10";
+              TrayFont = "LXGW 975 Yuan SC 10";
+              PerScreenDPI = "True";
+            };
+          };
+        };
         inputMethod = {
           "Groups/0" = {
             Name = "Default";

@@ -40,6 +40,14 @@ Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR"
 # GameConfigStore 注册表
 Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Value 0 -Type DWord
 
+# 注册 PinentryForWindows (PFW) Hyper-V vsock 通信服务
+Write-Host "Registering PinentryForWindows Hyper-V service..."
+$pfwServicePath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Virtualization\GuestCommunicationServices\0000AFBA-FACB-11E6-BD58-64006A7986D3"
+if (!(Test-Path $pfwServicePath)) {
+    New-Item -Path $pfwServicePath -Force | Out-Null
+}
+Set-ItemProperty -Path $pfwServicePath -Name "ElementName" -Value "PinentryForWindows Broker" -Type String
+
 
 {{ range $feature := .config.windows.features.enable }}
 Write-Host 'Enable {{ $feature }}...'

@@ -33,3 +33,21 @@ $Shortcut.WorkingDirectory = "$env:USERPROFILE"
 $Shortcut.Save()
 
 Write-Host "✅ wsl-ssh-pageant 开机自启快捷方式已成功创建！" -ForegroundColor Green
+
+# 3. PinentryForWindows (PFW) Broker 开机自启动（注册表 Run 项）
+$pfwBinary = "$env:USERPROFILE\scoop\apps\gnupg\current\bin\pfw.x64.exe"
+$pfwBrokerDir = "$env:LOCALAPPDATA\PinentryForWindows\broker"
+$pfwArgs = "--broker `"$pfwBrokerDir`""
+$pfwShortcut = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\PinentryForWindowsBroker.lnk"
+
+# 清理可能残留的重复快捷方式（避免与注册表 Run 项重复）
+if (Test-Path $pfwShortcut) {
+    Remove-Item $pfwShortcut -Force -ErrorAction SilentlyContinue
+}
+
+if (Test-Path $pfwBinary) {
+    # 采用官方标准的注册表 HKCU 启动项
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "PinentryForWindowsBroker" -Value "`"$pfwBinary`" $pfwArgs"
+    Write-Host "✅ PinentryForWindows Broker 开机自启配置成功（注册表 Run 项）！" -ForegroundColor Green
+}
+

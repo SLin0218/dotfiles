@@ -14,6 +14,7 @@
   wsl = {
     enable = true;
     defaultUser = "lin";
+    startMenuLaunchers = true;
     wslConf = {
       network = {
         generateResolvConf = true;
@@ -72,6 +73,19 @@
       xeyes
       gsettings-desktop-schemas
       fcitx5-gtk
+      hicolor-icon-theme
+
+      # WSLg 匹配窗口图标依据 Wayland app_id ("jetbrains-idea")，而 nixpkgs 原生只提供 "intellij-idea.desktop"
+      # 提供软链接兼容包以供 WSLg rdprail-shell 识别并显示 IDEA 图标
+      (pkgs.runCommand "jetbrains-idea-wslg-compat" {} ''
+        mkdir -p $out/share/applications
+        mkdir -p $out/share/icons/hicolor/128x128/apps
+        mkdir -p $out/share/icons/hicolor/scalable/apps
+
+        ln -s ${pkgs.jetbrains.idea}/share/applications/intellij-idea.desktop $out/share/applications/jetbrains-idea.desktop
+        ln -s ${pkgs.jetbrains.idea}/share/icons/hicolor/128x128/apps/intellij-idea.png $out/share/icons/hicolor/128x128/apps/jetbrains-idea.png
+        ln -s ${pkgs.jetbrains.idea}/share/icons/hicolor/scalable/apps/intellij-idea.svg $out/share/icons/hicolor/scalable/apps/jetbrains-idea.svg
+      '')
     ];
 
 
@@ -106,10 +120,19 @@
       extraGroups = [
         "wheel"
         "docker"
+        "video"
+        "render"
       ];
+      linger = true;
       shell = pkgs.zsh;
     };
   };
+
+  # 自动桥接 WSLg 的 Wayland socket 到用户运行时目录
+  systemd.user.tmpfiles.rules = [
+    "L+ %t/wayland-0 - - - - /mnt/wslg/runtime-dir/wayland-0"
+    "L+ %t/wayland-0.lock - - - - /mnt/wslg/runtime-dir/wayland-0.lock"
+  ];
 
   programs = {
     zsh.enable = true;
